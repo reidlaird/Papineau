@@ -285,6 +285,106 @@ function FinanceCard({ riding, mpName, province, finance }) {
   );
 }
 
+const WARCHEST_RECENT_YEARS = 5;
+
+function WarChestCard({ riding, eda }) {
+  const [showAll, setShowAll] = useState(false);
+  const years = eda?.years;
+  const maxTotal = Math.max(...(years || []).map((y) => y.total), 1);
+  const shown = showAll ? years || [] : (years || []).slice(0, WARCHEST_RECENT_YEARS);
+  return (
+    <div className="card" id="warchest">
+      <div className="card-title">Riding war chests in {riding}</div>
+      {eda === null && (
+        <div className="loading loading-inline">
+          <span className="spinner" />
+          Counting the war chests…
+        </div>
+      )}
+      {years?.length === 0 && (
+        <p className="muted">
+          No association returns under this riding’s name — riding associations file
+          annually, and riding names shift between representation orders.
+        </p>
+      )}
+      {years?.length > 0 && (
+        <>
+          {years.length > 1 && (
+            <>
+              <div className="microlabel">Reported contributions · all associations, by fiscal year</div>
+              <div className="margin-trend">
+                {[...years]
+                  .slice(0, 12)
+                  .reverse()
+                  .map((y) => (
+                    <div
+                      className="margin-col"
+                      key={y.year}
+                      title={`${y.year} — ${fmtMoney(y.total)} across ${y.assocs.length} association${y.assocs.length === 1 ? '' : 's'}`}
+                    >
+                      <span className="margin-val">{fmtMoneyShort(y.total)}</span>
+                      <div className="margin-bar">
+                        <span
+                          className="margin-fill"
+                          style={{
+                            height: `${Math.max((y.total / maxTotal) * 100, 5)}%`,
+                            background: 'var(--indigo-500)',
+                            display: 'block',
+                          }}
+                        />
+                      </div>
+                      <span className="margin-year">{y.year}</span>
+                    </div>
+                  ))}
+              </div>
+            </>
+          )}
+          {shown.map((y) => (
+            <div className="ge-block" key={y.year}>
+              <div className="microlabel">Fiscal {y.year} · {fmtMoney(y.total)} reported</div>
+              {y.assocs.map((a) => {
+                const total = a.monetary + a.nonMonetary;
+                return (
+                  <div className="result-row" key={a.name}>
+                    <div className="result-name" title={a.name}>
+                      {a.name}
+                      <span className="result-party"> · {a.party}</span>
+                    </div>
+                    <div className="result-track">
+                      <span
+                        className="result-fill"
+                        style={{
+                          width: `${(total / Math.max(y.assocs[0].monetary + y.assocs[0].nonMonetary, 1)) * 100}%`,
+                          background: partyMeta(a.party).color,
+                          display: 'block',
+                        }}
+                      />
+                    </div>
+                    <div className="result-nums">
+                      <b>{fmtMoney(total)}</b> · {a.count}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+          {years.length > WARCHEST_RECENT_YEARS && (
+            <button className="chip exp-toggle" onClick={() => setShowAll((s) => !s)}>
+              {showAll ? 'Show recent years only' : `Show all ${years.length} years`}
+            </button>
+          )}
+          <p className="muted attribution">
+            Itemized contributions from riding associations’ annual returns, Elections Canada
+            open data{eda.built ? ` (as reviewed, ${eda.built})` : ''}. Gifts over $200 must be
+            itemized; the dump currently has no fiscal-2019 rows, and recent years fill in as
+            returns land. Candidate campaigns and central parties file separately.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
 // Fiscal quarters: FY ends March 31, so Q1 FY2026 = Apr–Jun 2025, Q4 = Jan–Mar 2026.
 const QUARTER_MONTHS = ['', 'Apr–Jun', 'Jul–Sep', 'Oct–Dec', 'Jan–Mar'];
 const expCalYear = (r) => (r.q === 4 ? r.fy : r.fy - 1);
@@ -476,6 +576,7 @@ export default function Profile() {
   const [finance, setFinance] = useState(null);
   const [exp, setExp] = useState(null);
   const [demo, setDemo] = useState(null);
+  const [eda, setEda] = useState(null);
 
   useEffect(() => {
     setData(null);
@@ -518,6 +619,19 @@ export default function Profile() {
     getJSON(`/api/demographics?riding=${encodeURIComponent(riding)}`)
       .then((d) => !stale && setDemo(d))
       .catch(() => !stale && setDemo({ values: null }));
+    return () => {
+      stale = true;
+    };
+  }, [data]);
+
+  useEffect(() => {
+    setEda(null);
+    const riding = data?.profile?.riding;
+    if (!riding) return;
+    let stale = false;
+    getJSON(`/api/eda?riding=${encodeURIComponent(riding)}`)
+      .then((d) => !stale && setEda(d))
+      .catch(() => !stale && setEda({ years: [] }));
     return () => {
       stale = true;
     };
@@ -719,6 +833,8 @@ export default function Profile() {
       {p.riding && (
         <FinanceCard riding={p.riding} mpName={p.name} province={p.province} finance={finance} />
       )}
+
+      {p.riding && <WarChestCard riding={p.riding} eda={eda} />}
 
       {p.riding && <ExpendituresCard mpName={p.name} exp={exp} />}
 

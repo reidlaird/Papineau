@@ -6,6 +6,7 @@ const memberAnchors = [
   { hash: '#bills', label: 'Sponsored bills' },
   { hash: '#elections', label: 'Elections' },
   { hash: '#finance', label: 'Campaign finance' },
+  { hash: '#warchest', label: 'War chest' },
   { hash: '#expenditures', label: 'Spending' },
   { hash: '#district', label: 'District' },
   { hash: '#career', label: 'Career' },

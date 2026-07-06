@@ -34,6 +34,19 @@ const zipArg = argv.indexOf('--zip');
 const ZIP_PATH =
   zipArg >= 0 ? path.resolve(argv[zipArg + 1]) : path.join(ROOT, 'data', 'finance', 'od_cntrbtn_audt_e.zip');
 
+// --entity associations switches to the riding-association (EDA) slice of the
+// same dump. Their returns are ANNUAL (fiscal years, not electoral events) and
+// may carry amendments — run --inspect and read the Form-ID/report tallies
+// before trusting any aggregation.
+const entityArg = argv.indexOf('--entity');
+const ENTITY =
+  entityArg >= 0
+    ? { candidates: 'Candidates', associations: 'Registered associations' }[argv[entityArg + 1]]
+    : 'Candidates';
+if (!ENTITY) throw new Error('--entity must be "candidates" or "associations"');
+
+const EDA_OUT_PATH = path.join(ROOT, 'data', 'finance', 'eda-contributions.json.gz');
+
 // Column indexes in od_cntrbtn_audt_e.csv (header row 0).
 const COL = {
   entity: 0, // "Candidates", "Registered associations", ...
@@ -172,8 +185,11 @@ const geNumber = (event) => {
   return m ? parseInt(m[1], 10) : null;
 };
 
+// Candidates filter on election year; the association inspect pass looks at
+// every year first (their date column format is one of the open questions).
 const isTarget = (r) =>
-  r[COL.entity] === 'Candidates' && parseInt(r[COL.date], 10) >= SINCE_YEAR;
+  r[COL.entity] === ENTITY &&
+  (ENTITY !== 'Candidates' || parseInt(r[COL.date], 10) >= SINCE_YEAR);
 
 // ---------- inspect mode ----------
 
@@ -364,6 +380,101 @@ async function build() {
   );
 }
 
+// ---------- association (EDA) build mode ----------
+//
+// What probing established (scripts/probe-eda.mjs, 2026-07 dump): the Form-ID
+// "versions" (20081, 20081v2…) are FORM-ERA revisions, not amendments — each
+// (association, fiscal year) has exactly one version, and the report parts
+// never overlap within a return (2004–06 splits by contributor type, 2007–14
+// is individuals-only, 2015+ is a single Statement part). So summing all rows
+// per association-year is safe. The association name arrives in the
+// recipient's last-name column; fiscal 2019 is absent from the dump entirely
+// and recent years fill in as returns land.
+
+async function buildAssociations() {
+  const ridings = new Map(); // norm(riding) → {name, nameYear, years: Map(year → Map(assoc → agg))}
+  let rows = 0;
+  let kept = 0;
+  let shortRows = 0;
+
+  await forEachRow(openCsvStream(), (r) => {
+    rows++;
+    if (rows % 2_000_000 === 0) console.error(`…${(rows / 1e6).toFixed(0)}M rows`);
+    if (r.length < 25) {
+      shortRows++;
+      return;
+    }
+    if (r[COL.entity] !== 'Registered associations') return;
+    const year = parseInt(r[COL.date], 10);
+    if (!(year >= SINCE_YEAR)) return;
+    const monetary = money(r[COL.monetary]);
+    const nonMonetary = money(r[COL.nonMonetary]);
+    const total = monetary + nonMonetary;
+    if (total === 0) return;
+
+    const ridingName = r[COL.riding].trim();
+    if (!ridingName) return;
+    const rKey = norm(ridingName);
+    let riding = ridings.get(rKey);
+    if (!riding) ridings.set(rKey, (riding = { name: ridingName, nameYear: 0, years: new Map() }));
+    if (year > riding.nameYear) {
+      riding.nameYear = year;
+      riding.name = ridingName;
+    }
+
+    const assocName = r[COL.recipientLast].trim();
+    let yearMap = riding.years.get(year);
+    if (!yearMap) riding.years.set(year, (yearMap = new Map()));
+    const aKey = norm(assocName);
+    let a = yearMap.get(aKey);
+    if (!a) {
+      yearMap.set(aKey, (a = {
+        name: assocName,
+        party: shortParty(r[COL.party]),
+        monetary: 0,
+        nonMonetary: 0,
+        count: 0,
+      }));
+    }
+    a.monetary += monetary;
+    a.nonMonetary += nonMonetary;
+    if (total > 0) {
+      a.count++;
+      kept++;
+    }
+  });
+
+  const out = {
+    built: new Date().toISOString().slice(0, 10),
+    source: SOURCE_URL,
+    sinceYear: SINCE_YEAR,
+    ridings: {},
+  };
+  let assocYears = 0;
+  for (const [key, r] of ridings) {
+    const years = {};
+    for (const [year, yearMap] of [...r.years.entries()].sort((a, b) => a[0] - b[0])) {
+      years[year] = [...yearMap.values()]
+        .map((a) => {
+          assocYears++;
+          return { ...a, monetary: Math.round(a.monetary), nonMonetary: Math.round(a.nonMonetary) };
+        })
+        .sort((a, b) => b.monetary + b.nonMonetary - (a.monetary + a.nonMonetary));
+    }
+    out.ridings[key] = { name: r.name, years };
+  }
+
+  fs.mkdirSync(path.dirname(EDA_OUT_PATH), { recursive: true });
+  const gz = zlib.gzipSync(Buffer.from(JSON.stringify(out)), { level: 9 });
+  fs.writeFileSync(EDA_OUT_PATH, gz);
+  console.log(
+    `rows ${rows} → contributions ${kept} (short rows ${shortRows})\n` +
+      `ridings ${ridings.size}, association-years ${assocYears}\n` +
+      `wrote ${EDA_OUT_PATH} (${(gz.length / 1024).toFixed(0)} KB gz)`
+  );
+}
+
 await ensureZip();
 if (INSPECT) await inspect();
-else await build();
+else if (ENTITY === 'Candidates') await build();
+else await buildAssociations();

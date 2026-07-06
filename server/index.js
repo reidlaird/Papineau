@@ -414,9 +414,14 @@ const getElectionData = memoAsync(async () => {
 // smaller ones only appear when a campaign itemized them anyway).
 
 const FINANCE_PATH = path.join(ROOT, 'data', 'finance', 'candidate-contributions.json.gz');
+const EDA_PATH = path.join(ROOT, 'data', 'finance', 'eda-contributions.json.gz');
 
 const getFinanceData = memoAsync(async () =>
   JSON.parse(zlib.gunzipSync(await fs.promises.readFile(FINANCE_PATH)).toString('utf8'))
+);
+
+const getEdaData = memoAsync(async () =>
+  JSON.parse(zlib.gunzipSync(await fs.promises.readFile(EDA_PATH)).toString('utf8'))
 );
 
 // Find the profile MP among a riding's campaigns. Exact normalized match
@@ -730,6 +735,29 @@ app.get('/api/finance', async (req, res) => {
       .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
     res.json({ riding: hit.name, bucketEdges: data.bucketEdges, built: data.built, events });
+  } catch (e) {
+    res.status(502).json({ error: String(e.message || e) });
+  }
+});
+
+// Riding-association (EDA) fundraising by fiscal year — the war chest built
+// between elections. Same offline-artifact pattern as /api/finance; the
+// artifact is per riding per year, one row per association.
+app.get('/api/eda', async (req, res) => {
+  try {
+    const riding = String(req.query.riding || '').slice(0, 200).trim();
+    if (!riding) return res.status(400).json({ error: 'riding required' });
+    const data = await getEdaData();
+    const hit = data.ridings[norm(riding)];
+    if (!hit) return res.json({ riding, built: data.built, years: [] });
+    const years = Object.entries(hit.years)
+      .map(([year, assocs]) => ({
+        year: +year,
+        total: assocs.reduce((s, a) => s + a.monetary + a.nonMonetary, 0),
+        assocs,
+      }))
+      .sort((a, b) => b.year - a.year);
+    res.json({ riding: hit.name, built: data.built, years });
   } catch (e) {
     res.status(502).json({ error: String(e.message || e) });
   }

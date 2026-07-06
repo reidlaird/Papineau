@@ -5,6 +5,7 @@ export default function About() {
     ['Bills', 'OpenParliament.ca · LEGISinfo links', 'live'],
     ['My rep — riding lookup & vote comparison', 'Represent API (Open North) + OpenParliament', 'live'],
     ['Campaign finance', 'Elections Canada political financing database', 'live'],
+    ['Riding-association fundraising', 'Elections Canada political financing database', 'live'],
     ['Ethics & disclosures', 'Conflict of Interest and Ethics Commissioner registry', 'planned'],
     ['Lobbying activity', 'Registry of Lobbyists (open data)', 'planned'],
     ['Members’ expenditures', 'House of Commons proactive disclosure', 'live'],
