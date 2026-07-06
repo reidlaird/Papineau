@@ -1,5 +1,33 @@
 # HANDOFF
 
+## 2026-07-06 (overnight loop, later still) — Riding war chests (EDA finance)
+
+**What happened:** First post-roadmap feature, via the new **branch + PR
+workflow** (branch `eda-finance`): **"Riding war chests" card on `/mp/:slug`
+(#warchest)** — each riding association's reported fundraising per fiscal year
+since 2015, from the EDA slice of the same Elections Canada contributions dump.
+
+**Data findings that shape the code (probe: `scripts/probe-eda.mjs`):**
+- The Form-ID "versions" (20081, 20081v2…) are FORM-ERA revisions, not
+  amendments: one version per (association, year), report parts never overlap
+  within a return → plain summation is safe. (The initial inspect looked like
+  74% of returns were amended — that was the assoc|event key collapsing all
+  years of "Annual" returns together. Probe before trusting inspect keys.)
+- **Fiscal 2019 is entirely absent from EC's dump**; 2020 is thin, 2024 is
+  landing. The attribution says so; don't "fix" gap years.
+- Association name arrives in the recipient LAST-NAME column; party comes as a
+  full registered name (same `shortParty` mapping as candidates).
+- `build-finance.mjs --entity associations` writes
+  `data/finance/eda-contributions.json.gz` (46 KB, 341 ridings, 3,978
+  association-years). Verified against probe ground truth (Papineau LPC 2016
+  $111,471 / 2017 $11,538 / 2018 $11,334 exact; 2015 riding total $241,961 =
+  LPC $239k + minor assocs).
+- `/api/eda?riding=` → `{ riding, built, years: [{year, total, assocs[]}] }`.
+
+**Status:** verified locally (card renders 5 Papineau fiscal years, console
+clean); committed to `eda-finance`, PR open. **After merge: Render Manual
+Deploy** (artifact + server change), then prod verify.
+
 ## 2026-07-06 (overnight loop, later) — Riding demographics on MP profiles
 
 **What happened:** Roadmap #4 shipped by the same loop session: **"District

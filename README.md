@@ -46,6 +46,9 @@ npm run dev
   in-kind amounts. Aggregates are precomputed from the 2.2 GB dump by
   `scripts/build-finance.mjs` and committed (105 KB), so production never touches
   the dump — re-run the script to refresh (source updates weekly).
+- **Riding war chests** — each riding association's reported fundraising by
+  fiscal year (2015→), from the same Elections Canada contributions dump,
+  pre-aggregated offline alongside the candidate artifact.
 - **Office & travel spending** — the member's quarterly expenditures (salaries,
   travel, hospitality, contracts) from the House of Commons proactive-disclosure
   CSVs, with a spending trend, category bars per quarter, and the House median
@@ -89,6 +92,7 @@ request after a quiet spell can take ~a minute to wake up.
 | Sponsored bills | OpenParliament + [LEGISinfo](https://www.parl.ca/legisinfo/en/bills) links | ✅ live |
 | Election results & margin trend | Elections Canada official results (table 12 CSVs) | ✅ live |
 | Campaign finance | [Elections Canada political financing open data](https://www.elections.ca/content.aspx?section=fin&dir=oda&document=index&lang=e) (audited contributions) | ✅ live |
+| Riding-association fundraising | Same contributions dump, EDA slice (annual returns) | ✅ live |
 | Personal finances / ethics | [Conflict of Interest & Ethics Commissioner registry](https://ciec-ccie.parl.gc.ca/) | 🔜 planned |
 | Lobbying ("who's calling") | [Registry of Lobbyists](https://lobbycanada.gc.ca/) open data | 🔜 planned |
 | MRA spending → Members' expenditures | [House proactive disclosure](https://www.ourcommons.ca/proactivedisclosure/en/members) (quarterly CSV) | ✅ live |
@@ -96,10 +100,8 @@ request after a quiet spell can take ~a minute to wake up.
 
 ## Roadmap ideas
 
-1. **Riding-association finance** — the EDA slice of the same contributions dump,
-   for the "war chest between elections" picture.
-2. **Lobbying watch** — registered communications naming the member's office.
-3. French UI toggle (`name.fr` is already in the data).
+1. **Lobbying watch** — registered communications naming the member's office.
+2. French UI toggle (`name.fr` is already in the data).
 
 Parliamentary data © House of Commons, made usable by
 [openparliament.ca](https://openparliament.ca). This is a personal,
