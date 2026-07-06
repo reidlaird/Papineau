@@ -401,7 +401,27 @@ const getElectionData = memoAsync(async () => {
   const out = [];
   for (const { ge, date, csv } of ELECTIONS) {
     const text = await cachedGet(new URL(csv), { text: true, ttl: ELECTIONS_TTL_MS });
-    out.push({ ge, date, byNorm: buildElection(text) });
+    const byNorm = buildElection(text);
+    // Table 11 (same directory) adds electors and turnout per district; the
+    // column layout is identical 2015–2025. Enhancement only — an election
+    // still renders if this table is missing.
+    try {
+      const t11 = await cachedGet(new URL(csv.replace('table_tableau12', 'table_tableau11')), {
+        text: true,
+        ttl: ELECTIONS_TTL_MS,
+      });
+      const clean = t11.charCodeAt(0) === 0xfeff ? t11.slice(1) : t11;
+      for (const r of parseCsv(clean).slice(1)) {
+        if (r.length < 12) continue;
+        const hit = byNorm.get(norm(enHalf(r[1])));
+        if (!hit) continue;
+        hit.electors = parseInt(String(r[4]).replace(/[^\d]/g, ''), 10) || null;
+        hit.turnout = parseFloat(r[11]) || null;
+      }
+    } catch (e) {
+      console.warn(`turnout table unavailable for GE${ge}: ${e.message}`);
+    }
+    out.push({ ge, date, byNorm });
   }
   return out;
 });

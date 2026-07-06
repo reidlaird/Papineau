@@ -1,5 +1,17 @@
 # HANDOFF
 
+## 2026-07-06 (overnight loop, ~02:00) — Turnout on election blocks
+
+Small one: each election block's meta line now shows **turnout % and electors**
+from Elections Canada **Table 11** (same directory as Table 12; identical
+columns 2015–2025: electors col 4, turnout col 11). Merged into
+`getElectionData` as enhancement-only (an election still renders if Table 11 is
+missing). Verified against raw values (Avalon GE45 66.9% of 70,859 ✓).
+Branch `turnout-tile`, PR opened. Render deploy needed after merge (server
+change). **Remaining idea queue after this: French toggle (needs Reid's
+product calls: default language, URL vs setting, chrome-only vs data), ethics
+registry (no bulk export — scraping research), in-app vote/bill pages.**
+
 ## 2026-07-06 (overnight loop, ~01:40) — Registered lobbying on MP profiles
 
 **What happened:** **"Registered lobbying of this office" card (#lobbying)** —
