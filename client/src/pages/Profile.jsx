@@ -444,12 +444,15 @@ function DistrictCard({ riding, province, demo }) {
                 <div className="kv" key={key}>
                   <div className="microlabel">{label}</div>
                   <div className="demo-value">{fmt(v)}</div>
-                  <div className="demo-compare">
-                    {demo.province?.[key] != null ? `${province || 'Province'} ${fmt(demo.province[key])}` : ''}
-                    {demo.canada?.[key] != null
-                      ? `${demo.province?.[key] != null ? ' · ' : ''}Canada ${fmt(demo.canada[key])}`
-                      : ''}
-                  </div>
+                  {/* a riding's population vs a whole province's is noise, not scale */}
+                  {key !== 'population' && (
+                    <div className="demo-compare">
+                      {demo.province?.[key] != null ? `${province || 'Province'} ${fmt(demo.province[key])}` : ''}
+                      {demo.canada?.[key] != null
+                        ? `${demo.province?.[key] != null ? ' · ' : ''}Canada ${fmt(demo.canada[key])}`
+                        : ''}
+                    </div>
+                  )}
                 </div>
               );
             })}

@@ -51,6 +51,9 @@ npm run dev
   CSVs, with a spending trend, category bars per quarter, and the House median
   for scale. Quarters stream in newest-first and stop at the member's
   predecessor.
+- **District profile** — eight 2021-census stats for the riding (population,
+  age, income, rent, immigrants, renters, education, unemployment) with
+  province and Canada comparators, via StatCan's census-profile SDMX service.
 - **House votes** — the latest recorded divisions.
 - **Bills** — the most recently introduced bills.
 - Every profile links out to the member's official records (ourcommons.ca page,
@@ -89,15 +92,14 @@ request after a quiet spell can take ~a minute to wake up.
 | Personal finances / ethics | [Conflict of Interest & Ethics Commissioner registry](https://ciec-ccie.parl.gc.ca/) | 🔜 planned |
 | Lobbying ("who's calling") | [Registry of Lobbyists](https://lobbycanada.gc.ca/) open data | 🔜 planned |
 | MRA spending → Members' expenditures | [House proactive disclosure](https://www.ourcommons.ca/proactivedisclosure/en/members) (quarterly CSV) | ✅ live |
-| District demographics | StatCan census profiles by federal electoral district | 🔜 planned |
+| District demographics | StatCan census profiles by federal electoral district | ✅ live |
 
 ## Roadmap ideas
 
 1. **Riding-association finance** — the EDA slice of the same contributions dump,
    for the "war chest between elections" picture.
 2. **Lobbying watch** — registered communications naming the member's office.
-3. Riding demographics from the census profile API; French UI toggle (`name.fr` is
-   already in the data).
+3. French UI toggle (`name.fr` is already in the data).
 
 Parliamentary data © House of Commons, made usable by
 [openparliament.ca](https://openparliament.ca). This is a personal,

@@ -1,5 +1,43 @@
 # HANDOFF
 
+## 2026-07-06 (overnight loop, later) — Riding demographics on MP profiles
+
+**What happened:** Roadmap #4 shipped by the same loop session: **"District
+profile" card on `/mp/:slug` (#district)** — 8 census stats for the member's
+riding with province + Canada comparators. That completes the original
+four-item feature roadmap from the initial build.
+
+**⚠ Server changed → Render deploy** (same drill; check the memory note for
+whether this session already drove it).
+
+**New feature — demographics (`server/index.js` + Profile.jsx):**
+- Data: StatCan **2021 Census Profile SDMX web data service**, one small CSV per
+  geography: `api.statcan.gc.ca/census-recensement/profile/sdmx/rest/data/
+  STC_CP,DF_FED/A5.<dguid>.1.<charIds +-joined>.?format=csv`. FED dguid =
+  `2023A0004` + 5-digit FED code; Canada (`2021A000011124`) and provinces
+  (`2021A0002` + 2-digit) ride the `DF_PR` flow.
+- ⚠ **Node fetch 500s StatCan by default**: undici sends `Accept-Language: *`
+  and their language-tag parser rejects the wildcard (error body
+  "languageTag1"). `cachedGet` now always sends `Accept-Language: en` —
+  that fix is global and deliberate.
+- ⚠ Chars 1–7 (Population & dwellings block) are EMPTY for 2023-order FEDs —
+  population comes from the age-table total (char 8).
+- Characteristic ids are pinned in `CENSUS_CHARS` and were value-verified
+  against a labeled export (don't trust profile row order — it drifts from the
+  SDMX codelist; the codelist's Bachelor's label uses a curly apostrophe).
+- Riding name → FED code via Represent boundary set
+  `federal-electoral-districts-2023-representation-order` (the unsuffixed set
+  is the OLD 2013 order — 338 districts, wrong).
+- `/api/demographics?riding=` → `{ riding, fedCode, values, canada, province }`,
+  memoized + 90d CSV cache. Unknown riding → `values: null` → muted empty state.
+- Verified: Papineau (110,810 pop, 72.1% renters vs QC 39.9%, $57,200 income vs
+  QC $72,500), comparators exact, empty state, no console errors. Population
+  row deliberately shows no comparator (riding-vs-province population is noise).
+
+**Next steps:** Render deploy if not done. Original roadmap complete — remaining
+ideas: EDA/riding-association finance, lobbying registry, turnout tile, in-app
+vote/bill pages, French toggle.
+
 ## 2026-07-06 (overnight loop) — Members' expenditures on MP profiles
 
 **What happened:** Roadmap #3 shipped by the /loop session that was watching the
