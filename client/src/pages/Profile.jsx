@@ -407,6 +407,67 @@ function ExpendituresCard({ mpName, exp }) {
   );
 }
 
+const DEMO_ROWS = [
+  ['population', 'Population, 2021', (v) => v.toLocaleString('en-CA')],
+  ['avgAge', 'Average age', (v) => `${v.toFixed(1)} yrs`],
+  ['medianHouseholdIncome', 'Median household income (2020)', fmtMoney],
+  ['medianRent', 'Median rent', (v) => `${fmtMoney(v)}/mo`],
+  ['immigrantsShare', 'Immigrants', (v) => `${v.toFixed(1)}%`],
+  ['renterShare', 'Renter households', (v) => `${v.toFixed(1)}%`],
+  ['bachelorsShare', 'Bachelor’s or higher, 25–64', (v) => `${v.toFixed(1)}%`],
+  ['unemploymentRate', 'Unemployment (May 2021)', (v) => `${v.toFixed(1)}%`],
+];
+
+function DistrictCard({ riding, province, demo }) {
+  return (
+    <div className="card" id="district">
+      <div className="card-title">District profile: {riding}</div>
+      {demo === null && (
+        <div className="loading loading-inline">
+          <span className="spinner" />
+          Pulling the census file…
+        </div>
+      )}
+      {demo && !demo.values && (
+        <p className="muted">
+          No census profile under this riding’s name — StatCan profiles follow the 2023
+          representation-order districts, so very new or renamed ridings may not match.
+        </p>
+      )}
+      {demo?.values && (
+        <>
+          <div className="kv-grid demo-grid">
+            {DEMO_ROWS.map(([key, label, fmt]) => {
+              const v = demo.values[key];
+              if (v == null) return null;
+              return (
+                <div className="kv" key={key}>
+                  <div className="microlabel">{label}</div>
+                  <div className="demo-value">{fmt(v)}</div>
+                  {/* a riding's population vs a whole province's is noise, not scale */}
+                  {key !== 'population' && (
+                    <div className="demo-compare">
+                      {demo.province?.[key] != null ? `${province || 'Province'} ${fmt(demo.province[key])}` : ''}
+                      {demo.canada?.[key] != null
+                        ? `${demo.province?.[key] != null ? ' · ' : ''}Canada ${fmt(demo.canada[key])}`
+                        : ''}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <p className="muted attribution">
+            2021 Census Profile, Statistics Canada — districts under the 2023 representation
+            order. Incomes are for 2020; the unemployment rate reflects the census reference
+            week in May 2021.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function Profile() {
   const { slug } = useParams();
   const [data, setData] = useState(null);
@@ -414,6 +475,7 @@ export default function Profile() {
   const [elections, setElections] = useState(null);
   const [finance, setFinance] = useState(null);
   const [exp, setExp] = useState(null);
+  const [demo, setDemo] = useState(null);
 
   useEffect(() => {
     setData(null);
@@ -443,6 +505,19 @@ export default function Profile() {
     getJSON(`/api/finance?riding=${encodeURIComponent(p.riding)}&mp=${encodeURIComponent(p.name)}`)
       .then((d) => !stale && setFinance(d))
       .catch(() => !stale && setFinance({ events: [] }));
+    return () => {
+      stale = true;
+    };
+  }, [data]);
+
+  useEffect(() => {
+    setDemo(null);
+    const riding = data?.profile?.riding;
+    if (!riding) return;
+    let stale = false;
+    getJSON(`/api/demographics?riding=${encodeURIComponent(riding)}`)
+      .then((d) => !stale && setDemo(d))
+      .catch(() => !stale && setDemo({ values: null }));
     return () => {
       stale = true;
     };
@@ -646,6 +721,8 @@ export default function Profile() {
       )}
 
       {p.riding && <ExpendituresCard mpName={p.name} exp={exp} />}
+
+      {p.riding && <DistrictCard riding={p.riding} province={p.province} demo={demo} />}
 
       <div className="card" id="career">
         <div className="card-title">Career in the House</div>

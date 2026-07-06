@@ -8,7 +8,7 @@ export default function About() {
     ['Ethics & disclosures', 'Conflict of Interest and Ethics Commissioner registry', 'planned'],
     ['Lobbying activity', 'Registry of Lobbyists (open data)', 'planned'],
     ['Members’ expenditures', 'House of Commons proactive disclosure', 'live'],
-    ['Riding demographics', 'Statistics Canada census profiles', 'planned'],
+    ['Riding demographics', 'Statistics Canada census profiles', 'live'],
     ['Election results & margins', 'Elections Canada official results (2015–2025)', 'live'],
   ];
 
