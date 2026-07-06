@@ -8,7 +8,7 @@
     "node": "24.x"
   },
   "scripts": {
-    "dev": "concurrently -k -n api,web \"node server/index.js\" \"vite\"",
+    "dev": "concurrently -k -n api,web \"node server/dev.js\" \"vite\"",
     "build": "vite build",
     "start": "node server/index.js"
   },

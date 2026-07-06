@@ -50,6 +50,7 @@ export default function Directory() {
       <input
         className="search search-big"
         placeholder="Search by name or riding…"
+        aria-label="Search members by name or riding"
         value={q}
         onChange={(e) => {
           const v = e.target.value;

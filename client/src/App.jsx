@@ -7,6 +7,7 @@ import Profile from './pages/Profile.jsx';
 import Votes from './pages/Votes.jsx';
 import Bills from './pages/Bills.jsx';
 import About from './pages/About.jsx';
+import { NotFound } from './components/Bits.jsx';
 
 export default function App() {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ export default function App() {
               <input
                 className="search"
                 placeholder="Search members…"
+                aria-label="Search members"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
               />
@@ -43,6 +45,7 @@ export default function App() {
           <Route path="/votes" element={<Votes />} />
           <Route path="/bills" element={<Bills />} />
           <Route path="/about" element={<About />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     </div>

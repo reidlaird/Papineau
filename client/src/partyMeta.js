@@ -5,6 +5,7 @@ const PARTY = {
   'Bloc Québécois': { color: '#0f7fa3', bg: '#e6f4f9' },
   Bloc: { color: '#0f7fa3', bg: '#e6f4f9' },
   Green: { color: '#3d7a35', bg: '#ebf4ea' },
+  PPC: { color: '#4f2d7f', bg: '#efe9f6' },
   Independent: { color: '#5b6472', bg: '#eef0f3' },
 };
 

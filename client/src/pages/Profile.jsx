@@ -3,14 +3,119 @@ import { useParams } from 'react-router-dom';
 import { getJSON } from '../api.js';
 import { partyMeta } from '../partyMeta.js';
 import Avatar from '../components/Avatar.jsx';
-import { Loading, ErrorCard, VoteBar, fmtDate } from '../components/Bits.jsx';
+import { Loading, ErrorCard, VoteBar, fmtDate, legisinfoUrl } from '../components/Bits.jsx';
 
 const ballotClass = (b) => (b === 'Yes' ? 'b-yes' : b === 'No' ? 'b-no' : 'b-other');
+
+const MAX_RESULT_ROWS = 6;
+
+function ElectionBlock({ e }) {
+  const shown = e.candidates.slice(0, MAX_RESULT_ROWS);
+  const rest = e.candidates.slice(MAX_RESULT_ROWS);
+  const restShare = rest.reduce((s, c) => s + c.share, 0);
+  return (
+    <div className="ge-block">
+      <div className="microlabel">
+        {fmtDate(e.date)} · General election {e.ge}
+      </div>
+      {shown.map((c, i) => (
+        <div className="result-row" key={i}>
+          <div
+            className="result-name"
+            title={c.incumbent ? `${c.name} — sitting member at dissolution` : c.name}
+          >
+            {c.elected ? <b>✓ {c.name}</b> : c.name}
+            <span className="result-party"> · {c.party}</span>
+          </div>
+          <div className="result-track">
+            <span
+              className="result-fill"
+              style={{ width: `${c.share}%`, background: partyMeta(c.party).color, display: 'block' }}
+            />
+          </div>
+          <div className="result-nums">
+            <b>{c.share.toFixed(1)}%</b> · {c.votes.toLocaleString('en-CA')}
+          </div>
+        </div>
+      ))}
+      <div className="ge-meta">
+        {rest.length > 0 ? `+ ${rest.length} more · ${restShare.toFixed(1)}% combined · ` : ''}
+        {e.totalVotes.toLocaleString('en-CA')} valid votes
+        {e.margin != null ? ` · won by ${e.margin.toFixed(1)} points` : ''}
+      </div>
+    </div>
+  );
+}
+
+function ElectionsCard({ riding, elections }) {
+  const maxMargin = elections?.length
+    ? Math.max(...elections.map((e) => e.margin ?? 0), 1)
+    : 1;
+  return (
+    <div className="card" id="elections">
+      <div className="card-title">Elections in {riding}</div>
+      {elections === null && (
+        <div className="loading loading-inline">
+          <span className="spinner" />
+          Counting past ballots…
+        </div>
+      )}
+      {elections?.length === 0 && (
+        <p className="muted">
+          No official results under this riding’s current name — riding names and boundaries
+          change between representation orders. Full records live at elections.ca.
+        </p>
+      )}
+      {elections?.length > 0 && (
+        <>
+          {elections.length > 1 && (
+            <>
+              <div className="microlabel">Margin of victory · percentage points</div>
+              <div className="margin-trend">
+                {[...elections].reverse().map((e) => {
+                  const winner = e.candidates.find((c) => c.elected) || e.candidates[0];
+                  return (
+                    <div
+                      className="margin-col"
+                      key={e.ge}
+                      title={`${e.date.slice(0, 4)} — ${winner?.name} (${winner?.party}) by ${e.margin ?? '?'} points`}
+                    >
+                      <span className="margin-val">{e.margin != null ? e.margin.toFixed(1) : '—'}</span>
+                      <div className="margin-bar">
+                        <span
+                          className="margin-fill"
+                          style={{
+                            height: `${Math.max(((e.margin ?? 0) / maxMargin) * 100, 5)}%`,
+                            background: partyMeta(winner?.party).color,
+                            display: 'block',
+                          }}
+                        />
+                      </div>
+                      <span className="margin-year">{e.date.slice(0, 4)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+          {elections.map((e) => (
+            <ElectionBlock key={e.ge} e={e} />
+          ))}
+          <p className="muted attribution">
+            Official voting results, Elections Canada. Earlier elections shown where a riding
+            with the same name existed — boundaries may differ across representation orders.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function Profile() {
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
+  const [elections, setElections] = useState(null);
 
   useEffect(() => {
     setData(null);
@@ -19,17 +124,25 @@ export default function Profile() {
     window.scrollTo(0, 0);
   }, [slug]);
 
+  useEffect(() => {
+    setElections(null);
+    const riding = data?.profile?.riding;
+    if (!riding) return;
+    let stale = false;
+    getJSON(`/api/elections?riding=${encodeURIComponent(riding)}`)
+      .then((d) => !stale && setElections(d.elections))
+      .catch(() => !stale && setElections([]));
+    return () => {
+      stale = true;
+    };
+  }, [data]);
+
   if (err) return <ErrorCard msg={err} />;
   if (!data) return <Loading label="Brewing this member's record…" />;
 
   const { profile: p, ballots, bills } = data;
   const pm = partyMeta(p.party);
   const sinceYear = p.mpSince ? p.mpSince.slice(0, 4) : '—';
-
-  const legisinfoUrl = (b) =>
-    b.session && b.number
-      ? `https://www.parl.ca/legisinfo/en/bill/${b.session}/${b.number.toLowerCase()}`
-      : null;
 
   const sources = [
     {
@@ -176,6 +289,8 @@ export default function Profile() {
           </div>
         ))}
       </div>
+
+      {p.riding && <ElectionsCard riding={p.riding} elections={elections} />}
 
       <div className="card" id="career">
         <div className="card-title">Career in the House</div>

@@ -44,3 +44,21 @@ export const fmtDate = (d) =>
         day: 'numeric',
       })
     : '';
+
+export const legisinfoUrl = (b) =>
+  b.session && b.number
+    ? `https://www.parl.ca/legisinfo/en/bill/${b.session}/${b.number.toLowerCase()}`
+    : null;
+
+export function NotFound() {
+  return (
+    <div className="page">
+      <div className="card">
+        <div className="card-title">Nothing steeping here</div>
+        <p className="muted">
+          That page doesn’t exist. Try the <a href="/">member directory</a>.
+        </p>
+      </div>
+    </div>
+  );
+}

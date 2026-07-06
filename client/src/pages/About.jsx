@@ -9,7 +9,7 @@ export default function About() {
     ['Lobbying activity', 'Registry of Lobbyists (open data)', 'planned'],
     ['Members’ expenditures', 'House of Commons proactive disclosure', 'planned'],
     ['Riding demographics', 'Statistics Canada census profiles', 'planned'],
-    ['Election results & margins', 'Elections Canada official results', 'planned'],
+    ['Election results & margins', 'Elections Canada official results (2015–2025)', 'live'],
   ];
 
   return (
@@ -51,10 +51,11 @@ export default function About() {
           </tbody>
         </table>
         <p className="muted">
-          Live data is served through a local caching proxy (6-hour TTL) to keep traffic to the
+          Live data is served through a caching proxy (6-hour TTL) to keep traffic to the
           volunteer-run openparliament.ca API minimal. Parliamentary data © House of Commons,
           made usable by openparliament.ca. Postal-code riding lookup and riding adjacency come
-          from the Represent API by Open North.
+          from the Represent API by Open North. Election results are Elections Canada official
+          voting results (Table 12), cached for 30 days.
         </p>
       </div>
     </div>

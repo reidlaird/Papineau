@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getJSON } from '../api.js';
-import { Loading, ErrorCard, fmtDate } from '../components/Bits.jsx';
+import { Loading, ErrorCard, fmtDate, legisinfoUrl } from '../components/Bits.jsx';
 
 export default function Bills() {
   const [bills, setBills] = useState(null);
@@ -17,7 +17,9 @@ export default function Bills() {
     <div className="page">
       <header className="page-header">
         <h1>Bills</h1>
-        <p className="page-sub">Most recently introduced bills before Parliament</p>
+        <p className="page-sub">
+          Most recently introduced bills in the current session of Parliament
+        </p>
       </header>
 
       <div className="card">
@@ -25,7 +27,15 @@ export default function Bills() {
           <div key={`${b.session}-${b.number}`} className="list-row">
             <span className="bill-badge">{b.number}</span>
             <div className="list-row-body">
-              <div className="list-row-title">{b.name || '(untitled)'}</div>
+              <div className="list-row-title">
+                {b.url ? (
+                  <a className="quiet-link" href={b.url} target="_blank" rel="noreferrer">
+                    {b.name || '(untitled)'}
+                  </a>
+                ) : (
+                  b.name || '(untitled)'
+                )}
+              </div>
               <div className="list-row-meta">
                 {b.introduced ? `introduced ${fmtDate(b.introduced)} · ` : ''}session {b.session}
                 {b.url && (
@@ -33,6 +43,14 @@ export default function Bills() {
                     {' · '}
                     <a href={b.url} target="_blank" rel="noreferrer">
                       openparliament
+                    </a>
+                  </>
+                )}
+                {legisinfoUrl(b) && (
+                  <>
+                    {' · '}
+                    <a href={legisinfoUrl(b)} target="_blank" rel="noreferrer">
+                      LEGISinfo
                     </a>
                   </>
                 )}

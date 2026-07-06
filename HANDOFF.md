@@ -1,5 +1,75 @@
 # HANDOFF
 
+## 2026-07-05→06 (later) — Elections feature + design-critique pass
+
+**What happened:** Three things. (1) Roadmap item #1 shipped: **Elections section
+on MP profiles** from Elections Canada official results. (2) A structured design
+critique of the whole UI, with the actionable fixes applied. (3) The stale
+"Local build" sidebar footer replaced (now an "Open source · GitHub ↗" link —
+accurate locally and in prod).
+
+**⚠ Server changed → needs Render Manual Deploy** (dashboard → service papineau →
+Manual Deploy → Deploy latest commit). Vercel picks up the client automatically
+on push. Until the Render deploy happens, prod's profile pages show the Elections
+card in its "no results" state and /bills still shows the C-1 bug.
+
+**New feature — Elections on `/mp/:slug` (#elections):**
+- Server fetches **Table 12** (candidates + individual results) of the official
+  voting results for the last four general elections (GE42 2015 → GE45 2025).
+  URLs live in `ELECTIONS` in server/index.js; note each election's path id is
+  arbitrary (ovrGE45/62, ovr2021app/53, ovr2019app/51, ovr2015app/41 — probed by
+  hand, don't guess future ones).
+- `cachedGet` grew `{ text, ttl }` opts; election CSVs cache 30 days (results are
+  final). CSV parsed by a local RFC-4180 parser; BOM stripped by char code.
+- The Candidate column jams "First Last ** PartyEN/PartyFR" into one string
+  (`**` = incumbent at dissolution, NOT winner — winner is the row with a
+  Majority value). Party recovered by folded suffix match against
+  `EC_AFFILIATIONS`; unknown parties fall back to "Other" with the name left
+  intact. 2019 writes "People's Party" without "- PPC"; 2025 writes "United
+  Party of Canada (UP)" — both handled. Verified against Carleton 2025's
+  91-candidate Longest Ballot (1 Other row) and accented ridings.
+- Ridings matched across elections by `norm()`ed name (EC uses `--` where
+  openparliament uses em-dash — norm folds both). New-in-2025 ridings simply
+  show fewer elections, with a boundaries caveat in the card.
+- `/api/elections?riding=<name>` → `{ riding, elections: [{ge, date, name,
+  number, province, candidates[], totalVotes, margin}] }` newest first.
+- UI: margin-of-victory trend bars (winner-party colour, per GE) + per-election
+  result bars (top 6 candidates, "+n more" collapsed), winner ✓-bolded,
+  incumbent in the row title. Sidebar member anchors gained "Elections".
+
+**Design critique → fixes applied:**
+- 🔴 **Bills page bug**: `/api/bills` was the unfiltered upstream list — page
+  showed every session's ceremonial Bill C-1 twenty times. Now current session,
+  sorted by introduced desc, top 25. Bill titles are links now (openparliament),
+  meta adds LEGISinfo; `legisinfoUrl` moved to Bits.jsx (shared with Profile).
+- 🔴 **Contrast**: `--muted` #868d9b was 3.3:1 on white (AA fail) → #6b7280
+  (4.8:1). Sidebar `navgroup-label` alpha .55→.75, `navlink-anchor` .75→.85.
+- 🟡 **Emoji nav icons → inline SVG stroke icons** (Sidebar.jsx `icons`),
+  currentColor so they follow active state. Brand 🍵 stays.
+- 🟡 404 catch-all route ("Nothing steeping here", in Bits.jsx).
+- 🟢 span.chip (non-clickable) no longer shows pointer cursor; :focus-visible
+  rings on chips/buttons/nav/search; aria-labels on both search inputs; About
+  copy no longer says "local" proxy; directory empty-state spans the grid.
+- Result bars stack on ≤620px (the 1fr track collapsed to 0 width on phones).
+
+**Gotchas added/updated this session:**
+- `npm run dev` now runs `server/dev.js` which pins the API to 3020 — the
+  preview harness injects PORT into the whole script, which used to send
+  Express to vite's port. `.claude/launch.json` gained a `hones-tea-dev`
+  config (vite on 5173, HMR); the old `hones-tea` config still runs the prod
+  server (serves dist/).
+- `preview_screenshot` is **intermittent** on this machine (worked ~6 times,
+  then timed out once) — not permanently broken as previously noted. Fall back
+  to preview_eval/snapshot/inspect when it times out.
+- The preview panel's native viewport is ~819px — under the app's 860px
+  breakpoint, so the sidebar collapses and the footer hides. `preview_resize`
+  to 1280 before judging desktop layout.
+
+**Next steps:** Render manual deploy (see above). Roadmap: campaign finance
+(Elections Canada financing CSVs — the reference app's flagship page) →
+expenditures → demographics. Nice adds spotted during critique: turnout tile
+(Table 11), in-app vote/bill detail pages, French toggle.
+
 ## 2026-07-05→06 — Deployed to production (Vercel + Render)
 
 **What happened:** App went from "builds but no data anywhere" to fully live.

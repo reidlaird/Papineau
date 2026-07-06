@@ -26,13 +26,16 @@ fs.mkdirSync(CACHE_DIR, { recursive: true });
 const cachePath = (key) =>
   path.join(CACHE_DIR, crypto.createHash('sha1').update(key).digest('hex') + '.json');
 
-// Disk-cached GET with 429/5xx retry — shared by both upstream APIs.
-async function cachedGet(url) {
+// Disk-cached GET with 429/5xx retry — shared by all upstream sources.
+// opts.text returns the raw body instead of parsed JSON; opts.ttl overrides
+// the default TTL (election results are final — cache them for weeks).
+async function cachedGet(url, opts = {}) {
+  const ttl = opts.ttl ?? CACHE_TTL_MS;
   const key = url.host + url.pathname + '?' + url.searchParams.toString();
   const file = cachePath(key);
   try {
     const cached = JSON.parse(fs.readFileSync(file, 'utf8'));
-    if (Date.now() - cached.fetchedAt < CACHE_TTL_MS) return cached.data;
+    if (Date.now() - cached.fetchedAt < ttl) return cached.data;
   } catch {
     // cache miss or unreadable entry — fall through to a live fetch
   }
@@ -56,7 +59,7 @@ async function cachedGet(url) {
     const retryAfter = Number(res.headers.get('retry-after')) * 1000 || 1200 * attempt;
     await new Promise((r) => setTimeout(r, Math.min(retryAfter, 8000)));
   }
-  const data = await res.json();
+  const data = opts.text ? await res.text() : await res.json();
   fs.writeFileSync(file, JSON.stringify({ fetchedAt: Date.now(), key, data }));
   return data;
 }
@@ -248,6 +251,155 @@ function parseQuery(q) {
   return { billTokens, words };
 }
 
+// ---------- elections (Elections Canada official voting results) ----------
+// Table 12 of the official results: one row per candidate per riding, with
+// votes, share, and the winner's majority. Format is identical for the last
+// four general elections; results are final, so they cache for 30 days.
+
+const ELECTIONS_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const EC = 'https://www.elections.ca/res/rep/off';
+const ELECTIONS = [
+  { ge: 45, date: '2025-04-28', csv: `${EC}/ovrGE45/62/data_donnees/table_tableau12.csv` },
+  { ge: 44, date: '2021-09-20', csv: `${EC}/ovr2021app/53/data_donnees/table_tableau12.csv` },
+  { ge: 43, date: '2019-10-21', csv: `${EC}/ovr2019app/51/data_donnees/table_tableau12.csv` },
+  { ge: 42, date: '2015-10-19', csv: `${EC}/ovr2015app/41/data_donnees/table_tableau12.csv` },
+];
+
+// Affiliations seen in tables 2015–2025, folded, longest first. The Candidate
+// column jams "First Last <PartyEN>/<PartyFR>" into one string, so the party
+// is recovered by suffix match; anything unlisted lands in "Other".
+const EC_AFFILIATIONS = [
+  ['ndp-new democratic party', 'NDP'],
+  ["people's party - ppc", 'PPC'],
+  ["people's party", 'PPC'], // 2019 table writes it without the "- PPC" suffix
+  ['bloc quebecois', 'Bloc Québécois'],
+  ['green party', 'Green'],
+  ['liberal', 'Liberal'],
+  ['conservative', 'Conservative'],
+  ['independent', 'Independent'],
+  ['no affiliation', 'No affiliation'],
+  ['christian heritage party', 'Christian Heritage'],
+  ['free party canada', 'Free Party'],
+  ['libertarian', 'Libertarian'],
+  ['marxist-leninist', 'Marxist–Leninist'],
+  ['communist', 'Communist'],
+  ['animal protection party', 'Animal Protection'],
+  ['parti rhinoceros party', 'Rhinoceros'],
+  ['rhinoceros', 'Rhinoceros'],
+  ['maverick party', 'Maverick'],
+  ['veterans coalition party of canada', 'Veterans Coalition'],
+  ['canadian nationalist party', 'Nationalist'],
+  ['national citizens alliance', 'Citizens Alliance'],
+  ["parti pour l'independance du quebec", 'Indép. du Québec'],
+  ['united party of canada (up)', 'United'],
+  ['united party of canada', 'United'],
+  ['canadian future party', 'Canadian Future'],
+  ['progressive canadian party', 'Progressive Canadian'],
+  ['pc party', 'Progressive Canadian'],
+  ['marijuana party', 'Marijuana'],
+  ['radical marijuana', 'Radical Marijuana'],
+  ['strength in democracy', 'Strength in Democracy'],
+  ['forces et democratie', 'Strength in Democracy'],
+].sort((a, b) => b[0].length - a[0].length);
+
+// Minimal RFC-4180 parser — quoted fields, escaped quotes, CRLF.
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else inQuotes = false;
+      } else field += c;
+    } else if (c === '"') inQuotes = true;
+    else if (c === ',') {
+      row.push(field);
+      field = '';
+    } else if (c === '\n') {
+      row.push(field);
+      if (row.some((f) => f.trim() !== '')) rows.push(row);
+      row = [];
+      field = '';
+    } else if (c !== '\r') field += c;
+  }
+  row.push(field);
+  if (row.some((f) => f.trim() !== '')) rows.push(row);
+  return rows;
+}
+
+// "Ken McDonald ** Liberal/Libéral" → { name, party, incumbent }.
+// ** marks the incumbent (member at dissolution), not the winner.
+function parseCandidate(raw) {
+  const enSide = String(raw).split('/')[0].trim();
+  const incumbent = enSide.includes('**');
+  const s = enSide.replace(/\*\*/g, ' ').replace(/\s+/g, ' ').trim();
+  const folded = fold(s).replace(/[’‘]/g, "'");
+  for (const [suffix, party] of EC_AFFILIATIONS) {
+    if (folded.endsWith(suffix)) {
+      const name = s.slice(0, s.length - suffix.length).trim();
+      if (name) return { name, party, incumbent };
+    }
+  }
+  return { name: s, party: 'Other', incumbent };
+}
+
+// The EN half of a bilingual "English/Français" cell (most riding names are
+// identical in both languages and carry no slash).
+const enHalf = (s) => String(s || '').split('/')[0].trim();
+
+function buildElection(csvText) {
+  const byNorm = new Map();
+  const text = csvText.charCodeAt(0) === 0xfeff ? csvText.slice(1) : csvText; // strip BOM
+  for (const r of parseCsv(text).slice(1)) {
+    if (r.length < 8) continue;
+    const [provinceRaw, nameRaw, numberRaw, candidateRaw, , , votesRaw, pctRaw, majorityRaw] = r;
+    const number = parseInt(numberRaw, 10);
+    if (!Number.isFinite(number)) continue;
+    const name = enHalf(nameRaw);
+    const key = norm(name);
+    let riding = byNorm.get(key);
+    if (!riding) {
+      riding = { name, number, province: enHalf(provinceRaw), candidates: [], totalVotes: 0 };
+      byNorm.set(key, riding);
+    }
+    const votes = parseInt(String(votesRaw).replace(/[^\d]/g, ''), 10) || 0;
+    riding.candidates.push({
+      ...parseCandidate(candidateRaw),
+      votes,
+      share: parseFloat(pctRaw) || 0,
+      elected: String(majorityRaw || '').trim() !== '',
+    });
+    riding.totalVotes += votes;
+  }
+  for (const riding of byNorm.values()) {
+    riding.candidates.sort((a, b) => b.votes - a.votes);
+    // A tie or data gap can leave the majority column empty — top votes wins.
+    if (!riding.candidates.some((c) => c.elected) && riding.candidates[0]) {
+      riding.candidates[0].elected = true;
+    }
+    const [winner, runnerUp] = riding.candidates;
+    riding.margin = winner && runnerUp ? +(winner.share - runnerUp.share).toFixed(1) : null;
+  }
+  return byNorm;
+}
+
+// All four elections, fetched sequentially (be polite) and indexed by
+// normalized riding name. One in-memory copy serves every request.
+const getElectionData = memoAsync(async () => {
+  const out = [];
+  for (const { ge, date, csv } of ELECTIONS) {
+    const text = await cachedGet(new URL(csv), { text: true, ttl: ELECTIONS_TTL_MS });
+    out.push({ ge, date, byNorm: buildElection(text) });
+  }
+  return out;
+});
+
 // ---------- routes ----------
 
 const app = express();
@@ -338,10 +490,37 @@ app.get('/api/votes', async (_req, res) => {
   }
 });
 
+// Current session only — the unfiltered upstream list leads with every
+// session's ceremonial Bill C-1, which reads as one bill repeated 20 times.
 app.get('/api/bills', async (_req, res) => {
   try {
-    const page = await opFetch('/bills/', { limit: 20 });
-    res.json((page.objects || []).map(mapBill));
+    const session = await getCurrentSession();
+    const bills = await getSessionBills(session);
+    const sorted = [...bills].sort((a, b) =>
+      (b.introduced || '').localeCompare(a.introduced || '')
+    );
+    res.json(sorted.slice(0, 25));
+  } catch (e) {
+    res.status(502).json({ error: String(e.message || e) });
+  }
+});
+
+// Riding history across the last four general elections, matched by
+// normalized riding name (boundaries and names shift between representation
+// orders — a riding that didn't exist under a given order simply has no
+// entry for that election).
+app.get('/api/elections', async (req, res) => {
+  try {
+    const riding = String(req.query.riding || '').slice(0, 200).trim();
+    if (!riding) return res.status(400).json({ error: 'riding required' });
+    const key = norm(riding);
+    const data = await getElectionData();
+    const elections = [];
+    for (const { ge, date, byNorm } of data) {
+      const hit = byNorm.get(key);
+      if (hit) elections.push({ ge, date, ...hit });
+    }
+    res.json({ riding, elections });
   } catch (e) {
     res.status(502).json({ error: String(e.message || e) });
   }

@@ -4,7 +4,7 @@
   --indigo-500: #6366f1;
   --ink: #17181c;
   --ink-soft: #4b5160;
-  --muted: #868d9b;
+  --muted: #6b7280; /* 4.8:1 on white — #868d9b failed AA */
   --bg: #f3f4f7;
   --card: #ffffff;
   --border: #e6e8ee;
@@ -133,7 +133,7 @@ h1 {
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.75);
   padding: 16px 10px 6px;
 }
 
@@ -162,22 +162,31 @@ h1 {
 
 .navlink-icon {
   width: 18px;
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: none;
 }
 
 .navlink-anchor {
   padding: 5px 10px 5px 14px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .sidebar-footer {
+  display: block;
   margin-top: 14px;
   background: rgba(255, 255, 255, 0.12);
   border-radius: 12px;
   padding: 10px 12px;
   font-size: 12.5px;
+  color: #fff;
+}
+
+a.sidebar-footer:hover {
+  background: rgba(255, 255, 255, 0.2);
+  text-decoration: none;
 }
 
 .sidebar-footer-title {
@@ -282,6 +291,30 @@ h1 {
   color: var(--indigo-700);
 }
 
+/* .chip on a <span> is informational (e.g. a member we can't compare) */
+span.chip {
+  cursor: default;
+}
+
+span.chip:hover {
+  border-color: var(--border);
+  color: var(--ink-soft);
+}
+
+.chip:focus-visible,
+.btn:focus-visible,
+.navlink:focus-visible,
+.search:focus-visible,
+.sidebar-footer:focus-visible {
+  outline: 2px solid var(--indigo-500);
+  outline-offset: 2px;
+}
+
+.sidebar .navlink:focus-visible,
+.sidebar-footer:focus-visible {
+  outline-color: #fff;
+}
+
 .chip.active {
   background: var(--indigo-700);
   border-color: var(--indigo-700);
@@ -294,6 +327,11 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 12px;
+}
+
+.mp-grid > .muted {
+  grid-column: 1 / -1;
+  padding: 18px 4px;
 }
 
 .mp-card {
@@ -501,6 +539,14 @@ h1 {
   border-radius: 7px;
   padding: 4px 8px;
   margin-top: 1px;
+}
+
+.quiet-link {
+  color: var(--ink);
+}
+
+.quiet-link:hover {
+  color: var(--indigo-700);
 }
 
 a.extlink:hover {
@@ -775,6 +821,120 @@ a.repcard:hover .repcard-name {
   margin-top: 4px;
 }
 
+/* ---------- elections ---------- */
+
+.ge-block {
+  padding: 14px 0 6px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+.ge-block:first-of-type {
+  border-top: none;
+  margin-top: 0;
+}
+
+.ge-meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.result-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 210px) 1fr 128px;
+  gap: 12px;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.result-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink-soft);
+}
+
+.result-name b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.result-party {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.result-track {
+  background: var(--bg);
+  border-radius: 4px;
+  height: 9px;
+  overflow: hidden;
+}
+
+.result-fill {
+  height: 100%;
+  border-radius: 4px;
+  min-width: 2px;
+}
+
+.result-nums {
+  text-align: right;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.result-nums b {
+  color: var(--ink);
+  font-weight: 650;
+  font-size: 13px;
+}
+
+.margin-trend {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  padding: 8px 2px 14px;
+}
+
+.margin-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.margin-val {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.margin-bar {
+  width: 38px;
+  height: 52px;
+  background: var(--bg);
+  border-radius: 5px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.margin-fill {
+  width: 100%;
+  border-radius: 5px 5px 0 0;
+  min-height: 3px;
+}
+
+.margin-year {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
 /* ---------- states ---------- */
 
 .loading {
@@ -833,5 +993,17 @@ a.repcard:hover .repcard-name {
   .hero-grid {
     grid-template-columns: 1fr;
     align-items: stretch;
+  }
+}
+
+@media (max-width: 620px) {
+  /* stack the share bar under name + numbers so it keeps real width */
+  .result-row {
+    grid-template-columns: 1fr auto;
+    row-gap: 4px;
+  }
+  .result-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
 }
