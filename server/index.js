@@ -433,6 +433,81 @@ function matchCampaign(campaigns, mpName) {
   );
 }
 
+// ---------- members' expenditures (House of Commons proactive disclosure) ----------
+// Quarterly Members' Expenditures Reports: per-member Salaries / Travel /
+// Hospitality / Contracts. The landing page links every quarter as
+// members/<fyEnd>/<q>?summaryId=<id>, but the CSV route wants a *different*
+// per-report GUID that only appears on the quarter's own page (feeding it the
+// summaryId returns 500) — so: landing → quarter page → csv, all disk-cached.
+// Published quarters are final; new ones land ~3 months after quarter end.
+
+const OC_WEB = 'https://www.ourcommons.ca';
+const EXP_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const EXP_LIST_TTL_MS = 24 * 60 * 60 * 1000; // new quarters appear ~4×/year
+
+const getExpQuarters = memoAsync(async () => {
+  const html = await cachedGet(new URL('/proactivedisclosure/en/members', OC_WEB), {
+    text: true,
+    ttl: EXP_LIST_TTL_MS,
+  });
+  const seen = new Map();
+  for (const m of html.matchAll(
+    /href="\/proactivedisclosure\/en\/members\/(\d{4})\/(\d)\?summaryId=([0-9a-f-]{36})"/g
+  )) {
+    seen.set(`${m[1]}-${m[2]}`, { fy: +m[1], q: +m[2], summaryId: m[3] });
+  }
+  return [...seen.values()].sort((a, b) => b.fy - a.fy || b.q - a.q);
+});
+
+// "Angus,  Charlie" / "Alghabra, Hon. Omar" → "Charlie Angus" / "Omar
+// Alghabra"; comma-less rows ("Vacant") pass through unchanged.
+function flipMemberName(raw) {
+  const i = raw.indexOf(',');
+  if (i < 0) return raw.trim();
+  const first = raw
+    .slice(i + 1)
+    .replace(/\b(right\s+)?hon\.?\s*/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return `${first} ${raw.slice(0, i).trim()}`.trim();
+}
+
+const getExpQuarter = memoAsync(async (key) => {
+  const [fy, q, summaryId] = key.split('|');
+  const page = await cachedGet(
+    new URL(`/proactivedisclosure/en/members/${fy}/${q}?summaryId=${summaryId}`, OC_WEB),
+    { text: true, ttl: EXP_TTL_MS }
+  );
+  const csvLink = /href="\/proactivedisclosure\/en\/members\/([0-9a-f-]{36})\/csv"/.exec(page);
+  if (!csvLink) throw new Error(`no csv link on expenditures page FY${fy} Q${q}`);
+  const csv = await cachedGet(
+    new URL(`/proactivedisclosure/en/members/${csvLink[1]}/csv`, OC_WEB),
+    { text: true, ttl: EXP_TTL_MS }
+  );
+  const num = (s) => {
+    const v = parseFloat(String(s).replace(/[$,]/g, ''));
+    return Number.isFinite(v) ? v : 0;
+  };
+  const text = csv.charCodeAt(0) === 0xfeff ? csv.slice(1) : csv;
+  return parseCsv(text)
+    .slice(1)
+    .filter((r) => r.length >= 7)
+    .map((r) => {
+      const [salaries, travel, hospitality, contracts] = [num(r[3]), num(r[4]), num(r[5]), num(r[6])];
+      return {
+        name: flipMemberName(r[0]),
+        vacant: fold(r[0]).startsWith('vacant'),
+        riding: r[1].trim(),
+        caucus: r[2].trim(),
+        salaries,
+        travel,
+        hospitality,
+        contracts,
+        total: salaries + travel + hospitality + contracts,
+      };
+    });
+});
+
 // ---------- routes ----------
 
 const app = express();
@@ -597,6 +672,56 @@ app.get('/api/finance', async (req, res) => {
       .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
     res.json({ riding: hit.name, bucketEdges: data.bucketEdges, built: data.built, events });
+  } catch (e) {
+    res.status(502).json({ error: String(e.message || e) });
+  }
+});
+
+// Quarterly expenditure reports available upstream, newest first — the
+// client walks this list one quarter at a time.
+app.get('/api/expenditures/quarters', async (_req, res) => {
+  try {
+    res.json(await getExpQuarters());
+  } catch (e) {
+    res.status(502).json({ error: String(e.message || e) });
+  }
+});
+
+// One quarter for one riding: the profile MP's own line when their name
+// matches (EC/ourcommons spellings differ — same fallback as finance), any
+// other lines under the riding (predecessors, Vacant) counted separately,
+// plus the House-wide median for scale.
+app.get('/api/expenditures', async (req, res) => {
+  try {
+    const fy = parseInt(req.query.fy, 10);
+    const q = parseInt(req.query.q, 10);
+    const riding = String(req.query.riding || '').slice(0, 200).trim();
+    const mp = String(req.query.mp || '').slice(0, 200).trim();
+    if (!Number.isFinite(fy) || !Number.isFinite(q) || q < 1 || q > 4 || !riding) {
+      return res.status(400).json({ error: 'fy, q (1–4) and riding required' });
+    }
+    const meta = (await getExpQuarters()).find((x) => x.fy === fy && x.q === q);
+    if (!meta) return res.status(404).json({ error: `no report for FY${fy} Q${q}` });
+    const rows = await getExpQuarter(`${fy}|${q}|${meta.summaryId}`);
+    const inRiding = rows.filter((r) => norm(r.riding) === norm(riding));
+    const mine = mp ? matchCampaign(inRiding.filter((r) => !r.vacant), mp) : null;
+    const totals = rows
+      .filter((r) => !r.vacant && r.total > 0)
+      .map((r) => r.total)
+      .sort((a, b) => a - b);
+    res.json({
+      fy,
+      q,
+      summaryId: meta.summaryId,
+      mine,
+      others: inRiding
+        .filter((r) => r !== mine)
+        .map((r) => ({ name: r.name, vacant: r.vacant, total: Math.round(r.total) })),
+      house: {
+        median: totals.length ? Math.round(totals[Math.floor(totals.length / 2)]) : 0,
+        reporting: totals.length,
+      },
+    });
   } catch (e) {
     res.status(502).json({ error: String(e.message || e) });
   }

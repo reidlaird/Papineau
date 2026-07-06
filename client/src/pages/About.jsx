@@ -4,10 +4,10 @@ export default function About() {
     ['Voting record', 'OpenParliament.ca (House roll-calls)', 'live'],
     ['Bills', 'OpenParliament.ca · LEGISinfo links', 'live'],
     ['My rep — riding lookup & vote comparison', 'Represent API (Open North) + OpenParliament', 'live'],
-    ['Campaign finance', 'Elections Canada political financing database', 'planned'],
+    ['Campaign finance', 'Elections Canada political financing database', 'live'],
     ['Ethics & disclosures', 'Conflict of Interest and Ethics Commissioner registry', 'planned'],
     ['Lobbying activity', 'Registry of Lobbyists (open data)', 'planned'],
-    ['Members’ expenditures', 'House of Commons proactive disclosure', 'planned'],
+    ['Members’ expenditures', 'House of Commons proactive disclosure', 'live'],
     ['Riding demographics', 'Statistics Canada census profiles', 'planned'],
     ['Election results & margins', 'Elections Canada official results (2015–2025)', 'live'],
   ];

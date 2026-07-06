@@ -1,5 +1,59 @@
 # HANDOFF
 
+## 2026-07-06 (overnight loop) — Members' expenditures on MP profiles
+
+**What happened:** Roadmap #3 shipped by the /loop session that was watching the
+finance build: **"Office & travel spending" card on `/mp/:slug` (#expenditures)**
+from the House of Commons quarterly Members' Expenditures Reports. Also fixed the
+About table (Campaign finance and Members' expenditures now "live" — finance was
+left "planned" by the previous session) and contained `.margin-trend` overflow
+(12-quarter trends forced horizontal page scroll on phones; now the strip itself
+scrolls, cols `flex-shrink: 0`).
+
+**⚠ Server changed → needs Render deploy** (unless this session already drove it
+via Chrome — check the memory index note / Render dashboard for the deployed SHA).
+Until then prod shows the spending card's empty state — graceful, same as the
+elections rollout.
+
+**New feature — expenditures (`server/index.js` + Profile.jsx):**
+- Data: ourcommons.ca proactive disclosure, quarterly since FY2021 Q2 (Jul 2020).
+  CSV per quarter: `Name,Constituency,Caucus,Salaries,Travel,Hospitality,Contracts`.
+- ⚠ The `/csv` route wants a per-report GUID that ONLY appears on the quarter's
+  own page — the quarter's summaryId returns 500 on /csv. Flow: landing page
+  (regex quarter links, TTL 1d) → quarter page (TTL 30d) → csv (TTL 30d), all
+  through `cachedGet`. `getExpQuarters` / `getExpQuarter` memoized.
+- Names arrive "Last,  First" with honorifics ("Alghabra, Hon. Omar"), double
+  spaces, literal "Vacant" rows; `flipMemberName` normalizes, `matchCampaign`
+  (shared with finance) matches the profile MP. Departed MPs keep trailing rows
+  (Alghabra had $21.44 in FY2026Q4) — that's why matching is by name, not riding.
+- `/api/expenditures/quarters` → newest-first list; `/api/expenditures?fy&q&riding&mp`
+  → `{ mine, others[], house: {median, reporting} }`. Median is over all
+  non-Vacant rows with total > 0 (includes small trailing rows — framed as
+  "N members reporting" in the UI).
+- Client walks quarters newest→oldest sequentially (politeness + Render's
+  ephemeral cache; card fills progressively like MyRep's ballot table). Stop
+  rules: 2 consecutive non-matches after a match (predecessor territory), or 6
+  straight misses with none matched. Trend chart capped at 12 quarters; detail
+  blocks show newest 4 with "Show all N quarters" toggle. Verified: Elizabeth
+  May 23/23 quarters, Bruce Fanjoy exactly his 4 (stop-early confirmed), Carleton
+  FY2025Q3 correctly attributes to Poilievre in `others`.
+- Sidebar anchor "Spending"; sources list tag removed.
+
+**Gotchas this session:**
+- Two Claude sessions ran concurrently overnight (finance + this loop). Protocol
+  that worked: check `list_sessions` + transcript mtimes before editing, wait for
+  the peer's commit (monitor on `git log` + clean tree), read-only prep meanwhile.
+- The peer's dev servers held 3020 AND 5173; `server/dev.js` pins 3020 so dev
+  mode would have crashed the API while vite proxied to the peer's OLD server —
+  verify server changes with `npm run build` + the `hones-tea` launch config
+  (autoPort) instead when ports are contested.
+- `preview_screenshot` flaked again (2× timeout after working earlier) —
+  eval/snapshot/inspect fallback per existing note.
+
+**Next steps:** Render deploy if not already done. Roadmap: riding demographics
+(StatCan census profiles) is #4. Turnout tile, in-app vote/bill pages, French
+toggle still queued from the critique.
+
 ## 2026-07-06 — Campaign finance (roadmap #2)
 
 **What happened:** Roadmap item #2 shipped: **Campaign finance section on MP

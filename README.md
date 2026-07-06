@@ -46,6 +46,11 @@ npm run dev
   in-kind amounts. Aggregates are precomputed from the 2.2 GB dump by
   `scripts/build-finance.mjs` and committed (105 KB), so production never touches
   the dump — re-run the script to refresh (source updates weekly).
+- **Office & travel spending** — the member's quarterly expenditures (salaries,
+  travel, hospitality, contracts) from the House of Commons proactive-disclosure
+  CSVs, with a spending trend, category bars per quarter, and the House median
+  for scale. Quarters stream in newest-first and stop at the member's
+  predecessor.
 - **House votes** — the latest recorded divisions.
 - **Bills** — the most recently introduced bills.
 - Every profile links out to the member's official records (ourcommons.ca page,
@@ -83,16 +88,15 @@ request after a quiet spell can take ~a minute to wake up.
 | Campaign finance | [Elections Canada political financing open data](https://www.elections.ca/content.aspx?section=fin&dir=oda&document=index&lang=e) (audited contributions) | ✅ live |
 | Personal finances / ethics | [Conflict of Interest & Ethics Commissioner registry](https://ciec-ccie.parl.gc.ca/) | 🔜 planned |
 | Lobbying ("who's calling") | [Registry of Lobbyists](https://lobbycanada.gc.ca/) open data | 🔜 planned |
-| MRA spending → Members' expenditures | [House proactive disclosure](https://www.ourcommons.ca/proactivedisclosure/en/members) (quarterly CSV) | 🔜 planned |
+| MRA spending → Members' expenditures | [House proactive disclosure](https://www.ourcommons.ca/proactivedisclosure/en/members) (quarterly CSV) | ✅ live |
 | District demographics | StatCan census profiles by federal electoral district | 🔜 planned |
 
 ## Roadmap ideas
 
-1. **Expenditures** — quarterly Members' Expenditure Report CSVs; category breakdown.
-2. **Riding-association finance** — the EDA slice of the same contributions dump,
+1. **Riding-association finance** — the EDA slice of the same contributions dump,
    for the "war chest between elections" picture.
-3. **Lobbying watch** — registered communications naming the member's office.
-4. Riding demographics from the census profile API; French UI toggle (`name.fr` is
+2. **Lobbying watch** — registered communications naming the member's office.
+3. Riding demographics from the census profile API; French UI toggle (`name.fr` is
    already in the data).
 
 Parliamentary data © House of Commons, made usable by

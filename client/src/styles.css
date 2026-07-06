@@ -897,6 +897,7 @@ a.repcard:hover .repcard-name {
   gap: 20px;
   align-items: flex-end;
   padding: 8px 2px 14px;
+  overflow-x: auto; /* 12-quarter spending trends outgrow phone widths */
 }
 
 .margin-col {
@@ -904,6 +905,7 @@ a.repcard:hover .repcard-name {
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .margin-val {
@@ -954,6 +956,10 @@ a.repcard:hover .repcard-name {
 .fin-headline-meta {
   color: var(--muted);
   font-size: 12px;
+}
+
+.exp-toggle {
+  margin: 12px 0 2px;
 }
 
 .fin-missing {

@@ -285,12 +285,135 @@ function FinanceCard({ riding, mpName, province, finance }) {
   );
 }
 
+// Fiscal quarters: FY ends March 31, so Q1 FY2026 = Apr–Jun 2025, Q4 = Jan–Mar 2026.
+const QUARTER_MONTHS = ['', 'Apr–Jun', 'Jul–Sep', 'Oct–Dec', 'Jan–Mar'];
+const expCalYear = (r) => (r.q === 4 ? r.fy : r.fy - 1);
+const expLabel = (r) => `${QUARTER_MONTHS[r.q]} ${expCalYear(r)}`;
+const expTick = (r) => `${QUARTER_MONTHS[r.q].slice(0, 3)} ’${String(expCalYear(r)).slice(2)}`;
+
+const EXP_CATS = [
+  ['salaries', 'Salaries'],
+  ['travel', 'Travel'],
+  ['hospitality', 'Hospitality'],
+  ['contracts', 'Contracts'],
+];
+
+const EXP_TREND_MAX = 12; // columns get unreadably thin past three years
+
+function ExpendituresCard({ mpName, exp }) {
+  const [showAll, setShowAll] = useState(false);
+  const matched = (exp?.rows || []).filter((r) => r.mine);
+  const maxTotal = Math.max(...matched.map((r) => r.mine.total), 1);
+  const shown = showAll ? matched : matched.slice(0, 4);
+  return (
+    <div className="card" id="expenditures">
+      <div className="card-title">Office & travel spending</div>
+      {exp === null && (
+        <div className="loading loading-inline">
+          <span className="spinner" />
+          Tallying office ledgers…
+        </div>
+      )}
+      {exp && matched.length === 0 && exp.done && (
+        <p className="muted">
+          No expenditure report under {mpName}’s name — quarterly reports begin in July 2020,
+          appear about three months after each quarter ends, and follow the riding names of
+          their day.
+        </p>
+      )}
+      {matched.length > 0 && (
+        <>
+          {matched.length > 1 && (
+            <>
+              <div className="microlabel">Total spending by quarter</div>
+              <div className="margin-trend">
+                {matched
+                  .slice(0, EXP_TREND_MAX)
+                  .reverse()
+                  .map((r) => (
+                    <div
+                      className="margin-col"
+                      key={`${r.fy}-${r.q}`}
+                      title={`${expLabel(r)} — ${fmtMoney(r.mine.total)} (house median ${fmtMoney(r.house.median)})`}
+                    >
+                      <span className="margin-val">{fmtMoneyShort(r.mine.total)}</span>
+                      <div className="margin-bar">
+                        <span
+                          className="margin-fill"
+                          style={{
+                            height: `${Math.max((r.mine.total / maxTotal) * 100, 5)}%`,
+                            background: 'var(--indigo-500)',
+                            display: 'block',
+                          }}
+                        />
+                      </div>
+                      <span className="margin-year">{expTick(r)}</span>
+                    </div>
+                  ))}
+              </div>
+            </>
+          )}
+          {shown.map((r) => (
+            <div className="ge-block" key={`${r.fy}-${r.q}`}>
+              <div className="microlabel">{expLabel(r)} · quarterly report</div>
+              <div className="fin-headline">
+                <span className="fin-total">{fmtMoney(r.mine.total)}</span>
+                <span className="fin-headline-meta">
+                  house median {fmtMoney(r.house.median)} · {r.house.reporting} members reporting
+                </span>
+              </div>
+              {EXP_CATS.map(([k, label]) => (
+                <div className="result-row" key={k}>
+                  <div className="result-name">{label}</div>
+                  <div className="result-track">
+                    <span
+                      className="result-fill"
+                      style={{
+                        width: `${
+                          r.mine.total > 0 ? (Math.max(r.mine[k], 0) / r.mine.total) * 100 : 0
+                        }%`,
+                        background: 'var(--indigo-500)',
+                        display: 'block',
+                      }}
+                    />
+                  </div>
+                  <div className="result-nums">
+                    <b>{fmtMoney(r.mine[k])}</b>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+          {matched.length > 4 && (
+            <button className="chip exp-toggle" onClick={() => setShowAll((s) => !s)}>
+              {showAll ? 'Show recent quarters only' : `Show all ${matched.length} quarters`}
+            </button>
+          )}
+          {!exp.done && (
+            <div className="loading loading-inline">
+              <span className="spinner" />
+              Fetching older quarters…
+            </div>
+          )}
+          <p className="muted attribution">
+            Members’ Expenditures Reports, House of Commons proactive disclosure. Salaries are
+            the member’s office staff; Contracts include constituency office leases,
+            advertising, office operations and training. Negative amounts are adjustments or
+            refunds, and quarters publish about three months in arrears.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function Profile() {
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
   const [elections, setElections] = useState(null);
   const [finance, setFinance] = useState(null);
+  const [exp, setExp] = useState(null);
 
   useEffect(() => {
     setData(null);
@@ -325,6 +448,46 @@ export default function Profile() {
     };
   }, [data]);
 
+  // Expenditure quarters are fetched one at a time, newest first (each is its
+  // own upstream CSV; sequential keeps the proxy polite and the card fills
+  // progressively). Stop early once quarters stop matching the member — older
+  // reports belong to their predecessor.
+  useEffect(() => {
+    setExp(null);
+    const p = data?.profile;
+    if (!p?.riding) return;
+    let stale = false;
+    (async () => {
+      try {
+        const list = await getJSON('/api/expenditures/quarters');
+        const rows = [];
+        let matched = false;
+        let misses = 0;
+        for (const qtr of list) {
+          if (stale) return;
+          const r = await getJSON(
+            `/api/expenditures?fy=${qtr.fy}&q=${qtr.q}&riding=${encodeURIComponent(
+              p.riding
+            )}&mp=${encodeURIComponent(p.name)}`
+          );
+          rows.push(r);
+          if (r.mine) {
+            matched = true;
+            misses = 0;
+          } else if (matched && ++misses >= 2) break;
+          else if (!matched && rows.length >= 6) break;
+          if (!stale) setExp({ rows: [...rows], done: false });
+        }
+        if (!stale) setExp({ rows, done: true });
+      } catch {
+        if (!stale) setExp({ rows: [], done: true });
+      }
+    })();
+    return () => {
+      stale = true;
+    };
+  }, [data]);
+
   if (err) return <ErrorCard msg={err} />;
   if (!data) return <Loading label="Brewing this member's record…" />;
 
@@ -344,7 +507,6 @@ export default function Profile() {
       name: 'Members’ expenditures',
       desc: 'Quarterly office, travel and hospitality spending',
       href: 'https://www.ourcommons.ca/proactivedisclosure/en/members',
-      tag: 'integration planned',
     },
     {
       name: 'Campaign finance',
@@ -482,6 +644,8 @@ export default function Profile() {
       {p.riding && (
         <FinanceCard riding={p.riding} mpName={p.name} province={p.province} finance={finance} />
       )}
+
+      {p.riding && <ExpendituresCard mpName={p.name} exp={exp} />}
 
       <div className="card" id="career">
         <div className="card-title">Career in the House</div>
