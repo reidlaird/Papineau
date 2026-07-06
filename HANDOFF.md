@@ -1,5 +1,55 @@
 # HANDOFF
 
+## 2026-07-05→06 — Deployed to production (Vercel + Render)
+
+**What happened:** App went from "builds but no data anywhere" to fully live.
+**Production: https://papineau.vercel.app** — verified end-to-end (341 MPs, votes,
+bills through the proxy chain).
+
+**Architecture of the deployment:**
+- **Vercel** (team `vandelay` → project `papineau`, Hobby, user `reidlaird-3304`)
+  builds the client on every push to `main` (Vite preset, all default settings —
+  audited, correct) and serves `dist/` from its CDN. It does NOT run
+  `server/index.js` — never port it to serverless; the disk cache + slow polite
+  crawls are deliberate.
+- **Render** (workspace "My Workspace", GitHub-OAuth sign-in) runs the Express API:
+  Blueprint **papineau** (`exs-d95k7khoagis738ukhkg`) → web service **papineau**
+  (`srv-d95k7u7avr4c73aghpp0`, free plan) at **https://papineau.onrender.com**,
+  health check `/api/health`, `HONESTEA_CONTACT=reid.laird@live.ca`.
+- **`vercel.json`** glues them: `/api/*` rewrites to papineau.onrender.com, rest
+  falls back to `/index.html` (fixes react-router deep links). If the Render URL
+  ever changes, update this file.
+- Commit `2fd3704` did both config changes: added `vercel.json` and pinned
+  `engines.node` to `24.x` (open `>=20` made Vercel warn about silent major
+  auto-upgrades; 24 matches local v24.18.0 and both hosts; Vercel's dashboard Node
+  setting is overridden by this field — keep it pinned).
+
+**Deploy workflows (asymmetric — the thing to remember):**
+- Client change → `git push` to `main`, done (Vercel auto-deploys ~20s; other
+  branches get preview URLs). Already-deployed SHAs are skipped.
+- Server change → push, then Render dashboard → service papineau → **Manual
+  Deploy → Deploy latest commit**. No auto-deploy because the repo is connected by
+  public URL (Render's GitHub App never installed). Installing the app ("Configure
+  account" on Render's connect-repo page, GitHub consent screen — Reid must click)
+  would make both halves auto-deploy. `render.yaml` edits DO sync automatically
+  (blueprint-managed).
+
+**Gotchas added this session:**
+- Free Render instance spins down after ~15 idle min → first API call takes ~50s
+  (looks like a hang through the Vercel proxy, then works). Fix when annoying:
+  UptimeRobot ping to `/api/health` every 5 min (per render.yaml comments).
+- `data/cache/` lives on Render's ephemeral disk — wiped each deploy/restart. Fine
+  by design.
+- Render dashboard sign-in is GitHub OAuth in Chrome; papineau.onrender.com
+  answering plain "Not Found" + `x-render-routing: no-server` header means the
+  service doesn't exist / isn't deployed (that's how the missing blueprint was
+  diagnosed).
+
+**Next steps (all optional):** UptimeRobot keep-warm; install Render GitHub App if
+manual server deploys get old; custom domain; README still says "local tool" —
+could add live URL + Deployment section; `render-deploy` branch (local+origin) is
+merged — safe to delete. Feature roadmap unchanged (below).
+
 ## 2026-07-05 (later) — "My rep" issue lookup + GitHub
 
 **What happened:** Two things. (1) Project is now a git repo pushed to
