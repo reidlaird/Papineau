@@ -424,6 +424,15 @@ const getEdaData = memoAsync(async () =>
   JSON.parse(zlib.gunzipSync(await fs.promises.readFile(EDA_PATH)).toString('utf8'))
 );
 
+// Registry of Lobbyists communications naming House-of-Commons DPOHs, keyed
+// by normalized member name (see scripts/build-lobbying.mjs for the filter
+// and amendment-dedupe rules).
+const LOBBY_PATH = path.join(ROOT, 'data', 'lobbying', 'mp-communications.json.gz');
+
+const getLobbyData = memoAsync(async () =>
+  JSON.parse(zlib.gunzipSync(await fs.promises.readFile(LOBBY_PATH)).toString('utf8'))
+);
+
 // Find the profile MP among a riding's campaigns. Exact normalized match
 // first; middle names/initials differ between EC and openparliament, so fall
 // back to same last name + compatible first token.
@@ -758,6 +767,23 @@ app.get('/api/eda', async (req, res) => {
       }))
       .sort((a, b) => b.year - a.year);
     res.json({ riding: hit.name, built: data.built, years });
+  } catch (e) {
+    res.status(502).json({ error: String(e.message || e) });
+  }
+});
+
+// Registered lobbying of this member: oral & arranged communications from
+// the Registry of Lobbyists where the member appears as the office holder
+// contacted. Exact normalized-name hit first, then the same first/last
+// fallback the finance match uses ("Rob" vs "Robert" etc.).
+app.get('/api/lobbying', async (req, res) => {
+  try {
+    const mp = String(req.query.mp || '').slice(0, 200).trim();
+    if (!mp) return res.status(400).json({ error: 'mp required' });
+    const data = await getLobbyData();
+    const lobbying =
+      data.dpoh[norm(mp)] || matchCampaign(Object.values(data.dpoh), mp) || null;
+    res.json({ mp, built: data.built, lobbying });
   } catch (e) {
     res.status(502).json({ error: String(e.message || e) });
   }

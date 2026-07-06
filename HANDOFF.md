@@ -1,5 +1,29 @@
 # HANDOFF
 
+## 2026-07-06 (overnight loop, ~01:40) — Registered lobbying on MP profiles
+
+**What happened:** **"Registered lobbying of this office" card (#lobbying)** —
+Registry of Lobbyists monthly communication reports, offline-artifact pattern
+(654 KB gz: 8,622 House-of-Commons DPOH names, 373,678 communications with
+11,115 amended reports deduplicated via PREV_COMLOG_ID chains). Branch
+`lobby-watch`, PR opened.
+
+**Gotchas (all encoded in scripts/build-lobbying.mjs header):**
+- lobbycanada.gc.ca's WAF rejects curl AND PowerShell — **Node fetch with a
+  browser User-Agent works** (that's how the 23 MB zip must be fetched).
+- The CSVs are **Windows-1252, not UTF-8** — decode latin1 or French names
+  corrupt and norm() matching breaks.
+- DPOH titles are unusable as a filter ("MP" / "Member of Parliament" /
+  "Député" / typo "Parliment" / parliamentary-secretary titles) — filter on
+  INSTITUTION ~ /house of commons/i and match by member NAME server-side
+  (exact norm, then matchCampaign first/last fallback).
+- Face-validity checks: E. May 869 comms (top: David Suzuki Foundation),
+  Poilievre 385, M. Michel 31 (top: Canadian Medical Association).
+
+**After merge:** Render Manual Deploy (artifact + route), prod verify.
+Remaining roadmap idea: French toggle. Nice-to-haves: turnout tile, in-app
+vote/bill pages, ethics registry (no bulk export — needs scraping research).
+
 ## 2026-07-06 (overnight loop, later still) — Riding war chests (EDA finance)
 
 **What happened:** First post-roadmap feature, via the new **branch + PR
