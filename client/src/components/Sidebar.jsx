@@ -28,6 +28,7 @@ export default function Sidebar() {
 
       <nav className="nav">
         {link('/', 'Members', '👥', true)}
+        {link('/my-rep', 'My rep', '📍')}
 
         {onMemberPage && (
           <>

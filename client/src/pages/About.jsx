@@ -3,6 +3,7 @@ export default function About() {
     ['MP directory & profiles', 'OpenParliament.ca API', 'live'],
     ['Voting record', 'OpenParliament.ca (House roll-calls)', 'live'],
     ['Bills', 'OpenParliament.ca · LEGISinfo links', 'live'],
+    ['My rep — riding lookup & vote comparison', 'Represent API (Open North) + OpenParliament', 'live'],
     ['Campaign finance', 'Elections Canada political financing database', 'planned'],
     ['Ethics & disclosures', 'Conflict of Interest and Ethics Commissioner registry', 'planned'],
     ['Lobbying activity', 'Registry of Lobbyists (open data)', 'planned'],
@@ -52,7 +53,8 @@ export default function About() {
         <p className="muted">
           Live data is served through a local caching proxy (6-hour TTL) to keep traffic to the
           volunteer-run openparliament.ca API minimal. Parliamentary data © House of Commons,
-          made usable by openparliament.ca.
+          made usable by openparliament.ca. Postal-code riding lookup and riding adjacency come
+          from the Represent API by Open North.
         </p>
       </div>
     </div>

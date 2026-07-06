@@ -29,6 +29,12 @@ npm run dev
   result and yea/nay split), sponsored bills (linked to LEGISinfo), career timeline,
   contact info and constituency offices, and their statistically most-said word in
   Hansard.
+- **My rep** — type your postal code and the issue that's bugging you: finds your
+  riding and MP (via the Represent API's postal-code concordance), searches the
+  current session's divisions and bills for that issue, and shows how your MP voted
+  side-by-side with the MPs of every adjacent riding (boundary `touches` query) —
+  including a "voted the same as your MP" agreement tally. Bill numbers (`C-26`)
+  work as queries too.
 - **House votes** — the latest recorded divisions.
 - **Bills** — the most recently introduced bills.
 - Every profile links out to the member's official records (ourcommons.ca page,
@@ -37,8 +43,9 @@ npm run dev
 ## Architecture
 
 ```
-server/index.js   Express on :3020 — proxies api.openparliament.ca, reshapes JSON,
-                  caches every upstream response to data/cache/ (6h TTL), serves dist/
+server/index.js   Express on :3020 — proxies api.openparliament.ca and
+                  represent.opennorth.ca, reshapes JSON, caches every upstream
+                  response to data/cache/ (6h TTL), serves dist/
 client/           React 18 + Vite SPA (react-router)
 ```
 
@@ -52,6 +59,7 @@ per-ballot vote lookups run sequentially for the same reason. Optionally set
 | Section | Canadian source | Status |
 |---|---|---|
 | Member directory / profiles | [OpenParliament API](https://api.openparliament.ca/) | ✅ live |
+| Find-your-rep + neighbouring ridings | [Represent API](https://represent.opennorth.ca/) (Open North) | ✅ live |
 | Floor activity (roll-call votes) | OpenParliament (House divisions) | ✅ live |
 | Sponsored bills | OpenParliament + [LEGISinfo](https://www.parl.ca/legisinfo/en/bills) links | ✅ live |
 | Campaign finance | [Elections Canada political financing database](https://www.elections.ca/WPAPPS/WPF/EN/Home/Index) (CSV exports) | 🔜 planned |

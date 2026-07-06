@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from './components/Sidebar.jsx';
 import Directory from './pages/Directory.jsx';
+import MyRep from './pages/MyRep.jsx';
 import Profile from './pages/Profile.jsx';
 import Votes from './pages/Votes.jsx';
 import Bills from './pages/Bills.jsx';
@@ -37,6 +38,7 @@ export default function App() {
         )}
         <Routes>
           <Route path="/" element={<Directory />} />
+          <Route path="/my-rep" element={<MyRep />} />
           <Route path="/mp/:slug" element={<Profile />} />
           <Route path="/votes" element={<Votes />} />
           <Route path="/bills" element={<Bills />} />

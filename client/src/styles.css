@@ -619,6 +619,162 @@ a.extlink:hover .list-row-title {
   vertical-align: top;
 }
 
+/* ---------- my rep ---------- */
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 190px 1fr auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.hero-grid .microlabel {
+  margin-bottom: 6px;
+}
+
+.hero-input {
+  width: 100%;
+}
+
+.btn {
+  background: var(--indigo-700);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 9px 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--indigo-600);
+}
+
+.chips-tight {
+  margin-bottom: 0;
+}
+
+.repcard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  color: var(--ink);
+}
+
+a.repcard:hover {
+  text-decoration: none;
+}
+
+a.repcard:hover .repcard-name {
+  color: var(--indigo-700);
+}
+
+.repcard-name {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 7px;
+}
+
+.chip-on {
+  border-color: var(--indigo-500);
+  color: var(--indigo-700);
+  background: #eef0fd;
+}
+
+.chip-off {
+  opacity: 0.5;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.compare-table th.mp-col {
+  text-align: center;
+  min-width: 84px;
+}
+
+.compare-table td.mp-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.compare-desc {
+  min-width: 240px;
+}
+
+.compare-desc a {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.compare-desc a:hover {
+  color: var(--indigo-700);
+}
+
+.you-col {
+  background: #f5f5fe;
+}
+
+.mp-colhead {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.mp-colname {
+  font-family: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.party-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.you-tag {
+  background: var(--indigo-700);
+  color: #fff;
+  border-radius: 5px;
+  font-size: 9px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ballot-sm {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.loading-inline {
+  padding: 8px 0;
+}
+
+.attribution {
+  margin-top: 4px;
+}
+
 /* ---------- states ---------- */
 
 .loading {
@@ -673,5 +829,9 @@ a.extlink:hover .list-row-title {
   .sidebar-footer,
   .navlink-anchor {
     display: none;
+  }
+  .hero-grid {
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
 }
