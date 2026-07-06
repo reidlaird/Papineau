@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
 const memberAnchors = [
@@ -70,22 +71,60 @@ const icons = {
 export default function Sidebar() {
   const location = useLocation();
   const onMemberPage = location.pathname.startsWith('/mp/');
+  const [open, setOpen] = useState(false);
+  const close = () => setOpen(false);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
 
   const link = (to, label, icon, end = false) => (
-    <NavLink to={to} end={end} className={({ isActive }) => 'navlink' + (isActive ? ' active' : '')}>
+    <NavLink
+      to={to}
+      end={end}
+      onClick={close}
+      className={({ isActive }) => 'navlink' + (isActive ? ' active' : '')}
+    >
       <span className="navlink-icon">{icon}</span>
       {label}
     </NavLink>
   );
 
   return (
-    <aside className="sidebar">
-      <div className="brand">
-        <span className="brand-icon">🍵</span>
-        <span className="brand-name">HonesTea</span>
+    <aside className={'sidebar' + (open ? ' sidebar-open' : '')}>
+      <div className="sidebar-top">
+        <div className="brand">
+          <span className="brand-icon">🍵</span>
+          <span className="brand-name">HonesTea</span>
+        </div>
+        <button
+          type="button"
+          className="nav-toggle"
+          aria-expanded={open}
+          aria-controls="site-nav"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          onClick={() => setOpen((v) => !v)}
+        >
+          <Icon>
+            {open ? (
+              <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" />
+            ) : (
+              <path d="M2.5 4.2h11M2.5 8h11M2.5 11.8h11" />
+            )}
+          </Icon>
+        </button>
       </div>
 
-      <nav className="nav">
+      <nav className="nav" id="site-nav">
         {link('/', 'Members', icons.members, true)}
         {link('/my-rep', 'My rep', icons.rep)}
 
@@ -93,7 +132,7 @@ export default function Sidebar() {
           <>
             <div className="navgroup-label">This member</div>
             {memberAnchors.map((a) => (
-              <a key={a.hash} className="navlink navlink-anchor" href={a.hash}>
+              <a key={a.hash} className="navlink navlink-anchor" href={a.hash} onClick={close}>
                 <span className="navlink-icon">·</span>
                 {a.label}
               </a>

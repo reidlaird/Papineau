@@ -102,6 +102,12 @@ h1 {
   overflow-y: auto;
 }
 
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -109,6 +115,29 @@ h1 {
   font-weight: 700;
   font-size: 17px;
   padding: 4px 10px 16px;
+}
+
+/* Hamburger — mobile only, see media query */
+.nav-toggle {
+  display: none;
+  background: rgba(255, 255, 255, 0.14);
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  cursor: pointer;
+}
+
+.nav-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.nav-toggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 .brand-icon {
@@ -1023,25 +1052,80 @@ a.repcard:hover .repcard-name {
 @media (max-width: 860px) {
   .layout {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
   }
+
+  /* Sidebar becomes a sticky top bar; the nav lives in a toggled drawer */
   .sidebar {
-    position: static;
+    position: sticky;
+    top: 0;
+    z-index: 40;
     height: auto;
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 4px;
+    overflow: visible;
+    padding: 10px 14px;
+    box-shadow: 0 1px 6px rgba(23, 24, 28, 0.22);
   }
+
+  .brand {
+    padding: 0 2px;
+  }
+
+  .nav-toggle {
+    display: grid;
+  }
+
   .nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
+    display: none;
+    flex: none;
   }
-  .navgroup-label,
-  .sidebar-footer,
-  .navlink-anchor {
+
+  .sidebar-open .nav {
+    display: flex;
+    padding-top: 8px;
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Finger-sized targets inside the drawer */
+  .sidebar-open .navlink {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .sidebar-open .navlink-anchor {
+    padding: 10px 12px 10px 18px;
+    font-size: 14px;
+  }
+
+  .sidebar-footer {
     display: none;
   }
+
+  .sidebar-open .sidebar-footer {
+    display: block;
+    margin-top: 10px;
+  }
+
+  .topbar {
+    padding: 12px 16px 0;
+  }
+
+  .topbar form {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .search {
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .page {
+    padding: 18px 16px 48px;
+  }
+
   .hero-grid {
     grid-template-columns: 1fr;
     align-items: stretch;
