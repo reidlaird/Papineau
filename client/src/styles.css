@@ -935,6 +935,34 @@ a.repcard:hover .repcard-name {
   color: var(--muted);
 }
 
+/* ---------- campaign finance ---------- */
+
+.fin-headline {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 4px 0 6px;
+  flex-wrap: wrap;
+}
+
+.fin-total {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.fin-headline-meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.fin-missing {
+  font-size: 12.5px;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
 /* ---------- states ---------- */
 
 .loading {

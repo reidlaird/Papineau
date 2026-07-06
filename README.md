@@ -5,9 +5,9 @@
 🔗 **Live at [papineau.vercel.app](https://papineau.vercel.app)**
 
 A dashboard for Canadian Members of Parliament: who they are, how they vote,
-what they sponsor, and (eventually) how their campaigns are financed and what they
-disclose. Inspired by *Article One*, a US congressional-records app; HonesTea is the
-Canadian steep.
+what they sponsor, how their ridings have voted, and how their campaigns are
+financed. Inspired by *Article One*, a US congressional-records app; HonesTea is
+the Canadian steep.
 
 ## Quick start (local)
 
@@ -37,6 +37,15 @@ npm run dev
   side-by-side with the MPs of every adjacent riding (boundary `touches` query) —
   including a "voted the same as your MP" agreement tally. Bill numbers (`C-26`)
   work as queries too.
+- **Elections** — each riding's results for the last four general elections
+  (Elections Canada official results): per-candidate result bars and a
+  margin-of-victory trend.
+- **Campaign finance** — itemized contributions to the member's campaigns from
+  Elections Canada's audited-returns open data: total raised per election,
+  receipts-by-size bars, share of the riding's field, home-province share and
+  in-kind amounts. Aggregates are precomputed from the 2.2 GB dump by
+  `scripts/build-finance.mjs` and committed (105 KB), so production never touches
+  the dump — re-run the script to refresh (source updates weekly).
 - **House votes** — the latest recorded divisions.
 - **Bills** — the most recently introduced bills.
 - Every profile links out to the member's official records (ourcommons.ca page,
@@ -70,22 +79,20 @@ request after a quiet spell can take ~a minute to wake up.
 | Find-your-rep + neighbouring ridings | [Represent API](https://represent.opennorth.ca/) (Open North) | ✅ live |
 | Floor activity (roll-call votes) | OpenParliament (House divisions) | ✅ live |
 | Sponsored bills | OpenParliament + [LEGISinfo](https://www.parl.ca/legisinfo/en/bills) links | ✅ live |
-| Campaign finance | [Elections Canada political financing database](https://www.elections.ca/WPAPPS/WPF/EN/Home/Index) (CSV exports) | 🔜 planned |
+| Election results & margin trend | Elections Canada official results (table 12 CSVs) | ✅ live |
+| Campaign finance | [Elections Canada political financing open data](https://www.elections.ca/content.aspx?section=fin&dir=oda&document=index&lang=e) (audited contributions) | ✅ live |
 | Personal finances / ethics | [Conflict of Interest & Ethics Commissioner registry](https://ciec-ccie.parl.gc.ca/) | 🔜 planned |
 | Lobbying ("who's calling") | [Registry of Lobbyists](https://lobbycanada.gc.ca/) open data | 🔜 planned |
 | MRA spending → Members' expenditures | [House proactive disclosure](https://www.ourcommons.ca/proactivedisclosure/en/members) (quarterly CSV) | 🔜 planned |
 | District demographics | StatCan census profiles by federal electoral district | 🔜 planned |
-| Election results & margin trend | Elections Canada official results (CSV) | 🔜 planned |
 
 ## Roadmap ideas
 
-1. **Elections section** — riding-level results + margin trend from Elections Canada
-   official-results CSVs (one-time download into `data/`).
-2. **Campaign finance** — parse candidate/EDA returns; receipts-by-size breakdown and
-   top-vendor table like the reference app.
-3. **Expenditures** — quarterly Members' Expenditure Report CSVs; category breakdown.
-4. **Lobbying watch** — registered communications naming the member's office.
-5. Riding demographics from the census profile API; French UI toggle (`name.fr` is
+1. **Expenditures** — quarterly Members' Expenditure Report CSVs; category breakdown.
+2. **Riding-association finance** — the EDA slice of the same contributions dump,
+   for the "war chest between elections" picture.
+3. **Lobbying watch** — registered communications naming the member's office.
+4. Riding demographics from the census profile API; French UI toggle (`name.fr` is
    already in the data).
 
 Parliamentary data © House of Commons, made usable by

@@ -1,5 +1,76 @@
 # HANDOFF
 
+## 2026-07-06 — Campaign finance (roadmap #2)
+
+**What happened:** Roadmap item #2 shipped: **Campaign finance section on MP
+profiles** (`#finance` card + sidebar anchor) from Elections Canada's audited
+contributions open data. README refreshed (Elections + finance now ✅ in the
+data-source map; roadmap renumbered).
+
+**⚠ Server changed → needs Render Manual Deploy** (dashboard → service papineau →
+Manual Deploy → Deploy latest commit). Vercel picks the client up on push. Until
+then prod profiles show the finance card with its "no returns" empty message
+(old server 404s /api/finance → getJSON throws → client catch sets events: []).
+
+**Architecture — the important decision:** the source
+(`od_cntrbtn_audt_e.zip`, the "as reviewed" contributions dataset, updated
+weekly) is a 115 MB zip holding one 2.2 GB CSV — every contribution to every
+entity since 2004. Render free tier (0.1 CPU, disk wiped per spin-down) can't
+chew that per boot, so `scripts/build-finance.mjs` pre-aggregates offline and
+the artifact is **committed**: `data/finance/candidate-contributions.json.gz`
+(105 KB gz; Candidates entity, events ≥2015 = GE42–45 + 18 by-elections, 2,967
+campaigns). Refresh = `node scripts/build-finance.mjs` (downloads the zip to
+data/finance/, gitignored) + commit. Worth re-running occasionally through
+~2027: **GE45 returns are still being audited** (GE45 has 3,978 rows vs GE42's
+19,681 — that's audit lag, not a bug; the UI carries a caveat).
+
+**What --inspect established about the dump** (also in the script header):
+one report part only ("Statement of Contributions Received"), contributor type
+always Individuals, zero returns with >1 Form ID (no amendment double-counting),
+blank-name rows all $0.00. **The data is ITEMIZED contributions only** — the Act
+requires itemizing gifts over $200, so totals ≠ all money raised; UI copy says
+so. Candidate-level totals are small vs US intuitions (Singh GE43: $30!) because
+Canadian small-dollar fundraising is central-party/EDA — that's real, not a
+parse bug (verified: independent row-recount of Poilievre GE44 = $20,321/25 rows,
+exact artifact match).
+
+**Server:** `/api/finance?riding=<name>&mp=<name>` → riding-scoped like
+/api/elections (norm-matched key), events newest-first with all campaigns'
+field totals + `top` 3, and `mine` = the MP's campaign matched by norm name
+(fallback: same last name + compatible first token — EC uses "SMITH, Bob J"-ish
+variants). MP who ran elsewhere earlier simply doesn't match those events.
+Artifact loaded lazily via memoAsync + gunzipSync.
+
+**Client:** `FinanceCard` in Profile.jsx mirrors ElectionsCard's grammar —
+margin-trend columns reused for per-election $ trend (party colour), per-event
+blocks with receipts-by-size bars (edges 250/500/1000), meta line (field share,
+home-province %, in-kind), muted note listing events with data but no matching
+return, and a top-campaigns fallback when nothing matches (e.g. Poilievre in
+Battle River—Crowfoot: shows Kurek's GE45 return — correct, he arrived by
+by-election and that return isn't audited yet). New CSS: .fin-headline,
+.fin-total, .fin-headline-meta, .fin-missing.
+
+**Verified in preview:** May (1 matched GE + missing-events note), Kwan (trend +
+2 blocks, field share 54%, 68% from BC), Boulerice (accents/em-dash riding, 3
+GEs), Poilievre (fallback path). Mobile ≤620px stacking inherited from
+.result-row reuse. `npm run build` clean. preview_screenshot timed out both
+tries this session (eval/snapshot/inspect all fine — the flakiness is real).
+
+**Gotchas:**
+- The build script's zip parsing is minimal (single deflate entry, header
+  skipped by hand) — if EC ever re-packs the dump as multi-file zip it needs
+  yauzl or similar.
+- `od_cntrbtn_de_e.zip` is the "as submitted" twin (158 MB) — we deliberately
+  use "as reviewed" (`_audt_`).
+- WebFetch/WebSearch tooling 529'd repeatedly this session; curl straight to
+  elections.ca worked fine (their pages are plain ASP.NET HTML, grep-able).
+
+**Next steps:** Render manual deploy. Roadmap: expenditures (ourcommons
+quarterly CSVs) → riding-association finance (same dump, EDA entity) →
+demographics. The finance card could later gain: contributions-by-month within
+the writ period (received-date is in the dump but not aggregated), and a
+directory-level "biggest war chests" page.
+
 ## 2026-07-05→06 (later) — Elections feature + design-critique pass
 
 **What happened:** Three things. (1) Roadmap item #1 shipped: **Elections section

@@ -111,11 +111,186 @@ function ElectionsCard({ riding, elections }) {
   );
 }
 
+const fmtMoney = (n) => '$' + Math.round(n).toLocaleString('en-CA');
+const fmtMoneyShort = (n) =>
+  n >= 995000
+    ? `$${(n / 1e6).toFixed(1)}M`
+    : n >= 1000
+      ? `$${Math.round(n / 1000)}k`
+      : `$${Math.round(n)}`;
+
+const evLabel = (e) => (e.kind === 'ge' ? `General election ${e.ge}` : 'By-election');
+
+// [250, 500, 1000] → "Up to $250", "$250–$500", "$500–$1,000", "Over $1,000"
+const bucketLabels = (edges) => [
+  `Up to $${edges[0]}`,
+  ...edges.slice(1).map((e, i) => `$${edges[i]}–$${e.toLocaleString('en-CA')}`),
+  `Over $${edges[edges.length - 1].toLocaleString('en-CA')}`,
+];
+
+function FinanceBlock({ e, edges, homeProvince }) {
+  const m = e.mine;
+  const total = m.monetary + m.nonMonetary;
+  const fieldTotal = e.fieldMonetary + e.fieldNonMonetary;
+  const color = partyMeta(m.party).color;
+  const homeAmt = (homeProvince && m.provinces[homeProvince]) || 0;
+  const share = fieldTotal > 0 ? Math.round((total / fieldTotal) * 100) : null;
+  return (
+    <div className="ge-block">
+      <div className="microlabel">
+        {fmtDate(e.date)} · {evLabel(e)}
+      </div>
+      <div className="fin-headline">
+        <span className="fin-total">{fmtMoney(total)}</span>
+        <span className="fin-headline-meta">
+          {m.count} itemized contribution{m.count === 1 ? '' : 's'}
+          {m.count > 0 ? ` · average ${fmtMoney(total / m.count)}` : ''}
+        </span>
+      </div>
+      {bucketLabels(edges).map((label, i) => (
+        <div className="result-row" key={label}>
+          <div className="result-name">{label}</div>
+          <div className="result-track">
+            <span
+              className="result-fill"
+              style={{
+                width: `${total > 0 ? (m.bucketAmounts[i] / total) * 100 : 0}%`,
+                background: color,
+                display: 'block',
+              }}
+            />
+          </div>
+          <div className="result-nums">
+            <b>{fmtMoney(m.bucketAmounts[i])}</b> · {m.bucketCounts[i]}
+          </div>
+        </div>
+      ))}
+      <div className="ge-meta">
+        {share != null
+          ? `${share}% of the ${fmtMoneyShort(fieldTotal)} reported by ${e.candidates} campaign${e.candidates === 1 ? '' : 's'} in the riding`
+          : ''}
+        {homeAmt > 0 && total > 0 ? ` · ${Math.round((homeAmt / total) * 100)}% from ${homeProvince}` : ''}
+        {m.nonMonetary > 0 ? ` · includes ${fmtMoney(m.nonMonetary)} in goods & services` : ''}
+      </div>
+    </div>
+  );
+}
+
+function FinanceCard({ riding, mpName, province, finance }) {
+  const events = finance?.events;
+  const matched = (events || []).filter((e) => e.mine);
+  const maxTotal = Math.max(...matched.map((e) => e.mine.monetary + e.mine.nonMonetary), 1);
+  const newest = events?.[0];
+  return (
+    <div className="card" id="finance">
+      <div className="card-title">Campaign finance in {riding}</div>
+      {finance === null && (
+        <div className="loading loading-inline">
+          <span className="spinner" />
+          Following the money…
+        </div>
+      )}
+      {events?.length === 0 && (
+        <p className="muted">
+          No candidate returns under this riding’s current name yet — full records live in
+          Elections Canada’s financial-returns database.
+        </p>
+      )}
+      {events?.length > 0 && (
+        <>
+          {matched.length > 1 && (
+            <>
+              <div className="microlabel">Reported contributions · this member’s campaigns</div>
+              <div className="margin-trend">
+                {[...matched].reverse().map((e) => {
+                  const total = e.mine.monetary + e.mine.nonMonetary;
+                  return (
+                    <div
+                      className="margin-col"
+                      key={e.date}
+                      title={`${e.date.slice(0, 4)} — ${fmtMoney(total)} reported (${e.mine.count} contributions)`}
+                    >
+                      <span className="margin-val">{fmtMoneyShort(total)}</span>
+                      <div className="margin-bar">
+                        <span
+                          className="margin-fill"
+                          style={{
+                            height: `${Math.max((total / maxTotal) * 100, 5)}%`,
+                            background: partyMeta(e.mine.party).color,
+                            display: 'block',
+                          }}
+                        />
+                      </div>
+                      <span className="margin-year">{e.date.slice(0, 4)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+          {matched.map((e) => (
+            <FinanceBlock key={e.date} e={e} edges={finance.bucketEdges} homeProvince={province} />
+          ))}
+          {matched.length > 0 && matched.length < events.length && (
+            <p className="muted fin-missing">
+              No itemized contributions under this member’s name for{' '}
+              {events
+                .filter((e) => !e.mine)
+                .map((e) => `${evLabel(e)} (${e.date.slice(0, 4)})`)
+                .join(' · ')}
+              .
+            </p>
+          )}
+          {matched.length === 0 && newest && (
+            <>
+              <p className="muted">
+                No return under {mpName}’s name in this riding’s records — they may have run
+                elsewhere, or their return may still be in audit. Top reported campaigns:
+              </p>
+              <div className="microlabel">
+                {fmtDate(newest.date)} · {evLabel(newest)}
+              </div>
+              {newest.top.map((t) => (
+                <div className="result-row" key={t.name}>
+                  <div className="result-name">
+                    {t.name}
+                    <span className="result-party"> · {t.party}</span>
+                  </div>
+                  <div className="result-track">
+                    <span
+                      className="result-fill"
+                      style={{
+                        width: `${(t.total / Math.max(newest.top[0].total, 1)) * 100}%`,
+                        background: partyMeta(t.party).color,
+                        display: 'block',
+                      }}
+                    />
+                  </div>
+                  <div className="result-nums">
+                    <b>{fmtMoney(t.total)}</b>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+          <p className="muted attribution">
+            Itemized contributions from candidates’ campaign returns, Elections Canada open data
+            (as reviewed{finance.built ? `, ${finance.built}` : ''}). Donations over $200 must be
+            itemized — smaller gifts appear only in return totals. Party and riding-association
+            fundraising are separate returns, and recent elections fill in as audits complete.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function Profile() {
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
   const [elections, setElections] = useState(null);
+  const [finance, setFinance] = useState(null);
 
   useEffect(() => {
     setData(null);
@@ -132,6 +307,19 @@ export default function Profile() {
     getJSON(`/api/elections?riding=${encodeURIComponent(riding)}`)
       .then((d) => !stale && setElections(d.elections))
       .catch(() => !stale && setElections([]));
+    return () => {
+      stale = true;
+    };
+  }, [data]);
+
+  useEffect(() => {
+    setFinance(null);
+    const p = data?.profile;
+    if (!p?.riding) return;
+    let stale = false;
+    getJSON(`/api/finance?riding=${encodeURIComponent(p.riding)}&mp=${encodeURIComponent(p.name)}`)
+      .then((d) => !stale && setFinance(d))
+      .catch(() => !stale && setFinance({ events: [] }));
     return () => {
       stale = true;
     };
@@ -160,9 +348,8 @@ export default function Profile() {
     },
     {
       name: 'Campaign finance',
-      desc: 'Candidate and riding-association returns, Elections Canada',
+      desc: 'Full candidate and riding-association returns, Elections Canada',
       href: 'https://www.elections.ca/WPAPPS/WPF/EN/Home/Index',
-      tag: 'integration planned',
     },
     {
       name: 'Ethics disclosures',
@@ -291,6 +478,10 @@ export default function Profile() {
       </div>
 
       {p.riding && <ElectionsCard riding={p.riding} elections={elections} />}
+
+      {p.riding && (
+        <FinanceCard riding={p.riding} mpName={p.name} province={p.province} finance={finance} />
+      )}
 
       <div className="card" id="career">
         <div className="card-title">Career in the House</div>

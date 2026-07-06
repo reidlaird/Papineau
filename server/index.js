@@ -8,6 +8,7 @@ import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -400,6 +401,38 @@ const getElectionData = memoAsync(async () => {
   return out;
 });
 
+// ---------- campaign finance (Elections Canada audited contributions) ----------
+// Per-campaign aggregates precomputed by scripts/build-finance.mjs from the
+// 2.2 GB contributions open-data dump and committed at data/finance/ — this
+// process only gunzips ~1 file at boot. Amounts are the itemized
+// contributions campaigns reported (gifts over $200 must be itemized;
+// smaller ones only appear when a campaign itemized them anyway).
+
+const FINANCE_PATH = path.join(ROOT, 'data', 'finance', 'candidate-contributions.json.gz');
+
+const getFinanceData = memoAsync(async () =>
+  JSON.parse(zlib.gunzipSync(await fs.promises.readFile(FINANCE_PATH)).toString('utf8'))
+);
+
+// Find the profile MP among a riding's campaigns. Exact normalized match
+// first; middle names/initials differ between EC and openparliament, so fall
+// back to same last name + compatible first token.
+function matchCampaign(campaigns, mpName) {
+  const target = norm(mpName);
+  const exact = campaigns.find((c) => norm(c.name) === target);
+  if (exact) return exact;
+  const t = target.split(' ');
+  if (t.length < 2) return null;
+  const [tFirst, tLast] = [t[0], t[t.length - 1]];
+  return (
+    campaigns.find((c) => {
+      const p = norm(c.name).split(' ');
+      const [pFirst, pLast] = [p[0], p[p.length - 1]];
+      return pLast === tLast && (pFirst.startsWith(tFirst) || tFirst.startsWith(pFirst));
+    }) || null
+  );
+}
+
 // ---------- routes ----------
 
 const app = express();
@@ -521,6 +554,49 @@ app.get('/api/elections', async (req, res) => {
       if (hit) elections.push({ ge, date, ...hit });
     }
     res.json({ riding, elections });
+  } catch (e) {
+    res.status(502).json({ error: String(e.message || e) });
+  }
+});
+
+// Campaign finance for a riding: per electoral event, every candidate
+// campaign's reported contributions, with the profile MP's own campaign
+// singled out when a name match lands. Riding-scoped like /api/elections —
+// an MP who ran elsewhere earlier simply won't match in those events.
+app.get('/api/finance', async (req, res) => {
+  try {
+    const riding = String(req.query.riding || '').slice(0, 200).trim();
+    const mp = String(req.query.mp || '').slice(0, 200).trim();
+    if (!riding) return res.status(400).json({ error: 'riding required' });
+    const data = await getFinanceData();
+    const hit = data.ridings[norm(riding)];
+    if (!hit) return res.json({ riding, bucketEdges: data.bucketEdges, events: [] });
+
+    const byEvent = new Map();
+    for (const c of hit.campaigns) {
+      if (!byEvent.has(c.event)) byEvent.set(c.event, []);
+      byEvent.get(c.event).push(c);
+    }
+    const events = [...byEvent.entries()]
+      .map(([ei, campaigns]) => {
+        const total = (c) => c.monetary + c.nonMonetary;
+        const mine = mp ? matchCampaign(campaigns, mp) : null;
+        return {
+          ...data.events[ei],
+          candidates: campaigns.length,
+          fieldMonetary: campaigns.reduce((s, c) => s + c.monetary, 0),
+          fieldNonMonetary: campaigns.reduce((s, c) => s + c.nonMonetary, 0),
+          fieldCount: campaigns.reduce((s, c) => s + c.count, 0),
+          top: [...campaigns]
+            .sort((a, b) => total(b) - total(a))
+            .slice(0, 3)
+            .map((c) => ({ name: c.name, party: c.party, total: total(c), mine: c === mine })),
+          mine,
+        };
+      })
+      .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+    res.json({ riding: hit.name, bucketEdges: data.bucketEdges, built: data.built, events });
   } catch (e) {
     res.status(502).json({ error: String(e.message || e) });
   }
