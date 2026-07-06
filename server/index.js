@@ -46,7 +46,12 @@ async function cachedGet(url, opts = {}) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 15000);
     try {
-      res = await fetch(url, { headers: { 'User-Agent': USER_AGENT }, signal: controller.signal });
+      // Accept-Language must be explicit: undici's default "*" 500s StatCan's
+      // SDMX service (its language-tag parser rejects the literal wildcard).
+      res = await fetch(url, {
+        headers: { 'User-Agent': USER_AGENT, 'Accept-Language': 'en' },
+        signal: controller.signal,
+      });
     } finally {
       clearTimeout(timer);
     }
@@ -508,6 +513,59 @@ const getExpQuarter = memoAsync(async (key) => {
     });
 });
 
+// ---------- riding demographics (StatCan 2021 Census Profile) ----------
+// SDMX web data service: one small CSV per geography per request. FED
+// profiles use the 2023 representation order (dguid 2023A0004 + FED code);
+// the Population-and-dwellings block (chars 1–7) was never re-released for
+// those districts, so population comes from the age-table total (char 8).
+// Canada and the provinces ride the DF_PR flow for comparators.
+
+const CENSUS_API = 'https://api.statcan.gc.ca/census-recensement/profile/sdmx/rest/data';
+const CENSUS_TTL_MS = 90 * 24 * 60 * 60 * 1000; // census data never moves
+const CENSUS_CHARS = [
+  { key: 'population', id: 8, stat: 1 },
+  { key: 'avgAge', id: 39, stat: 1 },
+  { key: 'medianHouseholdIncome', id: 229, stat: 1 },
+  { key: 'immigrantsShare', id: 1515, stat: 4 },
+  { key: 'renterShare', id: 1402, stat: 4 },
+  { key: 'medianRent', id: 1480, stat: 1 },
+  { key: 'bachelorsShare', id: 2024, stat: 4 }, // 25–64 cohort
+  { key: 'unemploymentRate', id: 2230, stat: 4 }, // census reference week, May 2021
+];
+
+// Riding name → 5-digit FED code via the boundary set sitting MPs attach to.
+// The unsuffixed federal-electoral-districts set is the OLD 2013 order (338
+// districts) — don't use it.
+const getFedCodes = memoAsync(async () => {
+  const rows = await repFetchAll(
+    '/boundaries/federal-electoral-districts-2023-representation-order/'
+  );
+  return new Map(rows.map((b) => [norm(b.name), b.external_id]));
+});
+
+async function censusProfile(flow, dguid) {
+  const ids = CENSUS_CHARS.map((c) => c.id).join('+');
+  const url = new URL(`${CENSUS_API}/STC_CP,${flow}/A5.${dguid}.1.${ids}.`);
+  url.searchParams.set('format', 'csv');
+  const csv = await cachedGet(url, { text: true, ttl: CENSUS_TTL_MS });
+  const byChar = new Map();
+  for (const row of parseCsv(csv).slice(1)) {
+    if (row.length < 8 || row[7] === '') continue;
+    const id = parseInt(row[4], 10);
+    if (!byChar.has(id)) byChar.set(id, {});
+    byChar.get(id)[row[5]] = parseFloat(row[7]);
+  }
+  const out = {};
+  for (const { key, id, stat } of CENSUS_CHARS) {
+    const v = byChar.get(id)?.[stat];
+    out[key] = Number.isFinite(v) ? v : null;
+  }
+  return out;
+}
+
+const getCensusCanada = memoAsync(() => censusProfile('DF_PR', '2021A000011124'));
+const getCensusProvince = memoAsync((code) => censusProfile('DF_PR', `2021A0002${code}`));
+
 // ---------- routes ----------
 
 const app = express();
@@ -722,6 +780,26 @@ app.get('/api/expenditures', async (req, res) => {
         reporting: totals.length,
       },
     });
+  } catch (e) {
+    res.status(502).json({ error: String(e.message || e) });
+  }
+});
+
+// Census snapshot for the member's riding, with Canada and the home province
+// for scale. 2021 Census, 2023 representation-order districts.
+app.get('/api/demographics', async (req, res) => {
+  try {
+    const riding = String(req.query.riding || '').slice(0, 200).trim();
+    if (!riding) return res.status(400).json({ error: 'riding required' });
+    const fedCode = (await getFedCodes()).get(norm(riding));
+    if (!fedCode) return res.json({ riding, values: null });
+    const provCode = String(fedCode).slice(0, 2);
+    const [values, canada, province] = await Promise.all([
+      censusProfile('DF_FED', `2023A0004${fedCode}`),
+      getCensusCanada(),
+      getCensusProvince(provCode),
+    ]);
+    res.json({ riding, fedCode, values, canada, province });
   } catch (e) {
     res.status(502).json({ error: String(e.message || e) });
   }
