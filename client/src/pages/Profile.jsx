@@ -507,6 +507,115 @@ function ExpendituresCard({ mpName, exp }) {
   );
 }
 
+function LobbyingCard({ mpName, lobby }) {
+  const l = lobby?.lobbying;
+  const years = l ? Object.keys(l.byYear).sort() : [];
+  const trendYears = years.slice(-12);
+  const maxYear = Math.max(...trendYears.map((y) => l?.byYear[y] || 0), 1);
+  const maxClient = Math.max(...(l?.topClients || []).map((c) => c.n), 1);
+  return (
+    <div className="card" id="lobbying">
+      <div className="card-title">Registered lobbying of this office</div>
+      {lobby === null && (
+        <div className="loading loading-inline">
+          <span className="spinner" />
+          Checking the visitor log…
+        </div>
+      )}
+      {lobby && !l && (
+        <p className="muted">
+          No registered communications name {mpName} as the office holder contacted — or
+          they’re filed under a different spelling in the Registry of Lobbyists.
+        </p>
+      )}
+      {l && (
+        <>
+          <div className="fin-headline">
+            <span className="fin-total">{l.total.toLocaleString('en-CA')}</span>
+            <span className="fin-headline-meta">
+              reported communication{l.total === 1 ? '' : 's'}
+              {years.length ? ` since ${years[0]}` : ''}
+            </span>
+          </div>
+          {trendYears.length > 1 && (
+            <div className="margin-trend">
+              {trendYears.map((y) => (
+                <div
+                  className="margin-col"
+                  key={y}
+                  title={`${y} — ${l.byYear[y]} communication${l.byYear[y] === 1 ? '' : 's'}`}
+                >
+                  <span className="margin-val">{l.byYear[y]}</span>
+                  <div className="margin-bar">
+                    <span
+                      className="margin-fill"
+                      style={{
+                        height: `${Math.max((l.byYear[y] / maxYear) * 100, 5)}%`,
+                        background: 'var(--indigo-500)',
+                        display: 'block',
+                      }}
+                    />
+                  </div>
+                  <span className="margin-year">{y}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {l.topClients.length > 0 && (
+            <>
+              <div className="microlabel">Most frequent clients</div>
+              {l.topClients.map((c) => (
+                <div className="result-row" key={c.client}>
+                  <div className="result-name" title={c.client}>
+                    {c.client}
+                  </div>
+                  <div className="result-track">
+                    <span
+                      className="result-fill"
+                      style={{
+                        width: `${(c.n / maxClient) * 100}%`,
+                        background: 'var(--indigo-500)',
+                        display: 'block',
+                      }}
+                    />
+                  </div>
+                  <div className="result-nums">
+                    <b>{c.n}</b>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+          {l.recent.length > 0 && (
+            <>
+              <div className="microlabel">Latest reports</div>
+              {l.recent.map((c, i) => (
+                <div className="list-row" key={i}>
+                  <div className="list-row-body">
+                    <div className="list-row-title">{c.client || '(client not stated)'}</div>
+                    <div className="list-row-meta">
+                      {fmtDate(c.date)}
+                      {c.subjects.length ? ` · ${c.subjects.join(' · ')}` : ''}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+          <p className="muted attribution">
+            Oral and arranged communications from the{' '}
+            <a href="https://lobbycanada.gc.ca/" target="_blank" rel="noreferrer">
+              Registry of Lobbyists
+            </a>{' '}
+            naming this member as the office holder contacted (amended reports deduplicated;
+            as published {lobby.built}). Registrants file by the 15th of the following month.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
 const DEMO_ROWS = [
   ['population', 'Population, 2021', (v) => v.toLocaleString('en-CA')],
   ['avgAge', 'Average age', (v) => `${v.toFixed(1)} yrs`],
@@ -577,6 +686,7 @@ export default function Profile() {
   const [exp, setExp] = useState(null);
   const [demo, setDemo] = useState(null);
   const [eda, setEda] = useState(null);
+  const [lobby, setLobby] = useState(null);
 
   useEffect(() => {
     setData(null);
@@ -632,6 +742,19 @@ export default function Profile() {
     getJSON(`/api/eda?riding=${encodeURIComponent(riding)}`)
       .then((d) => !stale && setEda(d))
       .catch(() => !stale && setEda({ years: [] }));
+    return () => {
+      stale = true;
+    };
+  }, [data]);
+
+  useEffect(() => {
+    setLobby(null);
+    const name = data?.profile?.name;
+    if (!name) return;
+    let stale = false;
+    getJSON(`/api/lobbying?mp=${encodeURIComponent(name)}`)
+      .then((d) => !stale && setLobby(d))
+      .catch(() => !stale && setLobby({ lobbying: null }));
     return () => {
       stale = true;
     };
@@ -839,6 +962,8 @@ export default function Profile() {
       {p.riding && <ExpendituresCard mpName={p.name} exp={exp} />}
 
       {p.riding && <DistrictCard riding={p.riding} province={p.province} demo={demo} />}
+
+      <LobbyingCard mpName={p.name} lobby={lobby} />
 
       <div className="card" id="career">
         <div className="card-title">Career in the House</div>

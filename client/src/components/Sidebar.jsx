@@ -10,6 +10,7 @@ const memberAnchors = [
   { hash: '#warchest', label: 'War chest' },
   { hash: '#expenditures', label: 'Spending' },
   { hash: '#district', label: 'District' },
+  { hash: '#lobbying', label: 'Lobbying' },
   { hash: '#career', label: 'Career' },
   { hash: '#sources', label: 'Public records' },
 ];

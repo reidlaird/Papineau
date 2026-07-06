@@ -49,6 +49,11 @@ npm run dev
 - **Riding war chests** — each riding association's reported fundraising by
   fiscal year (2015→), from the same Elections Canada contributions dump,
   pre-aggregated offline alongside the candidate artifact.
+- **Registered lobbying** — every oral & arranged communication naming the
+  member as the office holder contacted, from the Registry of Lobbyists open
+  data: yearly trend, most frequent clients, latest reports. Amended reports
+  deduplicated; artifact rebuilt from the monthly export by
+  `scripts/build-lobbying.mjs`.
 - **Office & travel spending** — the member's quarterly expenditures (salaries,
   travel, hospitality, contracts) from the House of Commons proactive-disclosure
   CSVs, with a spending trend, category bars per quarter, and the House median
@@ -94,14 +99,13 @@ request after a quiet spell can take ~a minute to wake up.
 | Campaign finance | [Elections Canada political financing open data](https://www.elections.ca/content.aspx?section=fin&dir=oda&document=index&lang=e) (audited contributions) | ✅ live |
 | Riding-association fundraising | Same contributions dump, EDA slice (annual returns) | ✅ live |
 | Personal finances / ethics | [Conflict of Interest & Ethics Commissioner registry](https://ciec-ccie.parl.gc.ca/) | 🔜 planned |
-| Lobbying ("who's calling") | [Registry of Lobbyists](https://lobbycanada.gc.ca/) open data | 🔜 planned |
+| Lobbying ("who's calling") | [Registry of Lobbyists](https://lobbycanada.gc.ca/) open data | ✅ live |
 | MRA spending → Members' expenditures | [House proactive disclosure](https://www.ourcommons.ca/proactivedisclosure/en/members) (quarterly CSV) | ✅ live |
 | District demographics | StatCan census profiles by federal electoral district | ✅ live |
 
 ## Roadmap ideas
 
-1. **Lobbying watch** — registered communications naming the member's office.
-2. French UI toggle (`name.fr` is already in the data).
+1. French UI toggle (`name.fr` is already in the data).
 
 Parliamentary data © House of Commons, made usable by
 [openparliament.ca](https://openparliament.ca). This is a personal,

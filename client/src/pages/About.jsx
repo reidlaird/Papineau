@@ -7,7 +7,7 @@ export default function About() {
     ['Campaign finance', 'Elections Canada political financing database', 'live'],
     ['Riding-association fundraising', 'Elections Canada political financing database', 'live'],
     ['Ethics & disclosures', 'Conflict of Interest and Ethics Commissioner registry', 'planned'],
-    ['Lobbying activity', 'Registry of Lobbyists (open data)', 'planned'],
+    ['Lobbying activity', 'Registry of Lobbyists (open data)', 'live'],
     ['Members’ expenditures', 'House of Commons proactive disclosure', 'live'],
     ['Riding demographics', 'Statistics Canada census profiles', 'live'],
     ['Election results & margins', 'Elections Canada official results (2015–2025)', 'live'],
