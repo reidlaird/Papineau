@@ -1,16 +1,1986 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HonesTea · Canadian MP records</title>
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍵</text></svg>"
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reid's AI Knowledge Library</title>
+<meta name="description" content="A curated, visual library of AI knowledge — machine learning fundamentals, deep learning, LLMs, agents, RAG, speech, and more. Animated diagrams, a glossary, and spaced-repetition flashcards.">
+<meta property="og:title" content="Reid's AI Knowledge Library">
+<meta property="og:description" content="A curated, visual library of AI knowledge — from ML fundamentals to LLMs, agents, and RAG. Animated diagrams, glossary, and flashcards in one page.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://reidlaird.github.io/ai-learning-dashboard/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Reid's AI Knowledge Library">
+<meta name="twitter:description" content="A curated, visual library of AI knowledge — ML fundamentals to LLMs, agents, and RAG.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%A0%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#f0eee9; --panel:#faf9f6; --panel2:#e9e5dc; --border:#ddd7ca;
+    --text:#2b2a26; --muted:#6e6a60; --accent:#177368; --accent2:#b85c38;
+    --green:#2f7d5b; --amber:#c99a2e; --radius:14px;
+    --body-text:#3d3b35; --code:#125f56;
+    --shadow:0 1px 3px rgba(60,55,45,.08), 0 4px 14px rgba(60,55,45,.06);
+    --flash-back1:#dde7e1; --flash-back2:#e8ddd2; --flash-text:#2b2a26;
+  }
+  [data-theme="dark"]{
+    --bg:#201f1c; --panel:#2a2925; --panel2:#35332d; --border:#454238;
+    --text:#edeae3; --muted:#a39e92; --accent:#4fb3a4; --accent2:#d98b68;
+    --green:#5fbf8f; --amber:#d9b45b;
+    --body-text:#cfcabf; --code:#8fd8cc;
+    --shadow:0 1px 3px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+    --flash-back1:#2e3d39; --flash-back2:#3a3229; --flash-text:#edeae3;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:"Segoe UI",system-ui,sans-serif; line-height:1.55; transition:background .3s ease, color .3s ease;}
+  .wrap{max-width:1100px; margin:0 auto; padding:24px 20px 80px;}
+  header{display:flex; align-items:flex-start; justify-content:space-between; gap:12px;}
+  header h1{font-size:clamp(1.45rem, 4vw, 2rem); font-weight:650; letter-spacing:-.01em;}
+  header p{color:var(--muted); margin-top:4px; font-size:.95rem;}
+  .theme-toggle{
+    background:var(--panel); border:1px solid var(--border); color:var(--text); border-radius:50%;
+    width:42px; height:42px; font-size:1.15rem; cursor:pointer; flex-shrink:0;
+    box-shadow:var(--shadow); transition:transform .15s ease, border-color .15s;
+  }
+  .theme-toggle:hover{border-color:var(--accent); transform:rotate(15deg);}
+  nav.tabs{display:flex; flex-wrap:wrap; gap:8px; margin:22px 0;}
+  nav.tabs button{
+    background:var(--panel); color:var(--muted); border:1px solid var(--border); border-radius:20px;
+    padding:8px 16px; cursor:pointer; font-size:.9rem; transition:all .15s;
+  }
+  nav.tabs button:hover{color:var(--text); border-color:var(--accent);}
+  nav.tabs button.active{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600;}
+  section.tab{display:none;}
+  section.tab.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+  .section-intro{color:var(--muted); margin-bottom:16px; font-size:.95rem; max-width:75ch;}
+  h2{font-size:clamp(1.15rem, 2.5vw, 1.4rem); margin-bottom:6px;}
+  h3.sub{font-size:1rem; color:var(--accent); margin:22px 0 10px; text-transform:uppercase; letter-spacing:.06em;}
+  details.card{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    margin-bottom:10px; overflow:hidden; box-shadow:var(--shadow);
+    transition:border-color .2s ease, background .3s ease;
+  }
+  details.card:hover{border-color:var(--accent);}
+  details.card summary{
+    padding:13px 16px; cursor:pointer; font-weight:600; list-style:none; display:flex; align-items:center; gap:10px;
+  }
+  details.card summary::-webkit-details-marker{display:none;}
+  details.card summary::before{content:"▸"; color:var(--accent); transition:transform .15s;}
+  details.card[open] summary::before{transform:rotate(90deg);}
+  details.card .body{padding:0 16px 16px; color:var(--body-text); font-size:.94rem;}
+  details.card .body p{margin-bottom:10px;}
+  details.card .body code{background:var(--panel2); padding:1px 6px; border-radius:4px; font-size:.88em; color:var(--code); font-family:Consolas,"Cascadia Mono",monospace;}
+  details.card .body table{border-collapse:collapse; margin:8px 0 12px; width:100%; font-size:.9rem;}
+  details.card .body th, details.card .body td{border:1px solid var(--border); padding:7px 10px; text-align:left;}
+  details.card .body th{background:var(--panel2); color:var(--text);}
+  .tag{font-size:.7rem; background:var(--panel2); color:var(--muted); padding:2px 8px; border-radius:10px; margin-left:auto; font-weight:500;}
+  ul.resources{list-style:none;}
+  ul.resources li{
+    display:flex; align-items:flex-start; gap:10px; background:var(--panel); border:1px solid var(--border);
+    border-radius:var(--radius); padding:12px 14px; margin-bottom:8px; box-shadow:var(--shadow);
+    transition:border-color .2s ease, transform .15s ease;
+  }
+  ul.resources li:hover{border-color:var(--accent); transform:translateY(-1px);}
+  ul.resources a{color:var(--accent); text-decoration:none; font-weight:600;}
+  ul.resources a:hover{text-decoration:underline;}
+  ul.resources .desc{color:var(--muted); font-size:.86rem; margin-top:2px;}
+  /* flashcards */
+  .flash-wrap{display:flex; flex-direction:column; align-items:center; gap:14px; margin-top:8px;}
+  .flashcard{
+    width:100%; max-width:560px; min-height:170px; perspective:1000px; cursor:pointer;
+  }
+  .flash-inner{
+    position:relative; width:100%; min-height:170px; transform-style:preserve-3d; transition:transform .5s;
+  }
+  .flashcard.flipped .flash-inner{transform:rotateY(180deg);}
+  .flash-face{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:var(--radius);
+    display:flex; align-items:center; justify-content:center; text-align:center; padding:22px;
+    border:1px solid var(--border);
+  }
+  .flash-front{background:var(--panel2); font-weight:600; font-size:1.05rem;}
+  .flash-back{background:linear-gradient(135deg,var(--flash-back1),var(--flash-back2)); transform:rotateY(180deg); font-size:.95rem; color:var(--flash-text);}
+  .flash-controls{display:flex; gap:10px;}
+  .flash-controls button{
+    background:var(--panel); border:1px solid var(--border); color:var(--text); border-radius:8px;
+    padding:8px 18px; cursor:pointer; font-size:.9rem;
+  }
+  .flash-controls button:hover{border-color:var(--accent);}
+  .flash-count{color:var(--muted); font-size:.85rem;}
+  .hint{color:var(--muted); font-size:.82rem; font-style:italic;}
+  svg.viz{display:block; margin:12px auto 14px; width:100%; max-width:480px; height:auto;}
+  svg.viz text{font-family:"Segoe UI",system-ui,sans-serif;}
+  .viz-caption{text-align:center; color:var(--muted); font-size:.8rem; font-style:italic; margin:-6px 0 12px;}
+  /* viz animations */
+  .viz .flow{stroke-dasharray:7 5; animation:dashflow 1.1s linear infinite;}
+  @keyframes dashflow{to{stroke-dashoffset:-24;}}
+  .viz .pulse{animation:vizpulse 2.4s ease-in-out infinite;}
+  @keyframes vizpulse{0%,100%{opacity:.45;} 50%{opacity:1;}}
+  .gd-ball{animation:gdball 7s cubic-bezier(.45,.05,.55,.95) infinite;}
+  @keyframes gdball{
+    0%,6%{transform:translate(0,0);} 20%,26%{transform:translate(43px,51px);}
+    40%,46%{transform:translate(86px,88px);} 60%,66%{transform:translate(124px,109px);}
+    80%,100%{transform:translate(148px,115px);}
+  }
+  .conv-win{animation:convwin 9.6s infinite;}
+  @keyframes convwin{
+    0%,11.9%{transform:translate(0,0);} 12.5%,24.4%{transform:translate(24px,0);}
+    25%,36.9%{transform:translate(48px,0);} 37.5%,49.4%{transform:translate(72px,0);}
+    50%,61.9%{transform:translate(0,24px);} 62.5%,74.4%{transform:translate(24px,24px);}
+    75%,86.9%{transform:translate(48px,24px);} 87.5%,100%{transform:translate(72px,24px);}
+  }
+  .conv-out{animation:convout 9.6s infinite;}
+  @keyframes convout{
+    0%,11.9%{transform:translate(0,0);} 12.5%,24.4%{transform:translate(16px,0);}
+    25%,36.9%{transform:translate(32px,0);} 37.5%,49.4%{transform:translate(48px,0);}
+    50%,61.9%{transform:translate(0,16px);} 62.5%,74.4%{transform:translate(16px,16px);}
+    75%,86.9%{transform:translate(32px,16px);} 87.5%,100%{transform:translate(48px,16px);}
+  }
+  .orbit{animation:orbit 9s linear infinite;}
+  @keyframes orbit{to{transform:rotate(360deg);}}
+  .sig-dot{animation:sigmove 3.6s ease-in-out infinite;}
+  @keyframes sigmove{
+    0%{transform:translate(0,0); opacity:0;} 10%{opacity:1;}
+    45%{transform:translate(130px,-20px);} 55%{transform:translate(130px,-20px);}
+    90%{transform:translate(260px,0); opacity:1;} 100%{transform:translate(260px,0); opacity:0;}
+  }
+  .gen1{animation:genA 6.5s infinite;}
+  .gen2{animation:genB 6.5s infinite;}
+  .gen3{animation:genC 6.5s infinite;}
+  @keyframes genA{0%,20%{opacity:0;} 28%,100%{opacity:1;}}
+  @keyframes genB{0%,45%{opacity:0;} 53%,100%{opacity:1;}}
+  @keyframes genC{0%,70%{opacity:0;} 78%,100%{opacity:1;}}
+  .sig-dot.d2{animation-name:sigmove2; animation-delay:1.8s;}
+  @keyframes sigmove2{
+    0%{transform:translate(0,0); opacity:0;} 10%{opacity:1;}
+    45%{transform:translate(130px,70px);} 55%{transform:translate(130px,70px);}
+    90%{transform:translate(260px,45px); opacity:1;} 100%{transform:translate(260px,45px); opacity:0;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .viz *, .viz{animation:none !important;}
+  }
+  /* search */
+  .search-wrap{position:relative; margin:14px 0 4px;}
+  #searchBox{
+    width:100%; padding:11px 16px; border-radius:24px; border:1px solid var(--border);
+    background:var(--panel); color:var(--text); font-size:.95rem; outline:none; box-shadow:var(--shadow);
+  }
+  #searchBox:focus{border-color:var(--accent);}
+  #searchResults{
+    position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:20; display:none;
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    box-shadow:var(--shadow); max-height:320px; overflow-y:auto;
+  }
+  #searchResults .sr-item{padding:10px 16px; cursor:pointer; border-bottom:1px solid var(--border);}
+  #searchResults .sr-item:last-child{border-bottom:none;}
+  #searchResults .sr-item:hover{background:var(--panel2);}
+  #searchResults .sr-title{font-weight:600; font-size:.92rem;}
+  #searchResults .sr-shelf{color:var(--muted); font-size:.78rem;}
+  #searchResults .sr-none{padding:12px 16px; color:var(--muted); font-size:.88rem; font-style:italic;}
+  .flash-hit{animation:hit 1.6s ease;}
+  @keyframes hit{0%,60%{background:var(--panel2); border-color:var(--accent);} 100%{}}
+  /* growth stages & related links */
+  .stage{font-size:.95em; flex-shrink:0;}
+  .rel{font-size:.85rem; color:var(--muted); border-top:1px dashed var(--border); padding-top:8px; margin-top:4px;}
+  .rel a{color:var(--accent); text-decoration:none; cursor:pointer;}
+  .rel a:hover{text-decoration:underline;}
+  /* glossary */
+  .glossary{margin-top:8px;}
+  .g-item{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:10px 14px; margin-bottom:6px; box-shadow:var(--shadow);}
+  .g-item dt{font-weight:650; color:var(--accent); display:inline;}
+  .g-item dd{display:inline; color:var(--body-text); font-size:.92rem; margin-left:4px;}
+  .g-item{cursor:pointer; transition:border-color .15s ease;}
+  .g-item:hover{border-color:var(--accent);}
+  .g-item::before{content:"\25B8"; color:var(--accent); display:inline-block; margin-right:8px; font-size:.8em; transition:transform .15s ease;}
+  .g-item.open::before{transform:rotate(90deg);}
+  .g-item:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .g-more{display:none; margin-top:9px; padding-top:9px; border-top:1px dashed var(--border); font-size:.9rem; color:var(--body-text); line-height:1.5;}
+  .g-item.open .g-more{display:block;}
+  .g-more .g-link{display:inline-block; margin-top:8px; color:var(--accent); text-decoration:none; font-weight:600; font-size:.86rem; cursor:pointer;}
+  .g-more .g-link:hover{text-decoration:underline;}
+  /* timeline */
+  .timeline{border-left:2px solid var(--border); margin:12px 0 0 10px; padding-left:22px;}
+  .tl-item{position:relative; margin-bottom:18px;}
+  .tl-item::before{
+    content:""; position:absolute; left:-29px; top:5px; width:12px; height:12px; border-radius:50%;
+    background:var(--accent); border:2px solid var(--bg);
+  }
+  .tl-item.winter::before{background:var(--muted);}
+  .tl-item.boom::before{background:var(--accent2);}
+  .tl-year{font-weight:700; color:var(--accent); font-size:.95rem;}
+  .tl-item.winter .tl-year{color:var(--muted);}
+  .tl-item.boom .tl-year{color:var(--accent2);}
+  .tl-text{color:var(--body-text); font-size:.93rem;}
+  /* spaced repetition */
+  .flash-due{color:var(--muted); font-size:.85rem;}
+  .rate-controls{display:none; gap:10px;}
+  .rate-controls button{border-radius:8px; padding:8px 16px; cursor:pointer; font-size:.9rem; border:1px solid var(--border); background:var(--panel); color:var(--text);}
+  .rate-controls .r-again{border-color:var(--accent2);}
+  .rate-controls .r-good{border-color:var(--accent);}
+  .rate-controls .r-easy{border-color:var(--green);}
+  .rate-controls button:hover{transform:translateY(-1px);}
+  footer{margin-top:40px; color:var(--muted); font-size:.8rem; text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>🧠 AI Knowledge Library</h1>
+      <p>A digital library of curated AI knowledge — from ML fundamentals out across the umbrella.</p>
+    </div>
+    <button class="theme-toggle" id="themeToggle" title="Toggle light/dark theme" aria-label="Toggle light/dark theme">🌙</button>
+  </header>
+
+  <div class="search-wrap">
+    <input id="searchBox" type="text" placeholder="🔍 Search the library…" autocomplete="off">
+    <div id="searchResults"></div>
+  </div>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="ml" class="active">ML Fundamentals</button>
+    <button data-tab="dl">Deep Learning</button>
+    <button data-tab="cv">Computer Vision</button>
+    <button data-tab="nlp">NLP &amp; LLMs</button>
+    <button data-tab="speech">Speech &amp; Docs</button>
+    <button data-tab="agents">Agents &amp; RAG</button>
+    <button data-tab="prompt">Prompting &amp; Fine-tuning</button>
+    <button data-tab="rl">Reinforcement Learning</button>
+    <button data-tab="rai">Responsible AI &amp; MLOps</button>
+    <button data-tab="local">Open &amp; Local Models</button>
+    <button data-tab="history">AI History</button>
+    <button data-tab="glossary">Glossary</button>
+    <button data-tab="cards">Flashcards</button>
+  </nav>
+
+  <!-- ============ ML FUNDAMENTALS ============ -->
+  <section class="tab active" id="tab-ml">
+    <h2>Machine Learning Fundamentals</h2>
+    <p class="section-intro">Notes from <a style="color:var(--accent)" href="https://learn.microsoft.com/en-us/training/modules/fundamentals-machine-learning/">Introduction to machine learning concepts</a> (Microsoft Learn) — the foundation everything else builds on.</p>
+
+    <h3 class="sub">Knowledge notes</h3>
+
+    <details class="card" id="c-ml-model" open>
+      <summary><span class="stage" title="Evergreen — well-developed note">🌳</span> What a machine learning model is <span class="tag">core</span></summary>
+      <div class="body">
+        <p>A model is software that encapsulates a <b>function</b>: it calculates an output from inputs. Defining that function from data is <b>training</b>; using it to predict new values is <b>inferencing</b>.</p>
+        <p>Training data = past observations. The observed attributes are <b>features</b> (<code>x</code>, usually a vector <code>[x1,x2,x3,...]</code>) and the known value you want to predict is the <b>label</b> (<code>y</code>). An algorithm fits the data to find <code>y = f(x)</code>. Predictions from the model are written <code>ŷ</code> ("y-hat") because they're calculated, not observed.</p>
+        <p><i>Example:</i> ice cream sales — weather measurements are <code>x</code>, ice creams sold is <code>y</code>.</p>
+        <p class="rel">↳ Related: <a data-jump="c-inference">Training vs inference — a model's two lives</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-inference">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Training vs inference: a model's two lives <span class="tag">core</span></summary>
+      <div class="body">
+        <p>Every model lives two very different lives. <b>Training</b> happens rarely: show the model data, measure error, adjust weights, repeat — hours or days of expensive GPU time. <b>Inference</b> (or <i>inferencing</i>) is everything after: the weights are <b>frozen</b> and the model just runs forward, turning new inputs into predictions — millions of times a day, where speed and cost per call are what matter.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 190" role="img" aria-label="Training phase with changing weights versus inference phase with frozen weights serving requests">
+          <rect x="12" y="30" width="228" height="125" rx="10" fill="var(--panel2)" stroke="var(--accent2)" stroke-width="1.5"/>
+          <text x="126" y="52" text-anchor="middle" fill="var(--accent2)" font-size="12" font-weight="700">TRAINING</text>
+          <rect x="28" y="70" width="84" height="30" rx="8" fill="var(--bg)" stroke="var(--border)"/>
+          <text x="70" y="89" text-anchor="middle" fill="var(--text)" font-size="10">data + labels</text>
+          <line class="flow" x1="116" y1="85" x2="144" y2="85" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="148" y="70" width="76" height="30" rx="8" fill="var(--bg)" stroke="var(--accent2)" stroke-width="2"/>
+          <text x="186" y="89" text-anchor="middle" fill="var(--text)" font-size="10">model (w)</text>
+          <path class="flow" d="M212,104 Q226,128 186,128 Q150,128 160,106" fill="none" stroke="var(--accent2)" stroke-width="2"/>
+          <text x="186" y="145" text-anchor="middle" fill="var(--muted)" font-size="9">weights update every step ↺</text>
+          <text x="126" y="170" text-anchor="middle" fill="var(--muted)" font-size="9" font-style="italic">occasional · expensive · learning</text>
+          <line class="flow" x1="248" y1="92" x2="288" y2="92" stroke="var(--green)" stroke-width="2.5"/>
+          <text x="268" y="80" text-anchor="middle" fill="var(--green)" font-size="9" font-weight="600">deploy</text>
+          <rect x="296" y="30" width="232" height="125" rx="10" fill="var(--panel2)" stroke="var(--green)" stroke-width="1.5"/>
+          <text x="412" y="52" text-anchor="middle" fill="var(--green)" font-size="12" font-weight="700">INFERENCE</text>
+          <g fill="var(--muted)" font-size="9.5">
+            <text x="322" y="78">request →</text>
+            <text x="322" y="98">request →</text>
+            <text x="322" y="118">request →</text>
+          </g>
+          <rect x="382" y="70" width="80" height="52" rx="8" fill="var(--bg)" stroke="var(--green)" stroke-width="2"/>
+          <text x="422" y="91" text-anchor="middle" fill="var(--text)" font-size="10">model 🔒</text>
+          <text x="422" y="106" text-anchor="middle" fill="var(--muted)" font-size="8.5">weights frozen</text>
+          <g fill="var(--body-text)" font-size="9.5">
+            <text x="470" y="78">→ ŷ</text>
+            <text x="470" y="98">→ ŷ</text>
+            <text x="470" y="118">→ ŷ</text>
+          </g>
+          <text x="412" y="145" text-anchor="middle" fill="var(--muted)" font-size="9">forward pass only — no learning</text>
+          <text x="412" y="170" text-anchor="middle" fill="var(--muted)" font-size="9" font-style="italic">constant · at scale · predicting</text>
+        </svg>
+        <p class="viz-caption">Left changes the model; right just uses it. Over a model's lifetime, inference dwarfs training in total compute and cost.</p>
+        <p>Inference comes in flavors: <b>real-time</b> (an endpoint answers each request in milliseconds — fraud checks, autocomplete), <b>batch</b> (score a million rows overnight), and <b>edge/on-device</b> (the model runs on your phone or laptop — no network, private by default). And one misconception worth killing: a deployed model <i>does not learn from your inputs</i>. If it seems to remember you, that's context or stored data being fed back in — the weights only change when someone retrains.</p>
+        <p class="rel">↳ Related: <a data-jump="c-llm-inference">LLM inference: one token at a time</a> · <a data-jump="c-mlops">MLOps in a nutshell</a> · <a data-jump="c-runlocal">Running models locally</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-ml-types">
+      <summary><span class="stage" title="Evergreen — well-developed note">🌳</span> Types of machine learning <span class="tag">core</span></summary>
+      <div class="body">
+        <svg class="viz" viewBox="0 0 520 190" role="img" aria-label="Machine learning taxonomy diagram">
+          <line x1="260" y1="40" x2="130" y2="75" stroke="var(--border)" stroke-width="2"/>
+          <line x1="260" y1="40" x2="390" y2="75" stroke="var(--border)" stroke-width="2"/>
+          <line x1="130" y1="105" x2="70" y2="145" stroke="var(--border)" stroke-width="2"/>
+          <line x1="130" y1="105" x2="195" y2="145" stroke="var(--border)" stroke-width="2"/>
+          <line x1="390" y1="105" x2="390" y2="145" stroke="var(--border)" stroke-width="2"/>
+          <rect x="185" y="10" width="150" height="30" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="260" y="30" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="600">Machine Learning</text>
+          <rect x="35" y="75" width="190" height="30" rx="8" fill="var(--panel2)" stroke="var(--accent2)"/>
+          <text x="130" y="95" text-anchor="middle" fill="var(--text)" font-size="12">Supervised · has labels</text>
+          <rect x="295" y="75" width="190" height="30" rx="8" fill="var(--panel2)" stroke="var(--accent2)"/>
+          <text x="390" y="95" text-anchor="middle" fill="var(--text)" font-size="12">Unsupervised · no labels</text>
+          <rect x="15" y="145" width="110" height="28" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+          <text x="70" y="164" text-anchor="middle" fill="var(--text)" font-size="12">Regression</text>
+          <rect x="135" y="145" width="120" height="28" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+          <text x="195" y="164" text-anchor="middle" fill="var(--text)" font-size="12">Classification</text>
+          <rect x="335" y="145" width="110" height="28" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+          <text x="390" y="164" text-anchor="middle" fill="var(--text)" font-size="12">Clustering</text>
+        </svg>
+        <p><b>Supervised learning</b> — training data includes known label values.</p>
+        <table>
+          <tr><th>Type</th><th>Predicts</th><th>Example</th></tr>
+          <tr><td>Regression</td><td>A numeric value</td><td>Ice cream sales from temperature</td></tr>
+          <tr><td>Binary classification</td><td>One of two classes (true/false)</td><td>Diabetes risk: yes/no</td></tr>
+          <tr><td>Multiclass classification</td><td>One of several classes</td><td>Penguin species: Adelie / Gentoo / Chinstrap</td></tr>
+        </table>
+        <p><b>Unsupervised learning</b> — no labels; the model finds structure on its own. Main type: <b>clustering</b>, grouping observations by feature similarity (e.g., segmenting customers).</p>
+        <p class="rel">↳ Related: <a data-jump="c-rl-core">Reinforcement learning — the third paradigm</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-regression">
+      <summary><span class="stage" title="Evergreen — well-developed note">🌳</span> Regression &amp; its evaluation metrics</summary>
+      <div class="body">
+        <p>Training is iterative: split data into <b>training</b> and <b>validation</b> sets, fit a function (e.g., linear regression), predict on the held-out set, compare <code>ŷ</code> to actual <code>y</code>, then adjust and repeat.</p>
+        <svg class="viz" viewBox="0 0 320 190" role="img" aria-label="Scatter plot with fitted regression line">
+          <line x1="40" y1="160" x2="300" y2="160" stroke="var(--muted)" stroke-width="1.5"/>
+          <line x1="40" y1="160" x2="40" y2="20" stroke="var(--muted)" stroke-width="1.5"/>
+          <text x="170" y="182" text-anchor="middle" fill="var(--muted)" font-size="11">feature (x) — e.g. temperature</text>
+          <text x="18" y="90" text-anchor="middle" fill="var(--muted)" font-size="11" transform="rotate(-90 18 90)">label (y) — sales</text>
+          <line x1="50" y1="150" x2="290" y2="45" stroke="var(--green)" stroke-width="2.5"/>
+          <circle cx="60" cy="140" r="4" fill="var(--accent)"/><circle cx="85" cy="128" r="4" fill="var(--accent)"/>
+          <circle cx="105" cy="135" r="4" fill="var(--accent)"/><circle cx="125" cy="110" r="4" fill="var(--accent)"/>
+          <circle cx="150" cy="105" r="4" fill="var(--accent)"/><circle cx="170" cy="112" r="4" fill="var(--accent)"/>
+          <circle cx="190" cy="85" r="4" fill="var(--accent)"/><circle cx="215" cy="80" r="4" fill="var(--accent)"/>
+          <circle cx="235" cy="88" r="4" fill="var(--accent)"/><circle cx="255" cy="60" r="4" fill="var(--accent)"/>
+          <circle cx="275" cy="55" r="4" fill="var(--accent)"/>
+          <text x="228" y="42" fill="var(--green)" font-size="12" font-weight="600">y = f(x)</text>
+        </svg>
+        <p class="viz-caption">The algorithm fits a line (function) through past observations; new x values slot into it to predict y.</p>
+        <table>
+          <tr><th>Metric</th><th>Meaning</th></tr>
+          <tr><td>MAE</td><td>Mean absolute error — average size of errors, all weighted equally</td></tr>
+          <tr><td>MSE</td><td>Mean squared error — squaring amplifies larger errors</td></tr>
+          <tr><td>RMSE</td><td>Root of MSE — back in the label's own units</td></tr>
+          <tr><td>R²</td><td>Proportion of variance the model explains (closer to 1 = better)</td></tr>
+        </table>
+      </div>
+    </details>
+
+    <details class="card" id="c-overfit">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Overfitting, underfitting &amp; why we hold out data <span class="tag">core</span></summary>
+      <div class="body">
+        <p>A model can fit training data <i>too</i> well: <b>overfitting</b> means it memorizes noise and quirks instead of the underlying pattern — great training scores, poor real-world predictions. <b>Underfitting</b> is the opposite: the model is too simple to capture the pattern at all.</p>
+        <svg class="viz" viewBox="0 0 480 190" role="img" aria-label="Good fit vs overfit comparison">
+          <g>
+            <line x1="30" y1="150" x2="220" y2="150" stroke="var(--muted)" stroke-width="1.5"/>
+            <line x1="30" y1="150" x2="30" y2="30" stroke="var(--muted)" stroke-width="1.5"/>
+            <circle cx="50" cy="128" r="4" fill="var(--accent)"/><circle cx="75" cy="112" r="4" fill="var(--accent)"/>
+            <circle cx="95" cy="122" r="4" fill="var(--accent)"/><circle cx="118" cy="92" r="4" fill="var(--accent)"/>
+            <circle cx="140" cy="98" r="4" fill="var(--accent)"/><circle cx="162" cy="70" r="4" fill="var(--accent)"/>
+            <circle cx="185" cy="76" r="4" fill="var(--accent)"/><circle cx="205" cy="52" r="4" fill="var(--accent)"/>
+            <path d="M40,138 Q125,110 212,48" fill="none" stroke="var(--green)" stroke-width="2.5"/>
+            <text x="125" y="175" text-anchor="middle" fill="var(--green)" font-size="12" font-weight="600">Good fit — captures the trend</text>
+          </g>
+          <g>
+            <line x1="270" y1="150" x2="460" y2="150" stroke="var(--muted)" stroke-width="1.5"/>
+            <line x1="270" y1="150" x2="270" y2="30" stroke="var(--muted)" stroke-width="1.5"/>
+            <circle cx="290" cy="128" r="4" fill="var(--accent)"/><circle cx="315" cy="112" r="4" fill="var(--accent)"/>
+            <circle cx="335" cy="122" r="4" fill="var(--accent)"/><circle cx="358" cy="92" r="4" fill="var(--accent)"/>
+            <circle cx="380" cy="98" r="4" fill="var(--accent)"/><circle cx="402" cy="70" r="4" fill="var(--accent)"/>
+            <circle cx="425" cy="76" r="4" fill="var(--accent)"/><circle cx="445" cy="52" r="4" fill="var(--accent)"/>
+            <path d="M282,140 L290,128 Q302,108 315,112 Q327,128 335,122 Q348,80 358,92 Q370,108 380,98 Q392,58 402,70 Q414,86 425,76 Q436,44 445,52" fill="none" stroke="var(--accent2)" stroke-width="2.5"/>
+            <text x="365" y="175" text-anchor="middle" fill="var(--accent2)" font-size="12" font-weight="600">Overfit — memorizes the noise</text>
+          </g>
+        </svg>
+        <p class="viz-caption">Both curves score well on training data — only the left one will predict new points well.</p>
+        <p>This is <i>why</i> data gets split into <b>training</b> and <b>validation</b> sets: validation data is the model's first encounter with points it never saw. The telltale sign of overfitting is training error still falling while validation error starts rising. Remedies: more data, simpler models, <b>regularization</b> (penalizing complexity), and early stopping.</p>
+        <p class="rel">↳ Related: <a data-jump="c-regression">Regression &amp; its evaluation metrics</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-binary">
+      <summary><span class="stage" title="Evergreen — well-developed note">🌳</span> Binary classification &amp; the confusion matrix</summary>
+      <div class="body">
+        <p>Algorithms (e.g., <b>logistic regression</b>) calculate the <b>probability</b> of the positive class; a threshold (typically 0.5) turns that into a predicted label.</p>
+        <svg class="viz" viewBox="0 0 320 190" role="img" aria-label="Two classes of points separated by a decision boundary">
+          <line x1="40" y1="160" x2="300" y2="160" stroke="var(--muted)" stroke-width="1.5"/>
+          <line x1="40" y1="160" x2="40" y2="20" stroke="var(--muted)" stroke-width="1.5"/>
+          <text x="170" y="182" text-anchor="middle" fill="var(--muted)" font-size="11">feature 1 — e.g. blood glucose</text>
+          <text x="18" y="90" text-anchor="middle" fill="var(--muted)" font-size="11" transform="rotate(-90 18 90)">feature 2 — weight</text>
+          <line x1="115" y1="25" x2="290" y2="155" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5"/>
+          <circle cx="70" cy="130" r="5" fill="var(--accent)"/><circle cx="90" cy="142" r="5" fill="var(--accent)"/>
+          <circle cx="85" cy="112" r="5" fill="var(--accent)"/><circle cx="112" cy="127" r="5" fill="var(--accent)"/>
+          <circle cx="122" cy="147" r="5" fill="var(--accent)"/><circle cx="65" cy="102" r="5" fill="var(--accent)"/>
+          <circle cx="200" cy="60" r="5" fill="var(--amber)"/><circle cx="222" cy="75" r="5" fill="var(--amber)"/>
+          <circle cx="242" cy="55" r="5" fill="var(--amber)"/><circle cx="212" cy="42" r="5" fill="var(--amber)"/>
+          <circle cx="255" cy="82" r="5" fill="var(--amber)"/><circle cx="232" cy="95" r="5" fill="var(--amber)"/>
+          <circle cx="60" cy="35" r="5" fill="var(--accent)"/><text x="72" y="39" fill="var(--muted)" font-size="11">class 0 (not at risk)</text>
+          <circle cx="60" cy="52" r="5" fill="var(--amber)"/><text x="72" y="56" fill="var(--muted)" font-size="11">class 1 (at risk)</text>
+        </svg>
+        <p class="viz-caption">The model learns a decision boundary (dashed); which side a new observation lands on decides its predicted class.</p>
+        <p>Predictions vs. reality form the <b>confusion matrix</b>: true positives (TP), true negatives (TN), false positives (FP), false negatives (FN).</p>
+        <table>
+          <tr><th>Metric</th><th>Formula</th><th>Answers</th></tr>
+          <tr><td>Accuracy</td><td>(TP+TN)/total</td><td>How often is it right overall?</td></tr>
+          <tr><td>Recall (TPR)</td><td>TP/(TP+FN)</td><td>Of actual positives, how many were caught?</td></tr>
+          <tr><td>Precision</td><td>TP/(TP+FP)</td><td>Of predicted positives, how many really were?</td></tr>
+          <tr><td>F1</td><td>2×(P×R)/(P+R)</td><td>Balance of precision &amp; recall</td></tr>
+          <tr><td>AUC</td><td>Area under ROC curve</td><td>How well it separates classes across all thresholds</td></tr>
+        </table>
+        <p><i>Accuracy can mislead on imbalanced data — a model predicting "no diabetes" for everyone can still score high accuracy.</i></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-multiclass">
+      <summary><span class="stage" title="Evergreen — well-developed note">🌳</span> Multiclass classification</summary>
+      <div class="body">
+        <p>Predicts one of several possible classes. Two common approaches:</p>
+        <p><b>One-vs-Rest (OvR)</b> — train a binary function per class ("Gentoo or not?"), pick the highest score. <b>Multinomial</b> — a single function (e.g., <b>softmax</b>) outputs a probability distribution across all classes, e.g. <code>[0.2, 0.7, 0.1]</code>, which sums to 1.</p>
+        <svg class="viz" viewBox="0 0 320 160" role="img" aria-label="Bar chart of softmax probabilities across three penguin classes">
+          <line x1="40" y1="120" x2="300" y2="120" stroke="var(--muted)" stroke-width="1.5"/>
+          <rect x="65" y="100" width="46" height="20" rx="3" fill="var(--accent)"/>
+          <rect x="140" y="50" width="46" height="70" rx="3" fill="var(--green)"/>
+          <rect x="215" y="110" width="46" height="10" rx="3" fill="var(--amber)"/>
+          <text x="88" y="93" text-anchor="middle" fill="var(--text)" font-size="12">0.2</text>
+          <text x="163" y="43" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="700">0.7 ✓</text>
+          <text x="238" y="103" text-anchor="middle" fill="var(--text)" font-size="12">0.1</text>
+          <text x="88" y="138" text-anchor="middle" fill="var(--muted)" font-size="11">Adelie</text>
+          <text x="163" y="138" text-anchor="middle" fill="var(--muted)" font-size="11">Gentoo</text>
+          <text x="238" y="138" text-anchor="middle" fill="var(--muted)" font-size="11">Chinstrap</text>
+          <text x="170" y="155" text-anchor="middle" fill="var(--muted)" font-size="10" font-style="italic">softmax output — probabilities sum to 1; highest wins</text>
+        </svg>
+      </div>
+    </details>
+
+    <details class="card" id="c-clustering">
+      <summary><span class="stage" title="Evergreen — well-developed note">🌳</span> Clustering (unsupervised)</summary>
+      <div class="body">
+        <p>Groups unlabeled observations by feature similarity. The most common algorithm is <b>k-means</b>: pick k centroids, assign each point to its nearest centroid, move centroids to their cluster's mean, repeat until stable.</p>
+        <svg class="viz" viewBox="0 0 320 190" role="img" aria-label="Three clusters of points, each with a centroid">
+          <ellipse cx="85" cy="62" rx="42" ry="34" fill="none" stroke="var(--green)" stroke-dasharray="5 4"/>
+          <circle cx="70" cy="55" r="4" fill="var(--green)"/><circle cx="92" cy="45" r="4" fill="var(--green)"/>
+          <circle cx="100" cy="72" r="4" fill="var(--green)"/><circle cx="75" cy="78" r="4" fill="var(--green)"/>
+          <circle cx="88" cy="62" r="4" fill="var(--green)"/>
+          <text x="85" y="66" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700" dx="14" dy="-10">✕</text>
+          <ellipse cx="230" cy="72" rx="42" ry="34" fill="none" stroke="var(--accent)" stroke-dasharray="5 4"/>
+          <circle cx="214" cy="62" r="4" fill="var(--accent)"/><circle cx="240" cy="56" r="4" fill="var(--accent)"/>
+          <circle cx="246" cy="82" r="4" fill="var(--accent)"/><circle cx="219" cy="88" r="4" fill="var(--accent)"/>
+          <circle cx="232" cy="72" r="4" fill="var(--accent)"/>
+          <text x="230" y="76" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700" dx="14" dy="-10">✕</text>
+          <ellipse cx="155" cy="145" rx="42" ry="32" fill="none" stroke="var(--amber)" stroke-dasharray="5 4"/>
+          <circle cx="138" cy="135" r="4" fill="var(--amber)"/><circle cx="165" cy="129" r="4" fill="var(--amber)"/>
+          <circle cx="170" cy="155" r="4" fill="var(--amber)"/><circle cx="143" cy="158" r="4" fill="var(--amber)"/>
+          <circle cx="155" cy="144" r="4" fill="var(--amber)"/>
+          <text x="155" y="149" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700" dx="14" dy="-10">✕</text>
+        </svg>
+        <p class="viz-caption">No labels needed — the algorithm discovers the groups itself. ✕ marks each cluster's centroid.</p>
+        <p>Evaluation is different without labels — metrics measure cluster separation, e.g. average distance to cluster center and <b>silhouette</b> (−1 to 1; closer to 1 = tight, well-separated clusters).</p>
+      </div>
+    </details>
+
+    <details class="card" id="c-dl-bridge">
+      <summary><span class="stage" title="Evergreen — well-developed note">🌳</span> Deep learning (the bridge to the next section)</summary>
+      <div class="body">
+        <p>An advanced form of ML using artificial <b>neural networks</b> — layers of neurons, each a function applying a <b>weight</b> (<code>w</code>) to inputs, wrapped in an <b>activation function</b> that decides whether the signal passes on. Many layers = a deeply nested function, hence "deep".</p>
+        <svg class="viz" viewBox="0 0 340 210" role="img" aria-label="Neural network with input, hidden, and output layers">
+          <g stroke="var(--border)" stroke-width="1">
+            <line x1="52" y1="60" x2="158" y2="40"/><line x1="52" y1="60" x2="158" y2="85"/><line x1="52" y1="60" x2="158" y2="130"/><line x1="52" y1="60" x2="158" y2="175"/>
+            <line x1="52" y1="105" x2="158" y2="40"/><line x1="52" y1="105" x2="158" y2="85"/><line x1="52" y1="105" x2="158" y2="130"/><line x1="52" y1="105" x2="158" y2="175"/>
+            <line x1="52" y1="150" x2="158" y2="40"/><line x1="52" y1="150" x2="158" y2="85"/><line x1="52" y1="150" x2="158" y2="130"/><line x1="52" y1="150" x2="158" y2="175"/>
+            <line x1="182" y1="40" x2="288" y2="60"/><line x1="182" y1="40" x2="288" y2="105"/><line x1="182" y1="40" x2="288" y2="150"/>
+            <line x1="182" y1="85" x2="288" y2="60"/><line x1="182" y1="85" x2="288" y2="105"/><line x1="182" y1="85" x2="288" y2="150"/>
+            <line x1="182" y1="130" x2="288" y2="60"/><line x1="182" y1="130" x2="288" y2="105"/><line x1="182" y1="130" x2="288" y2="150"/>
+            <line x1="182" y1="175" x2="288" y2="60"/><line x1="182" y1="175" x2="288" y2="105"/><line x1="182" y1="175" x2="288" y2="150"/>
+          </g>
+          <g fill="var(--panel2)">
+            <circle cx="40" cy="60" r="12" stroke="var(--accent)" stroke-width="2"/>
+            <circle cx="40" cy="105" r="12" stroke="var(--accent)" stroke-width="2"/>
+            <circle cx="40" cy="150" r="12" stroke="var(--accent)" stroke-width="2"/>
+            <circle cx="170" cy="40" r="12" stroke="var(--accent2)" stroke-width="2"/>
+            <circle cx="170" cy="85" r="12" stroke="var(--accent2)" stroke-width="2"/>
+            <circle cx="170" cy="130" r="12" stroke="var(--accent2)" stroke-width="2"/>
+            <circle cx="170" cy="175" r="12" stroke="var(--accent2)" stroke-width="2"/>
+            <circle cx="300" cy="60" r="12" stroke="var(--green)" stroke-width="2"/>
+            <circle cx="300" cy="105" r="12" stroke="var(--green)" stroke-width="2"/>
+            <circle cx="300" cy="150" r="12" stroke="var(--green)" stroke-width="2"/>
+          </g>
+          <circle class="sig-dot" cx="40" cy="105" r="5" fill="var(--accent2)"/>
+          <circle class="sig-dot d2" cx="40" cy="60" r="5" fill="var(--amber)"/>
+          <text x="40" y="200" text-anchor="middle" fill="var(--muted)" font-size="11">input (x)</text>
+          <text x="170" y="200" text-anchor="middle" fill="var(--muted)" font-size="11">hidden layers</text>
+          <text x="300" y="200" text-anchor="middle" fill="var(--muted)" font-size="11">output (ŷ)</text>
+        </svg>
+        <p class="viz-caption">Watch signals flow forward: each connection carries a weight; each node sums its weighted inputs and passes them through an activation function.</p>
+        <p>Training: feed features forward through layers → compare output <code>ŷ</code> to known <code>y</code> with a <b>loss function</b> → use <b>gradient descent</b> to work out how each weight should change → <b>backpropagate</b> the adjustments → repeat over <b>epochs</b>. Data is processed as matrices, which is why GPUs matter.</p>
+        <p class="rel">↳ Related: <a data-jump="c-nn-anatomy">Anatomy of a neural network</a> · <a data-jump="c-nn-learn">How a network learns</a></p>
+      </div>
+    </details>
+
+    <h3 class="sub">Source module</h3>
+    <ul class="resources">
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/fundamentals-machine-learning/">Introduction to machine learning concepts</a>
+        <div class="desc">The module these notes are distilled from (11 units, beginner).</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ DEEP LEARNING ============ -->
+  <section class="tab" id="tab-dl">
+    <h2>Deep Learning — and how it differs from classical ML</h2>
+    <p class="section-intro">What makes deep learning distinct? Short version — classical ML fits relatively simple functions to features <i>you</i> define; deep learning stacks layers of neurons that <i>learn</i> the features themselves.</p>
+
+    <h3 class="sub">Knowledge notes</h3>
+
+    <details class="card" id="c-mlvsdl" open>
+      <summary><span class="stage" title="Growing — actively studying">🌿</span> Classical ML vs deep learning <span class="tag">key distinction</span></summary>
+      <div class="body">
+        <table>
+          <tr><th></th><th>Classical ML</th><th>Deep Learning</th></tr>
+          <tr><td>Features</td><td>Hand-picked / engineered by humans</td><td>Learned automatically by hidden layers</td></tr>
+          <tr><td>Best data</td><td>Structured / tabular</td><td>Unstructured: images, audio, text</td></tr>
+          <tr><td>Data needs</td><td>Can work with small datasets</td><td>Usually needs large datasets</td></tr>
+          <tr><td>Compute</td><td>Modest (CPU is fine)</td><td>Heavy — GPUs for matrix math</td></tr>
+          <tr><td>Interpretability</td><td>Often explainable (e.g., decision trees)</td><td>Largely a "black box"</td></tr>
+          <tr><td>Examples</td><td>Linear/logistic regression, k-means, decision trees</td><td>CNNs, RNNs, transformers</td></tr>
+        </table>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 160" role="img" aria-label="Classical ML pipeline vs deep learning pipeline">
+          <text x="10" y="22" fill="var(--muted)" font-size="11" font-weight="600">CLASSICAL ML</text>
+          <rect x="10" y="32" width="70" height="30" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="45" y="51" text-anchor="middle" fill="var(--text)" font-size="11">data</text>
+          <line class="flow" x1="84" y1="47" x2="120" y2="47" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="124" y="32" width="150" height="30" rx="8" fill="var(--panel2)" stroke="var(--amber)"/>
+          <text x="199" y="51" text-anchor="middle" fill="var(--text)" font-size="11">features YOU engineer</text>
+          <line class="flow" x1="278" y1="47" x2="314" y2="47" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="318" y="32" width="110" height="30" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="373" y="51" text-anchor="middle" fill="var(--text)" font-size="11">simple model</text>
+          <line class="flow" x1="432" y1="47" x2="468" y2="47" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="472" y="32" width="56" height="30" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+          <text x="500" y="51" text-anchor="middle" fill="var(--text)" font-size="12">ŷ</text>
+          <text x="10" y="102" fill="var(--muted)" font-size="11" font-weight="600">DEEP LEARNING</text>
+          <rect x="10" y="112" width="70" height="30" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="45" y="131" text-anchor="middle" fill="var(--text)" font-size="11">raw data</text>
+          <line class="flow" x1="84" y1="127" x2="120" y2="127" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="124" y="112" width="304" height="30" rx="8" fill="var(--panel2)" stroke="var(--accent2)"/>
+          <text x="276" y="131" text-anchor="middle" fill="var(--text)" font-size="11">network learns features AND the classifier itself</text>
+          <line class="flow" x1="432" y1="127" x2="468" y2="127" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="472" y="112" width="56" height="30" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+          <text x="500" y="131" text-anchor="middle" fill="var(--text)" font-size="12">ŷ</text>
+        </svg>
+        <p class="viz-caption">The human-labor step disappears: hidden layers discover the useful features themselves.</p>
+        <p>Deep learning is a <i>subset</i> of ML — same goal (<code>y = f(x)</code>), but <code>f</code> is a deeply nested network of weighted functions rather than a single fitted equation.</p>
+      </div>
+    </details>
+
+    <details class="card" id="c-nn-anatomy">
+      <summary><span class="stage" title="Growing — actively studying">🌿</span> Anatomy of a neural network</summary>
+      <div class="body">
+        <p><b>Neuron</b>: computes a weighted sum of inputs, passes it through an <b>activation function</b> (e.g., ReLU, sigmoid) that decides whether/how strongly to fire. <b>Layers</b>: input layer (one neuron per feature) → hidden layers → output layer. When every neuron connects to every neuron in the next layer, it's a <b>fully connected network</b>.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 140" role="img" aria-label="ReLU, sigmoid, and tanh activation function curves">
+          <g>
+            <line x1="20" y1="100" x2="160" y2="100" stroke="var(--border)" stroke-width="1"/>
+            <line x1="90" y1="25" x2="90" y2="112" stroke="var(--border)" stroke-width="1"/>
+            <path d="M25,100 L90,100 L155,35" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="90" y="128" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">ReLU</text>
+            <text x="90" y="16" text-anchor="middle" fill="var(--muted)" font-size="10">negatives → 0</text>
+          </g>
+          <g>
+            <line x1="200" y1="100" x2="340" y2="100" stroke="var(--border)" stroke-width="1"/>
+            <line x1="270" y1="25" x2="270" y2="112" stroke="var(--border)" stroke-width="1"/>
+            <path d="M205,98 C250,96 245,32 335,30" fill="none" stroke="var(--accent2)" stroke-width="2.5"/>
+            <text x="270" y="128" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">Sigmoid</text>
+            <text x="270" y="16" text-anchor="middle" fill="var(--muted)" font-size="10">squashes to 0…1</text>
+          </g>
+          <g>
+            <line x1="380" y1="65" x2="520" y2="65" stroke="var(--border)" stroke-width="1"/>
+            <line x1="450" y1="25" x2="450" y2="112" stroke="var(--border)" stroke-width="1"/>
+            <path d="M385,102 C440,100 435,30 515,28" fill="none" stroke="var(--green)" stroke-width="2.5"/>
+            <text x="450" y="128" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">Tanh</text>
+            <text x="450" y="16" text-anchor="middle" fill="var(--muted)" font-size="10">squashes to −1…1</text>
+          </g>
+        </svg>
+        <p class="viz-caption">Without a non-linear activation, stacked layers would collapse into one linear equation — the "bend" is what gives depth its power.</p>
+        <p>For classification, the output layer typically uses <b>softmax</b> to produce a probability per class — e.g., <code>[0.2, 0.7, 0.1]</code> means class 1 is most probable.</p>
+      </div>
+    </details>
+
+    <details class="card" id="c-nn-learn">
+      <summary><span class="stage" title="Growing — actively studying">🌿</span> How a network learns: loss, gradient descent, backprop</summary>
+      <div class="body">
+        <p>1. Weights start random. 2. Feed training features forward → get <code>ŷ</code>. 3. A <b>loss function</b> quantifies how far <code>ŷ</code> is from the true <code>y</code>. 4. Because the network is one big differentiable function, calculus can determine each weight's influence on the loss — <b>gradient descent</b> nudges each weight downhill. 5. Adjustments are <b>backpropagated</b> through the layers. 6. Repeat over <b>epochs</b> until loss is acceptably low.</p>
+        <svg class="viz" viewBox="0 0 320 190" role="img" aria-label="Animated ball stepping down a loss curve toward the minimum">
+          <line x1="30" y1="170" x2="310" y2="170" stroke="var(--muted)" stroke-width="1.5"/>
+          <line x1="30" y1="170" x2="30" y2="20" stroke="var(--muted)" stroke-width="1.5"/>
+          <text x="170" y="186" text-anchor="middle" fill="var(--muted)" font-size="11">weight value</text>
+          <text x="16" y="95" text-anchor="middle" fill="var(--muted)" font-size="11" transform="rotate(-90 16 95)">loss</text>
+          <path d="M45,40 Q200,240 295,95" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+          <line x1="197" y1="158" x2="197" y2="172" stroke="var(--green)" stroke-width="2" stroke-dasharray="3 3"/>
+          <text x="215" y="150" fill="var(--green)" font-size="11" font-weight="600">minimum</text>
+          <circle class="gd-ball" cx="48" cy="35" r="7" fill="var(--accent2)"/>
+        </svg>
+        <p class="viz-caption">Each step follows the slope downhill; steps shrink as the ground flattens near the minimum.</p>
+        <p><i>Mental model: a hiker descending a foggy valley by always stepping in the steepest downward direction.</i></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-archs">
+      <summary><span class="stage" title="Growing — actively studying">🌿</span> Architectures to know</summary>
+      <div class="body">
+        <p><b>CNNs</b> (convolutional) — slide learned filters across images to detect edges → shapes → objects; the workhorse of vision. <b>RNNs/LSTMs</b> — process sequences step by step; largely superseded for language. <b>Transformers</b> — use <i>attention</i> to weigh how every part of an input relates to every other part in parallel; power modern LLMs and increasingly vision too.</p>
+      </div>
+    </details>
+
+    <h3 class="sub">Curated resources</h3>
+    <ul class="resources">
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/fundamentals-machine-learning/8-deep-learning">Deep learning unit</a>
+        <div class="desc">The DL unit from the ML fundamentals module — a solid recap before going deeper.</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/train-evaluate-deep-learn-models/">Train and evaluate deep learning models</a>
+        <div class="desc">Hands-on: build a CNN with PyTorch or TensorFlow, incl. transfer learning.</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/paths/tensorflow-fundamentals/">TensorFlow fundamentals (path)</a>
+        <div class="desc">Multi-module path if you want a full framework grounding.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ COMPUTER VISION ============ -->
+  <section class="tab" id="tab-cv">
+    <h2>Computer Vision</h2>
+    <p class="section-intro">Teaching machines to "see" — built almost entirely on the deep learning concepts in the previous tab.</p>
+
+    <h3 class="sub">Knowledge notes</h3>
+
+    <details class="card" id="c-images" open>
+      <summary><span class="stage" title="Seedling — early note">🌱</span> Images are just numbers <span class="tag">core</span></summary>
+      <div class="body">
+        <p>A grayscale image is a 2-D array of pixel intensities (0–255); a color image is three stacked arrays — red, green, blue channels. Every vision technique is math on these arrays. Classic image processing applies <b>filters</b> (small matrices convolved across the image) to blur, sharpen, or detect edges.</p>
+        <svg class="viz" viewBox="0 0 340 150" role="img" aria-label="Pixel grid with one magnified pixel showing its numeric value">
+          <g>
+            <rect x="20" y="15" width="120" height="120" fill="var(--panel2)" stroke="var(--border)"/>
+            <g fill="var(--text)">
+              <rect x="65" y="15" width="15" height="15" opacity=".85"/><rect x="80" y="30" width="15" height="15" opacity=".7"/>
+              <rect x="95" y="45" width="15" height="15" opacity=".8"/><rect x="110" y="60" width="15" height="15" opacity=".65"/>
+              <rect x="50" y="30" width="15" height="15" opacity=".35"/><rect x="65" y="45" width="15" height="15" opacity=".5"/>
+              <rect x="80" y="60" width="15" height="15" opacity=".4"/><rect x="95" y="75" width="15" height="15" opacity=".55"/>
+              <rect x="35" y="90" width="15" height="15" opacity=".25"/><rect x="110" y="105" width="15" height="15" opacity=".75"/>
+              <rect x="50" y="105" width="15" height="15" opacity=".45"/><rect x="80" y="90" width="15" height="15" opacity=".6"/>
+            </g>
+            <g stroke="var(--border)" stroke-width=".6">
+              <line x1="35" y1="15" x2="35" y2="135"/><line x1="50" y1="15" x2="50" y2="135"/><line x1="65" y1="15" x2="65" y2="135"/>
+              <line x1="80" y1="15" x2="80" y2="135"/><line x1="95" y1="15" x2="95" y2="135"/><line x1="110" y1="15" x2="110" y2="135"/><line x1="125" y1="15" x2="125" y2="135"/>
+              <line x1="20" y1="30" x2="140" y2="30"/><line x1="20" y1="45" x2="140" y2="45"/><line x1="20" y1="60" x2="140" y2="60"/>
+              <line x1="20" y1="75" x2="140" y2="75"/><line x1="20" y1="90" x2="140" y2="90"/><line x1="20" y1="105" x2="140" y2="105"/><line x1="20" y1="120" x2="140" y2="120"/>
+            </g>
+            <rect x="80" y="60" width="15" height="15" fill="none" stroke="var(--accent2)" stroke-width="2"/>
+          </g>
+          <line x1="98" y1="67" x2="205" y2="60" stroke="var(--accent2)" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <rect x="205" y="35" width="52" height="52" rx="6" fill="var(--panel2)" stroke="var(--accent2)" stroke-width="2"/>
+          <text x="231" y="66" text-anchor="middle" fill="var(--text)" font-size="15" font-weight="700">147</text>
+          <text x="231" y="105" text-anchor="middle" fill="var(--muted)" font-size="10">one pixel = one number</text>
+          <text x="295" y="52" text-anchor="middle" fill="var(--accent2)" font-size="11">R</text>
+          <text x="295" y="68" text-anchor="middle" fill="var(--green)" font-size="11">G</text>
+          <text x="295" y="84" text-anchor="middle" fill="var(--accent)" font-size="11">B</text>
+          <text x="295" y="105" text-anchor="middle" fill="var(--muted)" font-size="10">color = ×3</text>
+        </svg>
+        <p class="viz-caption">To a model, an image is nothing but this grid of numbers — three grids for color.</p>
+      </div>
+    </details>
+
+    <details class="card" id="c-cnn">
+      <summary><span class="stage" title="Seedling — early note">🌱</span> CNNs: learned filters</summary>
+      <div class="body">
+        <p>A convolutional neural network learns its filter values during training instead of using hand-designed ones. Early layers detect edges and textures; deeper layers combine them into shapes and whole objects. <b>Pooling</b> layers downsample between convolutions (max-pooling keeps the strongest signal per patch), shrinking computation and making detection less sensitive to exact pixel position. The final layers act as an ordinary classifier over the extracted features.</p>
+        <svg class="viz" viewBox="0 0 340 200" role="img" aria-label="Animated 3 by 3 filter sliding across an input grid producing an output feature map">
+          <rect x="15" y="25" width="144" height="144" fill="var(--panel2)" stroke="var(--border)"/>
+          <g stroke="var(--border)" stroke-width=".6">
+            <line x1="39" y1="25" x2="39" y2="169"/><line x1="63" y1="25" x2="63" y2="169"/><line x1="87" y1="25" x2="87" y2="169"/>
+            <line x1="111" y1="25" x2="111" y2="169"/><line x1="135" y1="25" x2="135" y2="169"/>
+            <line x1="15" y1="49" x2="159" y2="49"/><line x1="15" y1="73" x2="159" y2="73"/><line x1="15" y1="97" x2="159" y2="97"/>
+            <line x1="15" y1="121" x2="159" y2="121"/><line x1="15" y1="145" x2="159" y2="145"/>
+          </g>
+          <g fill="var(--text)">
+            <rect x="63" y="25" width="24" height="24" opacity=".55"/><rect x="87" y="49" width="24" height="24" opacity=".65"/>
+            <rect x="111" y="73" width="24" height="24" opacity=".5"/><rect x="135" y="97" width="24" height="24" opacity=".6"/>
+            <rect x="39" y="49" width="24" height="24" opacity=".25"/><rect x="63" y="73" width="24" height="24" opacity=".35"/>
+            <rect x="87" y="97" width="24" height="24" opacity=".3"/><rect x="111" y="121" width="24" height="24" opacity=".4"/>
+          </g>
+          <rect class="conv-win" x="15" y="25" width="72" height="72" fill="var(--accent)" fill-opacity=".18" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="87" y="188" text-anchor="middle" fill="var(--muted)" font-size="11">input pixels</text>
+          <line class="flow" x1="170" y1="97" x2="225" y2="97" stroke="var(--muted)" stroke-width="2"/>
+          <text x="197" y="86" text-anchor="middle" fill="var(--muted)" font-size="10">3×3 filter</text>
+          <rect x="240" y="65" width="64" height="64" fill="var(--panel2)" stroke="var(--border)"/>
+          <g stroke="var(--border)" stroke-width=".6">
+            <line x1="256" y1="65" x2="256" y2="129"/><line x1="272" y1="65" x2="272" y2="129"/><line x1="288" y1="65" x2="288" y2="129"/>
+            <line x1="240" y1="81" x2="304" y2="81"/><line x1="240" y1="97" x2="304" y2="97"/><line x1="240" y1="113" x2="304" y2="113"/>
+          </g>
+          <rect class="conv-out" x="240" y="65" width="16" height="16" fill="var(--accent2)" fill-opacity=".85"/>
+          <text x="272" y="150" text-anchor="middle" fill="var(--muted)" font-size="11">feature map</text>
+        </svg>
+        <p class="viz-caption">The filter slides across the image; each position produces one value in the feature map — a match score for the pattern the filter learned.</p>
+      </div>
+    </details>
+
+    <details class="card" id="c-cv-tasks">
+      <summary><span class="stage" title="Seedling — early note">🌱</span> Core vision tasks</summary>
+      <div class="body">
+        <p><b>Classification</b> — what is in this image? <b>Object detection</b> — what and <i>where</i> (bounding boxes)? <b>Semantic segmentation</b> — label every pixel. <b>OCR</b> — read text in images. <b>Facial analysis</b> and <b>image generation</b> (diffusion models) round out the family.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 170" role="img" aria-label="Same cat image under classification, detection, and segmentation">
+          <g>
+            <rect x="15" y="20" width="150" height="105" rx="6" fill="var(--panel2)" stroke="var(--border)"/>
+            <circle cx="90" cy="80" r="26" fill="var(--text)" opacity=".35"/>
+            <polygon points="72,62 66,38 84,54" fill="var(--text)" opacity=".35"/>
+            <polygon points="108,62 114,38 96,54" fill="var(--text)" opacity=".35"/>
+            <text x="90" y="145" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">Classification</text>
+            <text x="90" y="161" text-anchor="middle" fill="var(--muted)" font-size="10">“cat” — one label per image</text>
+            <rect x="55" y="26" width="70" height="17" rx="8" fill="var(--green)" opacity=".9"/>
+            <text x="90" y="38" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">cat 0.97</text>
+          </g>
+          <g>
+            <rect x="195" y="20" width="150" height="105" rx="6" fill="var(--panel2)" stroke="var(--border)"/>
+            <circle cx="270" cy="80" r="26" fill="var(--text)" opacity=".35"/>
+            <polygon points="252,62 246,38 264,54" fill="var(--text)" opacity=".35"/>
+            <polygon points="288,62 294,38 276,54" fill="var(--text)" opacity=".35"/>
+            <rect class="pulse" x="236" y="34" width="68" height="76" fill="none" stroke="var(--accent2)" stroke-width="2.5" stroke-dasharray="6 4"/>
+            <text x="270" y="145" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">Detection</text>
+            <text x="270" y="161" text-anchor="middle" fill="var(--muted)" font-size="10">what + where — bounding box</text>
+          </g>
+          <g>
+            <rect x="375" y="20" width="150" height="105" rx="6" fill="var(--panel2)" stroke="var(--border)"/>
+            <circle cx="450" cy="80" r="26" fill="var(--accent)" opacity=".65"/>
+            <polygon points="432,62 426,38 444,54" fill="var(--accent)" opacity=".65"/>
+            <polygon points="468,62 474,38 456,54" fill="var(--accent)" opacity=".65"/>
+            <text x="450" y="145" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">Segmentation</text>
+            <text x="450" y="161" text-anchor="middle" fill="var(--muted)" font-size="10">every pixel gets a class</text>
+          </g>
+        </svg>
+      </div>
+    </details>
+
+    <details class="card" id="c-vit">
+      <summary><span class="stage" title="Seedling — early note">🌱</span> Vision transformers &amp; multimodal models</summary>
+      <div class="body">
+        <p>Transformers treat image patches like words in a sentence and apply attention across them — now rivaling CNNs. <b>Multimodal models</b> (e.g., GPT-4-class, Florence) embed images and text in a shared space, enabling captioning, visual Q&amp;A, and search by description.</p>
+      </div>
+    </details>
+
+    <h3 class="sub">Curated resources</h3>
+    <ul class="resources">
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/introduction-computer-vision/">Introduction to computer vision concepts</a>
+        <div class="desc">Images &amp; processing, CNNs, vision transformers, multimodal models, image generation.</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/paths/develop-computer-vision-with-foundry/">Develop computer vision solutions with Microsoft Foundry (path)</a>
+        <div class="desc">Applied follow-up: build image analysis and detection solutions.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ NLP & LLMs ============ -->
+  <section class="tab" id="tab-nlp">
+    <h2>NLP &amp; Large Language Models</h2>
+    <p class="section-intro">From classic text analysis to the transformer-based LLMs behind generative AI.</p>
+
+    <h3 class="sub">Knowledge notes</h3>
+
+    <details class="card" id="c-llm-umbrella" open>
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Where LLMs sit in the AI universe <span class="tag">core</span></summary>
+      <div class="body">
+        <p>LLMs are the most recognizable AI there is — and a <i>tiny</i> slice of the field. Each ring below contains the next: AI includes techniques that aren't learning at all (rules, search, planning); most machine learning isn't deep; most deep learning isn't a transformer; and an LLM is one transformer application — next-token prediction on text.</p>
+        <svg class="viz" viewBox="0 0 480 356" role="img" aria-label="Territory map: LLMs are a small corner of transformers, which are a corner of deep learning, a corner of machine learning, a corner of AI">
+          <rect x="10" y="10" width="460" height="310" rx="14" fill="var(--panel2)" stroke="var(--muted)" stroke-width="1.5"/>
+          <text x="26" y="34" fill="var(--text)" font-size="12" font-weight="700">ARTIFICIAL INTELLIGENCE</text>
+          <text x="26" y="58" fill="var(--muted)" font-size="9">search &amp; planning · rule-based systems · symbolic logic</text>
+          <g fill="var(--muted)" font-size="8.5" text-anchor="middle">
+            <text x="64" y="140">expert</text><text x="64" y="152">systems</text>
+            <text x="64" y="196">knowledge</text><text x="64" y="208">graphs</text>
+            <text x="64" y="256">optimization</text>
+          </g>
+          <rect x="120" y="80" width="342" height="232" rx="12" fill="var(--bg)" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="134" y="102" fill="var(--accent)" font-size="12" font-weight="700">MACHINE LEARNING</text>
+          <text x="134" y="122" fill="var(--muted)" font-size="9">regression · k-means · decision trees · gradient boosting</text>
+          <g fill="var(--muted)" font-size="8.5" text-anchor="middle">
+            <text x="164" y="200">SVMs</text>
+            <text x="164" y="240">random</text><text x="164" y="252">forests</text>
+          </g>
+          <rect x="210" y="150" width="244" height="154" rx="10" fill="var(--panel2)" stroke="var(--accent2)" stroke-width="1.5"/>
+          <text x="222" y="170" fill="var(--accent2)" font-size="11.5" font-weight="700">DEEP LEARNING</text>
+          <text x="222" y="188" fill="var(--muted)" font-size="8.5">CNNs · RNNs · GANs · diffusion</text>
+          <g fill="var(--muted)" font-size="8" text-anchor="middle">
+            <text x="248" y="248">LSTMs</text>
+            <text x="248" y="282">auto-</text><text x="248" y="292">encoders</text>
+          </g>
+          <rect x="290" y="212" width="156" height="84" rx="9" fill="var(--bg)" stroke="var(--amber)" stroke-width="1.5"/>
+          <text x="300" y="230" fill="var(--amber)" font-size="10.5" font-weight="700">TRANSFORMERS</text>
+          <text x="300" y="245" fill="var(--muted)" font-size="8">vision transformers</text>
+          <text x="300" y="256" fill="var(--muted)" font-size="8">speech models</text>
+          <rect class="pulse" x="364" y="260" width="74" height="28" rx="14" fill="var(--green)" fill-opacity=".25" stroke="var(--green)" stroke-width="2"/>
+          <text x="401" y="278" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="700">LLMs</text>
+          <path d="M338,342 Q400,336 399,294" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text x="26" y="346" fill="var(--green)" font-size="10" font-style="italic">that little box in the corner is the entire chatbot phenomenon</text>
+        </svg>
+        <p class="viz-caption">A territory map, not a bullseye: LLMs are a corner of a corner of a corner — the field keeps going without them.</p>
+        <p>Why the smallest circle gets all the attention: LLMs are the first AI you can <i>talk to</i>. No dataset, no training, no interface to learn — natural language in, natural language out, and one model handles a thousand tasks. That generality plus the ChatGPT moment made LLMs the public face of a field that is mostly other things.</p>
+        <p class="rel">↳ Related: <a data-jump="c-ml-types">Types of machine learning</a> · <a data-jump="c-archs">Architectures to know</a> · <a data-jump="c-llm-iceberg">The AI you don't see</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-text2num">
+      <summary><span class="stage" title="Seedling — early note">🌱</span> From text to numbers <span class="tag">core</span></summary>
+      <div class="body">
+        <p>Models can't read — text must become numbers. <b>Tokenization</b> splits text into tokens (words or sub-words); <b>embeddings</b> map each token to a vector where similar meanings sit close together ("dog" near "puppy", far from "carburetor"). Classic NLP tasks: sentiment analysis, entity recognition, translation, summarization.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 150" role="img" aria-label="Text to tokens to embedding vectors pipeline">
+          <rect x="10" y="55" width="120" height="36" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="70" y="78" text-anchor="middle" fill="var(--text)" font-size="12">“The cat sat”</text>
+          <line class="flow" x1="134" y1="73" x2="176" y2="73" stroke="var(--muted)" stroke-width="2"/>
+          <text x="155" y="60" text-anchor="middle" fill="var(--muted)" font-size="9">tokenize</text>
+          <g>
+            <rect x="182" y="30" width="66" height="26" rx="6" fill="var(--panel2)" stroke="var(--amber)"/>
+            <text x="215" y="47" text-anchor="middle" fill="var(--text)" font-size="11">The</text>
+            <rect x="182" y="61" width="66" height="26" rx="6" fill="var(--panel2)" stroke="var(--amber)"/>
+            <text x="215" y="78" text-anchor="middle" fill="var(--text)" font-size="11">cat</text>
+            <rect x="182" y="92" width="66" height="26" rx="6" fill="var(--panel2)" stroke="var(--amber)"/>
+            <text x="215" y="109" text-anchor="middle" fill="var(--text)" font-size="11">sat</text>
+          </g>
+          <line class="flow" x1="252" y1="73" x2="294" y2="73" stroke="var(--muted)" stroke-width="2"/>
+          <text x="273" y="60" text-anchor="middle" fill="var(--muted)" font-size="9">embed</text>
+          <g font-family="Consolas,monospace">
+            <rect x="300" y="30" width="150" height="26" rx="6" fill="var(--panel2)" stroke="var(--green)"/>
+            <text x="375" y="47" text-anchor="middle" fill="var(--code)" font-size="10">[0.12, −0.83, 0.44, …]</text>
+            <rect x="300" y="61" width="150" height="26" rx="6" fill="var(--panel2)" stroke="var(--green)"/>
+            <text x="375" y="78" text-anchor="middle" fill="var(--code)" font-size="10">[0.91, 0.05, −0.27, …]</text>
+            <rect x="300" y="92" width="150" height="26" rx="6" fill="var(--panel2)" stroke="var(--green)"/>
+            <text x="375" y="109" text-anchor="middle" fill="var(--code)" font-size="10">[−0.36, 0.71, 0.08, …]</text>
+          </g>
+          <text x="470" y="52" fill="var(--muted)" font-size="10">vectors:</text>
+          <text x="470" y="66" fill="var(--muted)" font-size="10">similar</text>
+          <text x="470" y="80" fill="var(--muted)" font-size="10">meaning =</text>
+          <text x="470" y="94" fill="var(--muted)" font-size="10">nearby in</text>
+          <text x="470" y="108" fill="var(--muted)" font-size="10">space</text>
+        </svg>
+        <p class="viz-caption">Every model input makes this trip: text → tokens → vectors. Everything downstream is math on the vectors.</p>
+        <p class="rel">↳ Related: <a data-jump="c-tokens">Tokens, up close</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-tokens">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Tokens, up close <span class="tag">core</span></summary>
+      <div class="body">
+        <p>A tokenizer learns (via <b>byte-pair encoding</b>) which character chunks appear most often, then splits everything into those chunks. Common words get one token; rare words get several; code and numbers split along their own seams:</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 190" role="img" aria-label="How English text, code, and numbers split into tokens">
+          <text x="12" y="45" fill="var(--muted)" font-size="10" font-weight="600">ENGLISH</text>
+          <g font-family="Consolas,monospace" font-size="11">
+            <rect x="78" y="28" width="34" height="24" rx="6" fill="var(--panel2)" stroke="var(--accent)"/><text x="95" y="44" text-anchor="middle" fill="var(--code)">The</text>
+            <rect x="116" y="28" width="30" height="24" rx="6" fill="var(--panel2)" stroke="var(--amber)"/><text x="131" y="44" text-anchor="middle" fill="var(--code)">un</text>
+            <rect x="150" y="28" width="52" height="24" rx="6" fill="var(--panel2)" stroke="var(--green)"/><text x="176" y="44" text-anchor="middle" fill="var(--code)">believ</text>
+            <rect x="206" y="28" width="40" height="24" rx="6" fill="var(--panel2)" stroke="var(--accent2)"/><text x="226" y="44" text-anchor="middle" fill="var(--code)">ably</text>
+            <rect x="250" y="28" width="48" height="24" rx="6" fill="var(--panel2)" stroke="var(--accent)"/><text x="274" y="44" text-anchor="middle" fill="var(--code)">quick</text>
+            <rect x="302" y="28" width="36" height="24" rx="6" fill="var(--panel2)" stroke="var(--amber)"/><text x="320" y="44" text-anchor="middle" fill="var(--code)">fox</text>
+          </g>
+          <text x="352" y="44" fill="var(--muted)" font-size="10">= 6 tokens, 26 chars</text>
+          <text x="12" y="105" fill="var(--muted)" font-size="10" font-weight="600">CODE</text>
+          <g font-family="Consolas,monospace" font-size="11">
+            <rect x="78" y="88" width="34" height="24" rx="6" fill="var(--panel2)" stroke="var(--accent)"/><text x="95" y="104" text-anchor="middle" fill="var(--code)">def</text>
+            <rect x="116" y="88" width="36" height="24" rx="6" fill="var(--panel2)" stroke="var(--amber)"/><text x="134" y="104" text-anchor="middle" fill="var(--code)">get</text>
+            <rect x="156" y="88" width="46" height="24" rx="6" fill="var(--panel2)" stroke="var(--green)"/><text x="179" y="104" text-anchor="middle" fill="var(--code)">_user</text>
+            <rect x="206" y="88" width="46" height="24" rx="6" fill="var(--panel2)" stroke="var(--accent2)"/><text x="229" y="104" text-anchor="middle" fill="var(--code)">_name</text>
+            <rect x="256" y="88" width="36" height="24" rx="6" fill="var(--panel2)" stroke="var(--accent)"/><text x="274" y="104" text-anchor="middle" fill="var(--code)">():</text>
+          </g>
+          <text x="306" y="104" fill="var(--muted)" font-size="10">= 5 tokens — identifiers split at _ and case</text>
+          <text x="12" y="165" fill="var(--muted)" font-size="10" font-weight="600">NUMBERS</text>
+          <g font-family="Consolas,monospace" font-size="11">
+            <rect x="78" y="148" width="34" height="24" rx="6" fill="var(--panel2)" stroke="var(--accent)"/><text x="95" y="164" text-anchor="middle" fill="var(--code)">123</text>
+            <rect x="116" y="148" width="28" height="24" rx="6" fill="var(--panel2)" stroke="var(--amber)"/><text x="130" y="164" text-anchor="middle" fill="var(--code)">45</text>
+            <rect x="148" y="148" width="18" height="24" rx="6" fill="var(--panel2)" stroke="var(--green)"/><text x="157" y="164" text-anchor="middle" fill="var(--code)">.</text>
+            <rect x="170" y="148" width="28" height="24" rx="6" fill="var(--panel2)" stroke="var(--accent2)"/><text x="184" y="164" text-anchor="middle" fill="var(--code)">67</text>
+          </g>
+          <text x="210" y="164" fill="var(--muted)" font-size="10">= 4 tokens — digits split unpredictably</text>
+        </svg>
+        <p class="viz-caption">The model never sees letters — each chunk becomes a number, and that's the whole input. Rule of thumb: ~4 characters per token in English.</p>
+        <p>Consequences: models struggle to count letters ("how many r's in strawberry?" — it may see <code>str</code>+<code>aw</code>+<code>berry</code>, letters aren't individually represented); arithmetic on long numbers is shaky for the same reason; non-English languages often cost 2–3× more tokens for the same meaning; and <b>everything is billed and budgeted in tokens</b> — context windows, API pricing, latency all count in this unit.</p>
+        <p class="rel">↳ Related: <a data-jump="c-context">Context windows</a> · <a data-jump="c-code-tokens">How coding agents spend tokens</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-llm-inference">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> LLM inference: one token at a time <span class="tag">core</span></summary>
+      <div class="body">
+        <p>LLM generation is <b>autoregressive</b>: the model runs one full forward pass through all its layers to produce a single token, appends it to the input, and runs again — every new token conditioned on everything before it. That loop is the whole show.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 195" role="img" aria-label="Autoregressive loop: prompt tokens feed the model, which appends one generated token per pass">
+          <g font-family="Consolas,monospace" font-size="11">
+            <rect x="26" y="22" width="36" height="24" rx="6" fill="var(--panel2)" stroke="var(--muted)"/><text x="44" y="38" text-anchor="middle" fill="var(--muted)">The</text>
+            <rect x="66" y="22" width="60" height="24" rx="6" fill="var(--panel2)" stroke="var(--muted)"/><text x="96" y="38" text-anchor="middle" fill="var(--muted)">capital</text>
+            <rect x="130" y="22" width="28" height="24" rx="6" fill="var(--panel2)" stroke="var(--muted)"/><text x="144" y="38" text-anchor="middle" fill="var(--muted)">of</text>
+            <rect x="162" y="22" width="56" height="24" rx="6" fill="var(--panel2)" stroke="var(--muted)"/><text x="190" y="38" text-anchor="middle" fill="var(--muted)">France</text>
+            <rect x="222" y="22" width="28" height="24" rx="6" fill="var(--panel2)" stroke="var(--muted)"/><text x="236" y="38" text-anchor="middle" fill="var(--muted)">is</text>
+            <g class="gen1"><rect x="254" y="22" width="48" height="24" rx="6" fill="var(--green)" fill-opacity=".2" stroke="var(--green)" stroke-width="2"/><text x="278" y="38" text-anchor="middle" fill="var(--text)">Paris</text></g>
+            <g class="gen2"><rect x="306" y="22" width="20" height="24" rx="6" fill="var(--green)" fill-opacity=".2" stroke="var(--green)" stroke-width="2"/><text x="316" y="38" text-anchor="middle" fill="var(--text)">.</text></g>
+            <g class="gen3"><rect x="330" y="22" width="44" height="24" rx="6" fill="var(--panel2)" stroke="var(--amber)" stroke-width="2" stroke-dasharray="4 3"/><text x="352" y="38" text-anchor="middle" fill="var(--amber)">end</text></g>
+          </g>
+          <text x="138" y="66" text-anchor="middle" fill="var(--muted)" font-size="9">prompt — “prefill”: processed in parallel, fast</text>
+          <text x="316" y="66" text-anchor="middle" fill="var(--green)" font-size="9">“decode”: one per pass</text>
+          <path class="flow" d="M138,74 Q138,105 210,112" fill="none" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="214" y="95" width="130" height="42" rx="10" fill="var(--panel2)" stroke="var(--accent2)" stroke-width="2"/>
+          <text x="279" y="113" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="700">LLM forward pass</text>
+          <text x="279" y="128" text-anchor="middle" fill="var(--muted)" font-size="8.5">all layers, every token</text>
+          <path class="flow" d="M348,110 Q400,100 380,56 " fill="none" stroke="var(--green)" stroke-width="2"/>
+          <text x="416" y="92" fill="var(--green)" font-size="9">emit next token</text>
+          <path class="flow" d="M376,46 Q470,60 420,130 Q390,165 300,142" fill="none" stroke="var(--amber)" stroke-width="2" stroke-dasharray="6 4"/>
+          <text x="442" y="150" text-anchor="middle" fill="var(--amber)" font-size="9">append &amp; run again</text>
+          <text x="270" y="182" text-anchor="middle" fill="var(--muted)" font-size="10" font-style="italic">the loop exits when the model emits a stop token — “deciding to stop” is itself a prediction</text>
+        </svg>
+        <p class="viz-caption">Why responses stream word-by-word: you're watching individual decode passes land in real time.</p>
+        <p>This loop explains a lot of LLM economics. <b>Prefill</b> reads your whole prompt in one parallel pass (cheap per token); <b>decode</b> is sequential (one pass per token) — which is why output tokens cost more and long answers feel slow. The <b>KV cache</b> stores attention math for tokens already seen, so each pass only computes the newest token instead of re-reading the conversation. <b>Temperature and top-p</b> live here too — they shape each token pick at inference, never touching the weights. And <b>reasoning models</b> are just this loop given permission to run longer: spending extra "thinking" tokens before answering — <b>test-time compute</b> — buys accuracy with latency.</p>
+        <p class="rel">↳ Related: <a data-jump="c-inference">Training vs inference</a> · <a data-jump="c-tokens">Tokens, up close</a> · <a data-jump="c-temp">Temperature &amp; sampling</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-attention">
+      <summary><span class="stage" title="Seedling — early note">🌱</span> Transformers &amp; attention</summary>
+      <div class="body">
+        <p>The 2017 transformer architecture replaced sequential RNN processing with <b>self-attention</b>: every token weighs its relevance to every other token simultaneously. In "the animal didn't cross the street because <i>it</i> was tired", attention lets the model link "it" to "animal". This parallelism made training on internet-scale text feasible.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 150" role="img" aria-label="Attention weights linking the word it back to animal">
+          <path class="pulse" d="M380,112 Q227,15 75,112" fill="none" stroke="var(--accent)" stroke-width="3"/>
+          <path d="M380,112 Q324,60 268,112" fill="none" stroke="var(--muted)" stroke-width="1.5" opacity=".3"/>
+          <path d="M380,112 Q422,75 465,112" fill="none" stroke="var(--muted)" stroke-width="1.5" opacity=".3"/>
+          <text x="225" y="38" text-anchor="middle" fill="var(--accent)" font-size="12" font-weight="700">0.86</text>
+          <text x="322" y="80" text-anchor="middle" fill="var(--muted)" font-size="10">0.05</text>
+          <text x="424" y="90" text-anchor="middle" fill="var(--muted)" font-size="10">0.03</text>
+          <g fill="var(--body-text)" font-size="12" text-anchor="middle">
+            <text x="25" y="130">The</text>
+            <text x="75" y="130" font-weight="700" fill="var(--accent)">animal</text>
+            <text x="130" y="130">didn’t</text>
+            <text x="180" y="130">cross</text>
+            <text x="222" y="130">the</text>
+            <text x="268" y="130">street</text>
+            <text x="330" y="130">because</text>
+            <text x="380" y="130" font-weight="700" fill="var(--accent2)">it</text>
+            <text x="420" y="130">was</text>
+            <text x="465" y="130">tired</text>
+          </g>
+        </svg>
+        <p class="viz-caption">Attention scores for the token “it” — the model learns that “animal” matters most, in a single parallel step.</p>
+        <p class="rel">↳ Related: <a data-jump="c-archs">Architectures to know</a> · <a data-jump="c-vit">Vision transformers</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-llm-agents">
+      <summary><span class="stage" title="Seedling — early note">🌱</span> LLMs, prompts &amp; agents</summary>
+      <div class="body">
+        <p>An <b>LLM</b> is a huge transformer trained to predict the next token, which turns out to require absorbing grammar, facts, and reasoning patterns. <b>Prompts</b> are the input that conditions its output — prompt engineering is shaping that input deliberately. <b>Agents</b> pair an LLM with tools and memory so it can take actions (search, run code, call APIs), not just generate text. <b>RAG</b> (retrieval-augmented generation) grounds answers in your own documents to reduce hallucination.</p>
+        <p class="rel">↳ Related: <a data-jump="c-agents">What makes an LLM an agent</a> · <a data-jump="c-rag">RAG</a> · <a data-jump="c-prompt">Anatomy of a prompt</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-llm-iceberg">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> The AI you don't see — and when NOT to use an LLM</summary>
+      <div class="body">
+        <p>Most production AI is invisible classical ML that never gets called "AI" in conversation: the spam filter, the fraud check on your card, the recommender behind your feed, the ETA on your map. It ran quietly for a decade before anyone could chat with a model.</p>
+        <svg class="viz" viewBox="0 0 480 270" role="img" aria-label="Iceberg: chatbots above the waterline, everyday machine learning below it">
+          <polygon points="240,18 196,92 288,92" fill="var(--panel2)" stroke="var(--accent)" stroke-width="2"/>
+          <polygon points="196,92 288,92 330,120 344,190 268,248 178,236 128,168 150,116" fill="var(--panel2)" fill-opacity=".55" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="1 0"/>
+          <line x1="20" y1="92" x2="460" y2="92" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="7 5" opacity=".6"/>
+          <text x="240" y="60" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="700">chatbots · image gen</text>
+          <text x="30" y="82" fill="var(--muted)" font-size="10" font-style="italic">what makes headlines</text>
+          <text x="450" y="110" text-anchor="end" fill="var(--muted)" font-size="10" font-style="italic">what runs the world</text>
+          <g fill="var(--body-text)" font-size="10.5" text-anchor="middle">
+            <text x="240" y="120">spam filters · fraud detection</text>
+            <text x="238" y="142">recommenders · search ranking</text>
+            <text x="236" y="164">demand forecasting · credit scoring</text>
+            <text x="240" y="186">route &amp; ETA prediction</text>
+            <text x="242" y="208">anomaly detection · churn models</text>
+            <text x="248" y="230">quality inspection · pricing</text>
+          </g>
+        </svg>
+        <p class="viz-caption">The waterline is public attention — most deployed ML sits below it, and most of it isn't an LLM.</p>
+        <p>Which is why "use AI" shouldn't default to "use an LLM." Reach for <b>classical ML</b> when the data is tabular (churn, pricing, fraud — gradient boosting usually beats an LLM there), when latency and cost budgets are tight (an LLM call is ~1000× the compute of a tree model), or when you must explain every decision to a regulator. Reach for an <b>LLM</b> when the task is language: understanding, generating, summarizing, extracting, conversing.</p>
+        <p class="rel">↳ Related: <a data-jump="c-mlvsdl">Classical ML vs deep learning</a> · <a data-jump="c-seq">The 2026 build sequence</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-context">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Context windows: the model's working memory</summary>
+      <div class="body">
+        <p>The <b>context window</b> is the maximum number of tokens a model can attend to at once — prompt, conversation history, retrieved documents, and its own output all share it. Anything outside the window simply doesn't exist for the model.</p>
+        <p>Practical consequences: a token is roughly ¾ of an English word; long documents must be <b>chunked</b> and selectively retrieved (this is half of why RAG exists); cost and latency scale with tokens processed; and in long chats, early details can fall out of scope — which is why agents maintain separate <b>memory</b> outside the window.</p>
+        <p class="rel">↳ Related: <a data-jump="c-rag">RAG</a> · <a data-jump="c-text2num">From text to numbers</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-halluc">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Why models hallucinate — and what grounding does</summary>
+      <div class="body">
+        <p>An LLM is trained to produce <i>plausible</i> next tokens, not verified ones — there is no built-in fact-checker, so fluent-but-false output (<b>hallucination</b>) is a natural failure mode, most likely on niche facts, citations, and numbers.</p>
+        <p>Mitigations, in order of leverage: <b>ground</b> the answer in retrieved sources (RAG) and require citations; lower <b>temperature</b> for factual tasks; allow the model to say "I don't know"; and verify high-stakes outputs with a second pass or a human. Reduced, never eliminated — design workflows accordingly.</p>
+        <p class="rel">↳ Related: <a data-jump="c-rag">RAG</a> · <a data-jump="c-temp">Temperature &amp; sampling</a></p>
+      </div>
+    </details>
+
+    <h3 class="sub">Curated resources</h3>
+    <ul class="resources">
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/introduction-language/">Introduction to natural language processing concepts</a>
+        <div class="desc">Text analysis foundations — builds on the ML Fundamentals shelf.</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/introduction-large-language-models/">Introduction to large language models</a>
+        <div class="desc">LLM core concepts, model landscape, and when to use them.</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/fundamentals-generative-ai/">Introduction to generative AI and agents</a>
+        <div class="desc">LLMs, prompts, and AI agents — the generative AI umbrella.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ SPEECH & DOCUMENT INTELLIGENCE ============ -->
+  <section class="tab" id="tab-speech">
+    <h2>Speech &amp; Document Intelligence</h2>
+    <p class="section-intro">Two more AI workloads, from Microsoft's AI-concepts path: teaching machines to hear and talk, and to turn messy documents into clean data. Both are pipelines built from blocks covered in earlier shelves — transformers, CNNs, and language models.</p>
+
+    <h3 class="sub">Knowledge notes</h3>
+
+    <details class="card" id="c-stt" open>
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Speech recognition: sound → text <span class="tag">core</span></summary>
+      <div class="body">
+        <p>Speech-to-text is a six-stage pipeline. A microphone samples audio ~16,000 times per second; <b>feature extraction</b> (MFCC) compresses each 20–30 ms frame into ~13 numbers that mimic how the human ear hears; a transformer <b>acoustic model</b> predicts <b>phonemes</b> — the smallest sound units that distinguish words (English has ~44; "cat" = /k/ + /æ/ + /t/).</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 210" role="img" aria-label="Speech recognition pipeline from waveform to text">
+          <rect x="10" y="25" width="120" height="46" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <polyline points="22,48 30,38 38,58 46,33 54,62 62,42 70,55 78,40 86,52 94,44 102,50 110,46 118,48" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <text x="70" y="86" text-anchor="middle" fill="var(--muted)" font-size="10">1 · audio, 16 kHz</text>
+          <line class="flow" x1="134" y1="48" x2="176" y2="48" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="180" y="25" width="120" height="46" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <g fill="var(--accent2)">
+            <rect x="196" y="52" width="8" height="12"/><rect x="208" y="42" width="8" height="22"/>
+            <rect x="220" y="47" width="8" height="17"/><rect x="232" y="36" width="8" height="28"/>
+            <rect x="244" y="49" width="8" height="15"/><rect x="256" y="41" width="8" height="23"/>
+            <rect x="268" y="55" width="8" height="9"/><rect x="280" y="45" width="8" height="19"/>
+          </g>
+          <text x="240" y="86" text-anchor="middle" fill="var(--muted)" font-size="10">2 · features (MFCC)</text>
+          <line class="flow" x1="304" y1="48" x2="346" y2="48" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="350" y="25" width="120" height="46" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="410" y="53" text-anchor="middle" fill="var(--code)" font-size="13" font-family="Consolas,monospace">/k/ /æ/ /t/</text>
+          <text x="410" y="86" text-anchor="middle" fill="var(--muted)" font-size="10">3 · acoustic model → phonemes</text>
+          <path class="flow" d="M470,71 Q510,100 470,132" fill="none" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="350" y="130" width="120" height="46" rx="8" fill="var(--panel2)" stroke="var(--amber)"/>
+          <text x="410" y="150" text-anchor="middle" fill="var(--text)" font-size="11">"their" or "there"?</text>
+          <text x="410" y="164" text-anchor="middle" fill="var(--muted)" font-size="9">grammar + word patterns</text>
+          <text x="410" y="192" text-anchor="middle" fill="var(--muted)" font-size="10">4 · language model</text>
+          <line class="flow" x1="346" y1="153" x2="304" y2="153" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="180" y="130" width="120" height="46" rx="8" fill="var(--panel2)" stroke="var(--amber)"/>
+          <text x="240" y="158" text-anchor="middle" fill="var(--text)" font-size="11">best word sequence</text>
+          <text x="240" y="192" text-anchor="middle" fill="var(--muted)" font-size="10">5 · beam-search decoding</text>
+          <line class="flow" x1="176" y1="153" x2="134" y2="153" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="10" y="130" width="120" height="46" rx="8" fill="var(--panel2)" stroke="var(--green)" stroke-width="2"/>
+          <text x="70" y="158" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">“Hi, I’m Sam.”</text>
+          <text x="70" y="192" text-anchor="middle" fill="var(--muted)" font-size="10">6 · caps, punctuation, “3 PM”</text>
+        </svg>
+        <p class="viz-caption">Each stage narrows ambiguity: the acoustic model hears sounds, the language model knows which words make sense.</p>
+        <p>The <b>language model</b> resolves what sound alone can't ("their" vs "there"); <b>beam-search decoding</b> keeps a shortlist of candidate sentences and picks the best; <b>post-processing</b> adds capitalization, punctuation, and formats "three p m" → "3 PM". Accuracy problems usually trace to one stage — noisy capture, weak domain vocabulary, or aggressive cleanup.</p>
+        <p class="rel">↳ Related: <a data-jump="c-attention">Transformers &amp; attention</a> · <a data-jump="c-tts">Speech synthesis</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-tts">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Speech synthesis: text → sound</summary>
+      <div class="body">
+        <p>Text-to-speech runs the pipeline in reverse, in four stages. <b>Normalization</b> expands text into speakable words ("Dr. Chen at 3:00 PM" → "Doctor Chen at three o'clock P M"). <b>Linguistic analysis</b> maps letters to phonemes — hard because spelling lies: <i>though</i>, <i>through</i>, and <i>cough</i> share "ough" and share no pronunciation.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 150" role="img" aria-label="Text to speech pipeline with four stages">
+          <rect x="10" y="35" width="110" height="44" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="65" y="55" text-anchor="middle" fill="var(--text)" font-size="10">“Dr. Chen, 3 PM”</text>
+          <text x="65" y="69" text-anchor="middle" fill="var(--muted)" font-size="9">normalize →“Doctor…”</text>
+          <line class="flow" x1="124" y1="57" x2="152" y2="57" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="156" y="35" width="100" height="44" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="206" y="55" text-anchor="middle" fill="var(--code)" font-size="10" font-family="Consolas,monospace">/tʃɛn/</text>
+          <text x="206" y="69" text-anchor="middle" fill="var(--muted)" font-size="9">letters → phonemes</text>
+          <line class="flow" x1="260" y1="57" x2="288" y2="57" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="292" y="35" width="110" height="44" rx="8" fill="var(--panel2)" stroke="var(--amber)"/>
+          <path d="M304,68 Q322,48 340,60 Q358,72 372,44" fill="none" stroke="var(--amber)" stroke-width="2"/>
+          <text x="347" y="92" text-anchor="middle" fill="var(--muted)" font-size="9">prosody: pitch·pauses·stress</text>
+          <line class="flow" x1="406" y1="57" x2="434" y2="57" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="438" y="35" width="92" height="44" rx="8" fill="var(--panel2)" stroke="var(--green)" stroke-width="2"/>
+          <polyline points="448,57 454,49 460,64 466,45 472,66 478,50 484,60 490,53 496,58" fill="none" stroke="var(--green)" stroke-width="2"/>
+          <text x="484" y="92" text-anchor="middle" fill="var(--muted)" font-size="9">neural vocoder → 🔊</text>
+          <text x="270" y="128" text-anchor="middle" fill="var(--muted)" font-size="10" font-style="italic">the vocoder is speech recognition in reverse: linguistic representation → waveform</text>
+        </svg>
+        <p><b>Prosody</b> — rhythm, stress, intonation — is what separates natural from robotic. Meaning shifts entirely with emphasis: "<i>I</i> never said he ate the cake" vs "I never said he ate the <i>cake</i>". A transformer predicts pitch, duration, and pauses; a <b>neural vocoder</b> (WaveNet, HiFi-GAN) then generates the actual waveform. Robotic TTS is almost always a prosody failure, not a pronunciation one.</p>
+        <p>Combine both directions and you get talking agents: <b>STT → LLM → TTS</b> is the loop inside every voice assistant.</p>
+        <p class="rel">↳ Related: <a data-jump="c-agents">What makes an LLM an agent</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-infoext">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Information extraction: documents → data <span class="tag">core</span></summary>
+      <div class="body">
+        <p>Turning receipts, invoices, and forms into structured data is a two-phase workload: <b>OCR</b> answers <i>what text exists</i>; <b>field extraction</b> answers <i>what it means</i> — and position matters as much as content ("12345" could be an invoice number or a phone number depending on where it sits).</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 190" role="img" aria-label="Receipt through OCR and field extraction into structured fields">
+          <rect x="15" y="20" width="120" height="150" rx="6" fill="var(--panel2)" stroke="var(--border)"/>
+          <text x="75" y="44" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="700">Fourth Coffee</text>
+          <line x1="30" y1="56" x2="120" y2="56" stroke="var(--border)"/>
+          <text x="32" y="74" fill="var(--muted)" font-size="9">2× latte ........ 5.98</text>
+          <text x="32" y="90" fill="var(--muted)" font-size="9">1× muffin ...... 0.50</text>
+          <text x="32" y="106" fill="var(--muted)" font-size="9">tax ................ 0.49</text>
+          <text x="32" y="126" fill="var(--text)" font-size="10" font-weight="700">TOTAL       6.97</text>
+          <text x="75" y="150" text-anchor="middle" fill="var(--muted)" font-size="8">2024-08-15</text>
+          <line class="flow" x1="142" y1="95" x2="196" y2="95" stroke="var(--muted)" stroke-width="2"/>
+          <text x="169" y="82" text-anchor="middle" fill="var(--muted)" font-size="9">OCR</text>
+          <rect x="200" y="45" width="120" height="100" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="260" y="65" text-anchor="middle" fill="var(--text)" font-size="10" font-weight="600">raw text + positions</text>
+          <text x="212" y="84" fill="var(--code)" font-size="8" font-family="Consolas,monospace">"Fourth Coffee" (x,y)</text>
+          <text x="212" y="99" fill="var(--code)" font-size="8" font-family="Consolas,monospace">"TOTAL 6.97" (x,y)</text>
+          <text x="212" y="114" fill="var(--code)" font-size="8" font-family="Consolas,monospace">"2024-08-15" (x,y)</text>
+          <text x="212" y="129" fill="var(--code)" font-size="8" font-family="Consolas,monospace">+ confidence scores</text>
+          <line class="flow" x1="324" y1="95" x2="378" y2="95" stroke="var(--muted)" stroke-width="2"/>
+          <text x="351" y="82" text-anchor="middle" fill="var(--muted)" font-size="9">field extraction</text>
+          <g>
+            <rect x="382" y="38" width="148" height="30" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+            <text x="390" y="57" fill="var(--text)" font-size="10"><tspan font-weight="700" fill="var(--green)">Vendor:</tspan> Fourth Coffee</text>
+            <rect x="382" y="76" width="148" height="30" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+            <text x="390" y="95" fill="var(--text)" font-size="10"><tspan font-weight="700" fill="var(--green)">Date:</tspan> 2024-08-15</text>
+            <rect x="382" y="114" width="148" height="30" rx="8" fill="var(--panel2)" stroke="var(--green)" stroke-width="2"/>
+            <text x="390" y="133" fill="var(--text)" font-size="10"><tspan font-weight="700" fill="var(--green)">Total:</tspan> $6.97</text>
+          </g>
+          <text x="270" y="178" text-anchor="middle" fill="var(--muted)" font-size="10" font-style="italic">OCR says what the text is; field extraction says what it means</text>
+        </svg>
+        <p>Three approaches to the mapping, in rising flexibility: <b>templates</b> (rules + known layouts — fast and explainable, brittle to variation), <b>trained ML models</b> (transformers/graph networks that learn label–value relationships from example documents), and the 2026 favorite: <b>LLM schema-based extraction</b> — hand the model the document text plus a field schema and let it do the mapping. Validation matters at every step: cross-field checks (do line items sum to the total?) catch what confidence scores miss.</p>
+        <p class="rel">↳ Related: <a data-jump="c-ocr">Inside OCR</a> · <a data-jump="c-seq">The 2026 build sequence</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-ocr">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Inside OCR</summary>
+      <div class="body">
+        <p>OCR is itself a five-stage pipeline: <b>acquisition</b> (scan, photo, PDF page — quality here caps everything downstream), <b>preprocessing</b> (denoise, fix contrast, deskew rotated scans), <b>text region detection</b> (layout analysis separates text from images and tables, then establishes reading order), <b>character recognition</b> (CNNs classify each character; a language model and dictionary correct "rn" → "m" style confusions in context), and <b>post-processing</b> (assemble words, preserve structure, record each element's coordinates).</p>
+        <p>Those coordinates are why OCR output feeds field extraction so well — every string arrives with its position and a confidence score attached. Low-confidence spans get flagged for human review in critical workflows.</p>
+        <p class="rel">↳ Related: <a data-jump="c-images">Images are just numbers</a> · <a data-jump="c-cnn">CNNs: learned filters</a></p>
+      </div>
+    </details>
+
+    <h3 class="sub">Curated resources</h3>
+    <ul class="resources">
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/introduction-ai-speech/">Introduction to AI speech concepts</a>
+        <div class="desc">Speech recognition and synthesis pipelines in depth (7 units, beginner).</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/introduction-information-extraction/">Introduction to AI-powered information extraction concepts</a>
+        <div class="desc">OCR and field extraction, from pixels to business data (7 units, beginner).</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/paths/ai-concepts/">AI concepts for developers and technology professionals (path)</a>
+        <div class="desc">The 6-module umbrella path these notes came from — generative AI, NLP, speech, vision, information extraction.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ RESPONSIBLE AI & MLOPS ============ -->
+  <section class="tab" id="tab-rai">
+    <h2>Responsible AI &amp; MLOps</h2>
+    <p class="section-intro">Building AI that's trustworthy — and getting models out of notebooks into reliable production systems.</p>
+
+    <h3 class="sub">Knowledge notes</h3>
+
+    <details class="card" id="c-rai" open>
+      <summary><span class="stage" title="Seedling — early note">🌱</span> Microsoft's six responsible AI principles <span class="tag">core</span></summary>
+      <div class="body">
+        <table>
+          <tr><th>Principle</th><th>In practice</th></tr>
+          <tr><td>Fairness</td><td>Comparable outcomes across groups; watch for biased training data</td></tr>
+          <tr><td>Reliability &amp; safety</td><td>Rigorous testing; plan for failure modes</td></tr>
+          <tr><td>Privacy &amp; security</td><td>Protect training data and user inputs</td></tr>
+          <tr><td>Inclusiveness</td><td>Work for all users, incl. accessibility needs</td></tr>
+          <tr><td>Transparency</td><td>Users should know they're using AI and understand its limits</td></tr>
+          <tr><td>Accountability</td><td>Humans stay answerable for AI-driven outcomes</td></tr>
+        </table>
+      </div>
+    </details>
+
+    <details class="card" id="c-mlops">
+      <summary><span class="stage" title="Seedling — early note">🌱</span> MLOps in a nutshell</summary>
+      <div class="body">
+        <p>DevOps principles applied to the ML lifecycle: version control for data <i>and</i> models, automated training pipelines, CI/CD for deployment, and <b>monitoring for drift</b> — models degrade as real-world data shifts away from what they were trained on, so retraining is a scheduled reality, not an emergency.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 140" role="img" aria-label="ML lifecycle loop from data to monitoring and back">
+          <rect x="15" y="40" width="80" height="32" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="55" y="60" text-anchor="middle" fill="var(--text)" font-size="11">Data</text>
+          <line class="flow" x1="99" y1="56" x2="125" y2="56" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="129" y="40" width="80" height="32" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="169" y="60" text-anchor="middle" fill="var(--text)" font-size="11">Train</text>
+          <line class="flow" x1="213" y1="56" x2="239" y2="56" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="243" y="40" width="80" height="32" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="283" y="60" text-anchor="middle" fill="var(--text)" font-size="11">Evaluate</text>
+          <line class="flow" x1="327" y1="56" x2="353" y2="56" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="357" y="40" width="80" height="32" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+          <text x="397" y="60" text-anchor="middle" fill="var(--text)" font-size="11">Deploy</text>
+          <line class="flow" x1="441" y1="56" x2="467" y2="56" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="471" y="40" width="60" height="32" rx="8" fill="var(--panel2)" stroke="var(--amber)" stroke-width="2"/>
+          <text x="501" y="60" text-anchor="middle" fill="var(--text)" font-size="11">Monitor</text>
+          <path class="flow" d="M501,76 Q501,115 270,115 Q55,115 55,76" fill="none" stroke="var(--accent2)" stroke-width="2"/>
+          <text x="270" y="108" text-anchor="middle" fill="var(--accent2)" font-size="10" font-style="italic">drift detected → collect fresh data, retrain</text>
+        </svg>
+        <p class="viz-caption">It's a loop, not a line — production is where the lifecycle starts over.</p>
+      </div>
+    </details>
+
+    <h3 class="sub">Curated resources</h3>
+    <ul class="resources">
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/embrace-responsible-ai-principles-practices/">Embrace responsible AI principles and practices</a>
+        <div class="desc">The six principles with real examples and governance practices.</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/paths/introduction-machine-learn-operations/">Introduction to machine learning operations — MLOps (path)</a>
+        <div class="desc">Scaling ML from experimentation to production with DevOps principles.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ OPEN & LOCAL MODELS ============ -->
+  <section class="tab" id="tab-local">
+    <h2>Open &amp; Local Models</h2>
+    <p class="section-intro">Running models on your own hardware — privacy, cost control, and a great way to learn by tinkering.</p>
+
+    <h3 class="sub">Knowledge notes</h3>
+
+    <details class="card" id="c-openweights" open>
+      <summary><span class="stage" title="Growing — actively studying">🌿</span> Open weights vs closed models <span class="tag">core</span></summary>
+      <div class="body">
+        <p><b>Closed models</b> (GPT-4-class, Claude) are accessed via API only. <b>Open-weight models</b> (Llama, Mistral, Phi, Gemma) publish their weights so anyone can download, run, and fine-tune them. "Open source" is used loosely — check the license: some restrict commercial use.</p>
+        <p><b>SLMs</b> (small language models, roughly 1–14B parameters, e.g. Microsoft's Phi family) trade some capability for the ability to run on a laptop — often plenty for summarization, classification, and coding help.</p>
+      </div>
+    </details>
+
+    <details class="card" id="c-runlocal">
+      <summary><span class="stage" title="Growing — actively studying">🌿</span> Running models locally</summary>
+      <div class="body">
+        <p><b>Ollama</b> — the easiest start: <code>ollama run phi3</code> downloads and serves a model with an OpenAI-compatible API on port 11434. <b>Foundry Local</b> — Microsoft's on-device runtime for Windows, optimized for local hardware. <b>LM Studio</b> — GUI alternative.</p>
+        <p><b>Quantization</b> makes this possible: compressing weights from 16-bit floats to 4–8 bits shrinks memory needs dramatically with modest quality loss. Rule of thumb: a 7B model at 4-bit needs ~4–5 GB of RAM/VRAM.</p>
+        <svg class="viz" viewBox="0 0 420 150" role="img" aria-label="Memory needed by a 7B model at different quantization levels">
+          <text x="10" y="30" fill="var(--muted)" font-size="11">FP16</text>
+          <rect x="55" y="18" width="322" height="18" rx="4" fill="var(--accent2)"/>
+          <text x="384" y="32" fill="var(--text)" font-size="11">~14 GB</text>
+          <text x="10" y="66" fill="var(--muted)" font-size="11">8-bit</text>
+          <rect x="55" y="54" width="161" height="18" rx="4" fill="var(--amber)"/>
+          <text x="222" y="68" fill="var(--text)" font-size="11">~7 GB</text>
+          <text x="10" y="102" fill="var(--muted)" font-size="11">4-bit</text>
+          <rect x="55" y="90" width="103" height="18" rx="4" fill="var(--green)"/>
+          <text x="164" y="104" fill="var(--text)" font-size="11">~4.5 GB ✓ fits a laptop</text>
+          <line x1="239" y1="10" x2="239" y2="118" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text x="243" y="132" fill="var(--muted)" font-size="10" font-style="italic">typical laptop budget (~8 GB)</text>
+        </svg>
+        <p class="viz-caption">Same 7B model, three precisions — quantization is why local LLMs are possible at all.</p>
+      </div>
+    </details>
+
+    <h3 class="sub">Curated resources</h3>
+    <ul class="resources">
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/shows/generative-ai-with-javascript/run-ai-models-on-your-local-machine-with-ollama">Run AI models on your local machine with Ollama</a>
+        <div class="desc">Video walkthrough — download, run, and chat with local models.</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/windows/ai/foundry-local/get-started">Get started with Foundry Local</a>
+        <div class="desc">Microsoft's runtime for on-device LLMs on Windows.</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/windows/ai/apis/local-llms">Ready-to-use local LLMs on Windows</a>
+        <div class="desc">Windows AI APIs for local model inference.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ AGENTS & RAG ============ -->
+  <section class="tab" id="tab-agents">
+    <h2>AI Agents &amp; RAG</h2>
+    <p class="section-intro">The defining topic of 2026 — Gartner forecasts 40% of enterprise apps will ship task-specific agents by year end, up from under 5% in 2025. This shelf covers how LLMs go from answering to <i>acting</i>.</p>
+
+    <h3 class="sub">Knowledge notes</h3>
+
+    <details class="card" id="c-agents" open>
+      <summary><span class="stage" title="Seedling — new note">🌱</span> What makes an LLM an agent <span class="tag">core</span></summary>
+      <div class="body">
+        <p>An <b>agent</b> = an LLM wrapped in a loop with <b>tools</b>, <b>memory</b>, and a <b>goal</b>. Instead of one prompt → one answer, the model plans, calls tools (search, code, APIs), observes results, and iterates until the task is done.</p>
+        <svg class="viz" viewBox="0 0 320 210" role="img" aria-label="Animated agent loop cycling through plan, act, observe, reflect">
+          <circle cx="160" cy="105" r="62" fill="none" stroke="var(--border)" stroke-width="2" stroke-dasharray="6 5"/>
+          <g class="orbit" style="transform-origin:160px 105px;">
+            <circle cx="160" cy="43" r="6" fill="var(--accent2)"/>
+          </g>
+          <text x="160" y="100" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="700">GOAL</text>
+          <text x="160" y="116" text-anchor="middle" fill="var(--muted)" font-size="9">+ memory of steps so far</text>
+          <rect x="122" y="8" width="76" height="24" rx="12" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="160" y="24" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">Plan</text>
+          <rect x="234" y="93" width="76" height="24" rx="12" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="272" y="109" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">Act ⚙</text>
+          <text x="272" y="132" text-anchor="middle" fill="var(--muted)" font-size="9">call a tool</text>
+          <rect x="122" y="178" width="76" height="24" rx="12" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="160" y="194" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">Observe</text>
+          <rect x="10" y="93" width="76" height="24" rx="12" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="48" y="109" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">Reflect</text>
+          <text x="48" y="132" text-anchor="middle" fill="var(--muted)" font-size="9">done? if not, loop</text>
+        </svg>
+        <p class="viz-caption">One prompt → one answer becomes a cycle: the loop only exits when the goal is met (or the step budget runs out).</p>
+        <p>The mental shift: RAG gives a model <i>knowledge</i>, fine-tuning changes its <i>behavior</i>, agents give it <i>agency</i> — multi-step action across tools.</p>
+        <p class="rel">↳ Related: <a data-jump="c-llm-agents">LLMs, prompts &amp; agents</a> · <a data-jump="c-rag">RAG</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-tooluse">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Tool use, function calling &amp; MCP</summary>
+      <div class="body">
+        <p><b>Function calling</b>: you describe available functions in the prompt; the model outputs structured JSON naming which to call with what arguments; your code executes it and returns the result. <b>Structured outputs</b> guarantee the reply matches a schema.</p>
+        <p><b>MCP</b> (Model Context Protocol) standardizes how models connect to tools and data sources — think "USB for AI tools." <b>A2A</b> covers agent-to-agent communication for multi-agent orchestration.</p>
+      </div>
+    </details>
+
+    <details class="card" id="c-code-tokens">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> How coding agents spend tokens <span class="tag">core</span></summary>
+      <div class="body">
+        <p>A coding agent doesn't "know" your repo — it knows what's currently in its context window, and every part of the job competes for that same token budget. The system prompt and tool definitions are rent paid up front; every file it reads, every terminal output, every diff comes back as tokens; and it still needs headroom left to reason and write code.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 190" role="img" aria-label="A context window budget bar split between system prompt, conversation, file reads, terminal output, and remaining headroom">
+          <text x="270" y="24" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">one context window, mid-task</text>
+          <rect x="30" y="40" width="76" height="44" fill="var(--panel2)" stroke="var(--muted)"/>
+          <rect x="106" y="40" width="50" height="44" fill="var(--panel2)" stroke="var(--accent)" stroke-width="2"/>
+          <rect x="156" y="40" width="178" height="44" fill="var(--panel2)" stroke="var(--accent2)" stroke-width="2"/>
+          <rect x="334" y="40" width="90" height="44" fill="var(--panel2)" stroke="var(--amber)" stroke-width="2"/>
+          <rect class="pulse" x="424" y="40" width="86" height="44" fill="var(--green)" fill-opacity=".18" stroke="var(--green)" stroke-width="2" stroke-dasharray="6 4"/>
+          <line x1="68" y1="88" x2="68" y2="102" stroke="var(--muted)"/>
+          <text x="68" y="116" text-anchor="middle" fill="var(--muted)" font-size="9.5">system prompt</text>
+          <text x="68" y="128" text-anchor="middle" fill="var(--muted)" font-size="9.5">+ tool definitions</text>
+          <line x1="131" y1="88" x2="131" y2="140" stroke="var(--muted)"/>
+          <text x="131" y="154" text-anchor="middle" fill="var(--accent)" font-size="9.5">task + plan</text>
+          <line x1="245" y1="88" x2="245" y2="102" stroke="var(--muted)"/>
+          <text x="245" y="116" text-anchor="middle" fill="var(--accent2)" font-size="9.5">files it has read</text>
+          <text x="245" y="128" text-anchor="middle" fill="var(--muted)" font-size="9">(a 5,000-line file ≈ 60K tokens)</text>
+          <line x1="379" y1="88" x2="379" y2="140" stroke="var(--muted)"/>
+          <text x="379" y="154" text-anchor="middle" fill="var(--amber)" font-size="9.5">terminal output, diffs, errors</text>
+          <line x1="467" y1="88" x2="467" y2="102" stroke="var(--muted)"/>
+          <text x="467" y="116" text-anchor="middle" fill="var(--green)" font-size="9.5" font-weight="600">headroom left</text>
+          <text x="467" y="128" text-anchor="middle" fill="var(--muted)" font-size="9">to think + write</text>
+          <text x="270" y="180" text-anchor="middle" fill="var(--muted)" font-size="10" font-style="italic">when this bar fills, quality drops — the agent must summarize old context or start fresh</text>
+        </svg>
+        <p>This budget explains most coding-agent behavior. They <b>search first, read second</b> — grep for the relevant function instead of reading whole files, because a repo is usually 100× bigger than any context window. They <b>edit with diffs</b> rather than rewriting files — output is generated token-by-token, so a 10-line patch is faster and safer than re-emitting 500 lines. On long tasks they <b>compact</b> — summarize older turns to reclaim space — and keep plans or notes in external files that survive across sessions.</p>
+        <p>It also explains how to get better results from one: scope tasks tightly, point it at the right files instead of letting it wander, and start a fresh session per task rather than letting one conversation accumulate an entire repo's worth of stale reads.</p>
+        <p class="rel">↳ Related: <a data-jump="c-tokens">Tokens, up close</a> · <a data-jump="c-context">Context windows</a> · <a data-jump="c-agents">What makes an LLM an agent</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-rag">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> RAG: retrieval-augmented generation <span class="tag">core</span></summary>
+      <div class="body">
+        <p>LLMs are frozen at training time and know nothing private. <b>RAG</b> fixes both: at question time, retrieve relevant chunks from your own documents and paste them into the prompt so the answer is <i>grounded</i> in citable sources.</p>
+        <p>The pipeline: <b>chunk</b> documents → <b>embed</b> each chunk as a vector → store in a <b>vector database</b> → at query time embed the question, find nearest chunks (<b>semantic search</b>), optionally <b>rerank</b>, then generate with the retrieved context. Cuts hallucination and keeps knowledge current without retraining.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 215" role="img" aria-label="RAG pipeline: indexing row and query row meeting at the vector database">
+          <text x="10" y="20" fill="var(--muted)" font-size="10" font-weight="600">INDEXING (once, ahead of time)</text>
+          <rect x="10" y="30" width="88" height="30" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="54" y="49" text-anchor="middle" fill="var(--text)" font-size="11">your docs 📄</text>
+          <line class="flow" x1="102" y1="45" x2="136" y2="45" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="140" y="30" width="76" height="30" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="178" y="49" text-anchor="middle" fill="var(--text)" font-size="11">chunks</text>
+          <line class="flow" x1="220" y1="45" x2="254" y2="45" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="258" y="30" width="96" height="30" rx="8" fill="var(--panel2)" stroke="var(--accent)"/>
+          <text x="306" y="49" text-anchor="middle" fill="var(--text)" font-size="11">embeddings</text>
+          <line class="flow" x1="358" y1="45" x2="392" y2="45" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="396" y="25" width="120" height="40" rx="8" fill="var(--panel2)" stroke="var(--accent2)" stroke-width="2"/>
+          <text x="456" y="49" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">vector DB</text>
+          <text x="10" y="120" fill="var(--muted)" font-size="10" font-weight="600">QUERY TIME (every question)</text>
+          <rect x="10" y="130" width="88" height="30" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+          <text x="54" y="149" text-anchor="middle" fill="var(--text)" font-size="11">question ❓</text>
+          <line class="flow" x1="102" y1="145" x2="136" y2="145" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="140" y="130" width="76" height="30" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+          <text x="178" y="149" text-anchor="middle" fill="var(--text)" font-size="11">embed it</text>
+          <path class="flow" d="M216,145 Q300,145 396,60" fill="none" stroke="var(--muted)" stroke-width="2"/>
+          <text x="322" y="118" text-anchor="middle" fill="var(--muted)" font-size="9">nearest chunks</text>
+          <path class="flow" d="M440,70 Q420,120 380,145" fill="none" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="290" y="130" width="90" height="30" rx="8" fill="var(--panel2)" stroke="var(--green)"/>
+          <text x="335" y="149" text-anchor="middle" fill="var(--text)" font-size="11">LLM + context</text>
+          <line class="flow" x1="384" y1="145" x2="418" y2="145" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="422" y="130" width="108" height="30" rx="8" fill="var(--panel2)" stroke="var(--green)" stroke-width="2"/>
+          <text x="476" y="149" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">grounded answer</text>
+          <text x="270" y="195" text-anchor="middle" fill="var(--muted)" font-size="10" font-style="italic">the model never retrains — its knowledge lives in the database</text>
+        </svg>
+        <p class="rel">↳ Related: <a data-jump="c-embeddings">Embeddings &amp; vector search</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-embeddings">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Embeddings &amp; vector search</summary>
+      <div class="body">
+        <p>An <b>embedding</b> maps text (or images) to a vector of hundreds of numbers where semantic similarity = geometric closeness. "How do I reset my password?" lands near "credential recovery steps" even with zero shared words.</p>
+        <p>A <b>vector database</b> (e.g., Azure AI Search, Pinecone, pgvector) indexes millions of embeddings for fast nearest-neighbor lookup. <b>Hybrid retrieval</b> combines vector similarity with classic keyword search — usually better than either alone.</p>
+        <p class="rel">↳ Related: <a data-jump="c-text2num">From text to numbers</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-seq">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> The 2026 build sequence: prompt → RAG → fine-tune</summary>
+      <div class="body">
+        <p>Industry consensus for building on LLMs: start with <b>prompting</b> (cheapest, fastest); add <b>RAG</b> when you need current or private knowledge; <b>fine-tune</b> only when behavior must change (tone, format, latency); <b>distill</b> to a smaller model for scale. Wrap in an <b>agent</b> only when the task genuinely needs multi-step action.</p>
+      </div>
+    </details>
+
+    <h3 class="sub">Curated resources</h3>
+    <ul class="resources">
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/paths/develop-ai-agents-azure/">Develop AI Agents on Azure (path)</a>
+        <div class="desc">Hands-on agent building with Foundry Agent Service, incl. grounding via RAG.</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview">RAG and Generative AI — Azure AI Search</a>
+        <div class="desc">Architecture-level overview of production RAG pipelines.</div></div>
+      </li>
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/fundamentals-generative-ai/">Introduction to generative AI and agents</a>
+        <div class="desc">The fundamentals module — LLMs, prompts, and agents.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ PROMPTING & FINE-TUNING ============ -->
+  <section class="tab" id="tab-prompt">
+    <h2>Prompting &amp; Fine-tuning</h2>
+    <p class="section-intro">The practical craft of getting what you want from a model — from wording a request to reshaping the model itself.</p>
+
+    <h3 class="sub">Knowledge notes</h3>
+
+    <details class="card" id="c-prompt" open>
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Anatomy of a prompt <span class="tag">core</span></summary>
+      <div class="body">
+        <p><b>System message</b> — standing instructions that frame the model's role and rules. <b>User message</b> — the actual request. <b>Few-shot examples</b> — 2–5 worked examples in the prompt teach format and style better than descriptions do. <b>Parameters</b>: <b>temperature</b> controls randomness (low = consistent, high = creative); max tokens caps length.</p>
+        <svg class="viz" style="max-width:520px" viewBox="0 0 540 160" role="img" aria-label="Prompt layers feeding into a model producing output">
+          <rect x="15" y="15" width="200" height="34" rx="8" fill="var(--panel2)" stroke="var(--accent)" stroke-width="2"/>
+          <text x="115" y="32" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">system message</text>
+          <text x="115" y="44" text-anchor="middle" fill="var(--muted)" font-size="9">“You are a careful tutor…”</text>
+          <rect x="15" y="57" width="200" height="34" rx="8" fill="var(--panel2)" stroke="var(--amber)" stroke-width="2"/>
+          <text x="115" y="74" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">few-shot examples</text>
+          <text x="115" y="86" text-anchor="middle" fill="var(--muted)" font-size="9">Q → ideal A, ×2–5</text>
+          <rect x="15" y="99" width="200" height="34" rx="8" fill="var(--panel2)" stroke="var(--green)" stroke-width="2"/>
+          <text x="115" y="116" text-anchor="middle" fill="var(--text)" font-size="11" font-weight="600">user message</text>
+          <text x="115" y="128" text-anchor="middle" fill="var(--muted)" font-size="9">the actual request</text>
+          <line class="flow" x1="222" y1="74" x2="280" y2="74" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="285" y="49" width="110" height="50" rx="10" fill="var(--panel2)" stroke="var(--accent2)" stroke-width="2"/>
+          <text x="340" y="70" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="700">LLM</text>
+          <text x="340" y="88" text-anchor="middle" fill="var(--muted)" font-size="9">temp · max tokens</text>
+          <line class="flow" x1="399" y1="74" x2="450" y2="74" stroke="var(--muted)" stroke-width="2"/>
+          <rect x="455" y="57" width="75" height="34" rx="8" fill="var(--panel2)" stroke="var(--accent2)"/>
+          <text x="492" y="78" text-anchor="middle" fill="var(--text)" font-size="11">output</text>
+        </svg>
+        <p class="viz-caption">Everything the model sees is one assembled prompt — role, examples, request — plus sampling parameters.</p>
+      </div>
+    </details>
+
+    <details class="card" id="c-patterns">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Patterns that work</summary>
+      <div class="body">
+        <p>Be specific about audience, format, and length. Ask for <b>step-by-step reasoning</b> on hard problems (<b>chain-of-thought</b> — spending tokens on intermediate reasoning measurably improves accuracy). Give <b>positive and negative examples</b>. Use delimiters or XML tags to separate instructions from data. Iterate — treat prompts like code: version them, test them, refine.</p>
+        <p class="rel">↳ Related: <a data-jump="c-seq">The 2026 build sequence</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-temp">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Temperature &amp; sampling, visually</summary>
+      <div class="body">
+        <p>At every step the model produces a probability for each possible next token. <b>Temperature</b> reshapes that distribution before sampling: low temperature sharpens it (the favorite almost always wins → consistent, factual); high temperature flattens it (underdogs get real chances → varied, creative). Near 0 is effectively deterministic.</p>
+        <svg class="viz" viewBox="0 0 480 190" role="img" aria-label="Next-token probability bars at low versus high temperature">
+          <g>
+            <line x1="30" y1="140" x2="210" y2="140" stroke="var(--muted)" stroke-width="1.5"/>
+            <rect x="45" y="40" width="36" height="100" rx="3" fill="var(--accent)"/>
+            <rect x="95" y="128" width="36" height="12" rx="3" fill="var(--accent)" opacity=".6"/>
+            <rect x="145" y="134" width="36" height="6" rx="3" fill="var(--accent)" opacity=".6"/>
+            <text x="63" y="156" text-anchor="middle" fill="var(--muted)" font-size="10">“Paris”</text>
+            <text x="113" y="156" text-anchor="middle" fill="var(--muted)" font-size="10">“the”</text>
+            <text x="163" y="156" text-anchor="middle" fill="var(--muted)" font-size="10">“a”</text>
+            <text x="120" y="178" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">temperature 0.2</text>
+            <text x="63" y="32" text-anchor="middle" fill="var(--text)" font-size="11">0.92</text>
+          </g>
+          <g>
+            <line x1="270" y1="140" x2="450" y2="140" stroke="var(--muted)" stroke-width="1.5"/>
+            <rect x="285" y="90" width="36" height="50" rx="3" fill="var(--accent2)"/>
+            <rect x="335" y="102" width="36" height="38" rx="3" fill="var(--accent2)" opacity=".8"/>
+            <rect x="385" y="112" width="36" height="28" rx="3" fill="var(--accent2)" opacity=".65"/>
+            <text x="303" y="156" text-anchor="middle" fill="var(--muted)" font-size="10">“Paris”</text>
+            <text x="353" y="156" text-anchor="middle" fill="var(--muted)" font-size="10">“the”</text>
+            <text x="403" y="156" text-anchor="middle" fill="var(--muted)" font-size="10">“a”</text>
+            <text x="360" y="178" text-anchor="middle" fill="var(--text)" font-size="12" font-weight="600">temperature 1.2</text>
+            <text x="303" y="82" text-anchor="middle" fill="var(--text)" font-size="11">0.45</text>
+          </g>
+        </svg>
+        <p class="viz-caption">Same model, same prompt — temperature only changes how boldly it samples from its own predictions.</p>
+        <p>Rules of thumb: extraction, code, and factual Q&amp;A → 0–0.3; general chat → ~0.7; brainstorming and fiction → 1.0+. Related knobs: <b>top-p</b> samples only from the smallest set of tokens whose probabilities sum to p.</p>
+      </div>
+    </details>
+
+    <details class="card" id="c-finetune">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Fine-tuning, LoRA &amp; distillation</summary>
+      <div class="body">
+        <p><b>Fine-tuning</b> continues training a model on your examples to change behavior — tone, output format, domain reasoning. Full fine-tuning updates every weight (expensive); <b>LoRA/QLoRA</b> train a thin adapter layer instead — the 2026 default, cheap enough to run on consumer GPUs.</p>
+        <p><b>Distillation</b>: use a large model's outputs to train a small one that mimics it — how many SLMs get their capability. Rule of thumb: fine-tune for <i>behavior</i>, RAG for <i>knowledge</i>; they combine well.</p>
+        <p class="rel">↳ Related: <a data-jump="c-openweights">Open weights vs closed models</a></p>
+      </div>
+    </details>
+
+    <h3 class="sub">Curated resources</h3>
+    <ul class="resources">
+      <li>
+        <div><a href="https://learn.microsoft.com/en-us/training/modules/optimize-generative-ai-model-performance/">Optimize generative AI model performance</a>
+        <div class="desc">Prompt engineering, RAG grounding, and fine-tuning — and when to combine them.</div></div>
+      </li>
+      <li>
+        <div><a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview">Anthropic prompt engineering guide</a>
+        <div class="desc">Vendor docs with concrete, tested prompting techniques.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ REINFORCEMENT LEARNING ============ -->
+  <section class="tab" id="tab-rl">
+    <h2>Reinforcement Learning</h2>
+    <p class="section-intro">The third paradigm alongside supervised and unsupervised learning — learning by trial, error, and reward. It beat Go champions, and (as RLHF) it shapes every chat model you use.</p>
+
+    <h3 class="sub">Knowledge notes</h3>
+
+    <details class="card" id="c-rl-core" open>
+      <summary><span class="stage" title="Seedling — new note">🌱</span> The RL loop <span class="tag">core</span></summary>
+      <div class="body">
+        <p>An <b>agent</b> observes the <b>state</b> of an <b>environment</b>, takes an <b>action</b>, and receives a <b>reward</b>. It learns a <b>policy</b> — a mapping from states to actions — that maximizes cumulative reward over time. No labels: just consequences.</p>
+        <svg class="viz" viewBox="0 0 340 180" role="img" aria-label="Reinforcement learning loop between agent and environment">
+          <rect x="105" y="15" width="130" height="40" rx="10" fill="var(--panel2)" stroke="var(--accent)" stroke-width="2"/>
+          <text x="170" y="40" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700">Agent 🤖</text>
+          <rect x="105" y="125" width="130" height="40" rx="10" fill="var(--panel2)" stroke="var(--accent2)" stroke-width="2"/>
+          <text x="170" y="150" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700">Environment 🌍</text>
+          <path class="flow" d="M240,35 Q300,35 300,90 Q300,145 240,145" fill="none" stroke="var(--green)" stroke-width="2.5"/>
+          <text x="322" y="94" text-anchor="middle" fill="var(--green)" font-size="11" font-weight="600">action</text>
+          <path class="flow" d="M100,145 Q40,145 40,90 Q40,35 100,35" fill="none" stroke="var(--amber)" stroke-width="2.5"/>
+          <text x="38" y="82" text-anchor="middle" fill="var(--amber)" font-size="11" font-weight="600">state +</text>
+          <text x="38" y="96" text-anchor="middle" fill="var(--amber)" font-size="11" font-weight="600">reward</text>
+        </svg>
+        <p class="viz-caption">The whole field in one loop: act, get consequences, update the policy, repeat.</p>
+        <p>The core tension is <b>exploration vs exploitation</b> — try new actions to discover better strategies, or repeat what already works? Compare: supervised learning is "here's the right answer"; RL is "here's a score, figure out why."</p>
+        <p class="rel">↳ Related: <a data-jump="c-ml-types">Types of machine learning</a></p>
+      </div>
+    </details>
+
+    <details class="card" id="c-rl-algos">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> Key ideas &amp; algorithms</summary>
+      <div class="body">
+        <p><b>Value-based</b> methods (Q-learning) learn how good each state-action pair is, then act greedily. <b>Policy-gradient</b> methods (PPO) adjust the policy directly. <b>Deep RL</b> uses neural networks to handle huge state spaces — DQN played Atari from raw pixels (2013); AlphaGo combined deep RL with tree search to beat Lee Sedol (2016).</p>
+        <p>The <b>reward function</b> is the hard part: agents optimize exactly what you measure, not what you meant — "reward hacking" is the canonical failure mode.</p>
+      </div>
+    </details>
+
+    <details class="card" id="c-rlhf">
+      <summary><span class="stage" title="Seedling — new note">🌱</span> RLHF: why RL matters for LLMs</summary>
+      <div class="body">
+        <p><b>Reinforcement Learning from Human Feedback</b> is the finishing step that turned raw next-token predictors into helpful assistants. Humans rank pairs of model outputs → a <b>reward model</b> learns those preferences → RL (typically PPO) tunes the LLM to maximize that learned reward. It's why ChatGPT (2022) felt different from GPT-3 (2020).</p>
+        <p class="rel">↳ Related: <a data-jump="c-finetune">Fine-tuning, LoRA &amp; distillation</a></p>
+      </div>
+    </details>
+
+    <h3 class="sub">Curated resources</h3>
+    <ul class="resources">
+      <li>
+        <div><a href="https://huggingface.co/learn/deep-rl-course/unit0/introduction">Hugging Face Deep RL Course</a>
+        <div class="desc">Free, hands-on: train agents to play games, unit by unit. The friendliest on-ramp.</div></div>
+      </li>
+      <li>
+        <div><a href="https://www.andrew.cmu.edu/course/10-703/textbook/BartoSutton.pdf">Sutton &amp; Barto — Reinforcement Learning: An Introduction (free PDF)</a>
+        <div class="desc">The canonical textbook; read chapters 1–3 for the foundations.</div></div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============ AI HISTORY ============ -->
+  <section class="tab" id="tab-history">
+    <h2>AI History</h2>
+    <p class="section-intro">Seventy-five years in one shelf — worth knowing because today's debates (hype vs winter, symbolic vs neural) have all happened before.</p>
+
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-year">1950</div><div class="tl-text">Alan Turing's "Computing Machinery and Intelligence" proposes the imitation game — can a machine's conversation pass as human?</div></div>
+      <div class="tl-item"><div class="tl-year">1956</div><div class="tl-text">Dartmouth workshop: John McCarthy coins the term "artificial intelligence." The field is born optimistic.</div></div>
+      <div class="tl-item"><div class="tl-year">1958</div><div class="tl-text">Rosenblatt's <b>perceptron</b> — the first trainable artificial neuron, ancestor of every network in this library.</div></div>
+      <div class="tl-item winter"><div class="tl-year">1969–70s</div><div class="tl-text">Minsky &amp; Papert prove single-layer perceptrons can't solve simple problems (XOR). Funding collapses — the first <b>AI winter</b>.</div></div>
+      <div class="tl-item"><div class="tl-year">1986</div><div class="tl-text"><b>Backpropagation</b> popularized by Rumelhart, Hinton &amp; Williams — multi-layer networks become trainable, answering the 1969 critique.</div></div>
+      <div class="tl-item"><div class="tl-year">1997</div><div class="tl-text">IBM's Deep Blue defeats world chess champion Garry Kasparov — search and compute beat intuition, at least at chess.</div></div>
+      <div class="tl-item"><div class="tl-year">2012</div><div class="tl-text"><b>AlexNet</b> crushes the ImageNet competition using a CNN on GPUs — the deep learning era begins overnight.</div></div>
+      <div class="tl-item"><div class="tl-year">2016</div><div class="tl-text">DeepMind's <b>AlphaGo</b> beats Lee Sedol at Go using deep reinforcement learning — a decade ahead of predictions.</div></div>
+      <div class="tl-item boom"><div class="tl-year">2017</div><div class="tl-text">"Attention Is All You Need" introduces the <b>transformer</b> — the architecture behind every modern LLM.</div></div>
+      <div class="tl-item"><div class="tl-year">2018–20</div><div class="tl-text">BERT and GPT scale transformers up; GPT-3 (2020) shows that scale alone unlocks few-shot learning.</div></div>
+      <div class="tl-item boom"><div class="tl-year">2022</div><div class="tl-text"><b>ChatGPT</b> (RLHF-tuned GPT) and diffusion image models take generative AI mainstream — fastest-growing consumer product in history.</div></div>
+      <div class="tl-item"><div class="tl-year">2023–24</div><div class="tl-text">GPT-4-class multimodal models; open-weight Llama family democratizes access; models start seeing, hearing, and speaking.</div></div>
+      <div class="tl-item boom"><div class="tl-year">2025–26</div><div class="tl-text">Reasoning models, <b>agents</b> with tool use (MCP), and capable on-device SLMs — AI shifts from answering to acting.</div></div>
+    </div>
+  </section>
+
+  <!-- ============ GLOSSARY ============ -->
+  <section class="tab" id="tab-glossary">
+    <h2>Glossary</h2>
+    <p class="section-intro">Every key term across the library, A–Z. Type to filter — or click any term for a deeper note and a link to where it lives in the library.</p>
+    <div class="search-wrap"><input id="gFilter" type="text" placeholder="Filter terms…" autocomplete="off"></div>
+    <dl class="glossary" id="glossaryList">
+      <div class="g-item" data-card="c-nn-anatomy" tabindex="0" aria-expanded="false"><dt>Activation function</dt><dd>— decides whether/how strongly a neuron passes its signal on (e.g., ReLU, sigmoid).</dd><div class="g-more"><p>Without it, stacked layers would collapse into one big linear equation — no matter how deep, the network could only learn straight-line relationships. The nonlinearity is what lets depth buy expressive power. ReLU (zero out negatives, pass positives through) dominates because it’s cheap and resists vanishing gradients; sigmoid squashes to 0–1 and survives mainly in output layers.</p></div></div>
+      <div class="g-item" data-card="c-agents" tabindex="0" aria-expanded="false"><dt>Agent</dt><dd>— an LLM in a loop with tools, memory, and a goal; acts across multiple steps instead of just answering.</dd><div class="g-more"><p>The loop is the defining feature: plan → call a tool → observe the result → decide the next step, repeating until the goal is met. That turns a text predictor into a system that can search, run code, and edit files. Reliability drops as loops get longer — small per-step error rates compound — so agent design is mostly about grounding, checkpoints, and recovery.</p></div></div>
+      <div class="g-item" data-card="c-attention" tabindex="0" aria-expanded="false"><dt>Attention</dt><dd>— transformer mechanism where every token weighs its relevance to every other token in parallel.</dd><div class="g-more"><p>For each token the model computes query, key, and value vectors; how strongly token A attends to token B is the match between A’s query and B’s key. Every pair is scored at once, so the whole sequence is processed in parallel — the property that made internet-scale training practical. Multiple “heads” learn different relationship types (syntax, reference, position) simultaneously.</p></div></div>
+      <div class="g-item" data-card="c-binary" tabindex="0" aria-expanded="false"><dt>AUC</dt><dd>— area under the ROC curve; how well a classifier separates classes across all thresholds.</dd><div class="g-more"><p>Plot the true-positive rate against the false-positive rate at every possible threshold and you get the ROC curve; AUC is the area beneath it. 1.0 means perfect separation, 0.5 means coin-flip. Because it’s threshold-independent, it measures how well the model ranks positives above negatives before you commit to a cutoff.</p></div></div>
+      <div class="g-item" data-card="c-nn-learn" tabindex="0" aria-expanded="false"><dt>Backpropagation</dt><dd>— propagating weight adjustments backward through network layers to reduce loss.</dd><div class="g-more"><p>It’s the chain rule from calculus applied systematically: starting from the loss, each layer’s contribution to the error is computed backward, layer by layer, reusing intermediate results. One backward pass yields the gradient for every weight in the network at once — the efficiency that makes training deep networks feasible at all.</p></div></div>
+      <div class="g-item" data-card="c-text2num" tabindex="0" aria-expanded="false"><dt>BPE (byte-pair encoding)</dt><dd>— the algorithm that learns a tokenizer's vocabulary: frequent character chunks become single tokens, rare words split into several.</dd><div class="g-more"><p>Start with single characters, repeatedly merge the most frequent adjacent pair into a new token, and stop at a target vocabulary size. Common words end up as one token while rare words split into meaningful chunks (“unhappiness” → un + happiness). It’s why token counts — not word counts — drive context windows and API bills.</p></div></div>
+      <div class="g-item" data-card="c-patterns" tabindex="0" aria-expanded="false"><dt>Chain-of-thought</dt><dd>— prompting a model to reason step-by-step before answering; improves accuracy on hard problems.</dd><div class="g-more"><p>Asking for intermediate steps gives the model more forward passes to work with — every generated token is extra computation the final answer can build on. Reasoning models bake this in: they’re trained to produce long internal chains before answering, trading latency and tokens for accuracy on hard problems.</p></div></div>
+      <div class="g-item" data-card="c-binary" tabindex="0" aria-expanded="false"><dt>Classification</dt><dd>— supervised learning that predicts a class label, binary or multiclass.</dd><div class="g-more"><p>The model outputs a probability per class; a threshold or argmax turns probabilities into a decision. Binary classification uses one probability and a tunable cutoff (trade precision against recall), multiclass uses softmax across all options. Evaluation revolves around the confusion matrix rather than raw accuracy.</p></div></div>
+      <div class="g-item" data-card="c-clustering" tabindex="0" aria-expanded="false"><dt>Clustering</dt><dd>— unsupervised grouping of observations by feature similarity (e.g., k-means).</dd><div class="g-more"><p>There are no right answers in the data, so the algorithm invents groups by distance in feature space — and you evaluate cohesion (silhouette score) instead of correctness. Typical uses: customer segmentation, anomaly detection, or a first exploration of unlabeled data before investing in labels.</p></div></div>
+      <div class="g-item" data-card="c-cnn" tabindex="0" aria-expanded="false"><dt>CNN</dt><dd>— convolutional neural network; slides learned filters over images. The workhorse of vision.</dd><div class="g-more"><p>Convolutions exploit two facts about images: nearby pixels are related, and a pattern (an edge, an eye) means the same thing anywhere in the frame. So filters stay small and slide across the whole image with shared weights — vastly fewer parameters than fully connected layers, plus translation tolerance for free.</p></div></div>
+      <div class="g-item" data-card="c-binary" tabindex="0" aria-expanded="false"><dt>Confusion matrix</dt><dd>— table of TP/TN/FP/FN comparing predictions to reality.</dd><div class="g-more"><p>Four cells — TP, FP, FN, TN — and every classification metric is some ratio of them. Reading it tells you which mistake the model makes: false alarms (FP) or misses (FN). Which error is worse depends on the domain — a cancer screen fears misses; a spam filter fears false alarms.</p></div></div>
+      <div class="g-item" data-card="c-context" tabindex="0" aria-expanded="false"><dt>Context window</dt><dd>— the maximum tokens a model can attend to at once; its working memory.</dd><div class="g-more"><p>Measured in tokens, and it covers everything: your input, the model’s output, and any hidden reasoning. When a conversation exceeds it, the oldest content is dropped or summarized — the model doesn’t “forget” so much as it never sees. Long-document work routes around the limit with chunking and RAG.</p></div></div>
+      <div class="g-item" data-card="c-mlvsdl" tabindex="0" aria-expanded="false"><dt>Deep learning</dt><dd>— ML using multi-layer neural networks that learn features automatically.</dd><div class="g-more"><p>The “deep” stack is a feature hierarchy: early layers learn primitives (edges, textures), later layers learn compositions (faces, phrases, meaning). Feature engineering — the expensive human step in classical ML — becomes the network’s own job. The price: data hunger, GPU compute, and reduced interpretability.</p></div></div>
+      <div class="g-item" data-card="c-finetune" tabindex="0" aria-expanded="false"><dt>Distillation</dt><dd>— training a small model to mimic a large one's outputs.</dd><div class="g-more"><p>The large “teacher” model labels vast numbers of examples; the small “student” trains to match the teacher’s full probability distribution, not just the final answer — a much richer signal than hard labels. It’s the main route from frontier-scale models to the fast, cheap ones (the Phi family leans on it heavily).</p></div></div>
+      <div class="g-item" data-card="c-embeddings" tabindex="0" aria-expanded="false"><dt>Embedding</dt><dd>— a vector representation where semantic similarity equals geometric closeness.</dd><div class="g-more"><p>The coordinates aren’t hand-designed — they emerge from training on co-occurrence: things that appear in similar contexts drift together. Distance becomes meaning, so cosine similarity between vectors measures semantic relatedness. This powers semantic search, RAG retrieval, deduplication, and recommendations.</p></div></div>
+      <div class="g-item" data-card="c-nn-learn" tabindex="0" aria-expanded="false"><dt>Epoch</dt><dd>— one full pass through the training data.</dd><div class="g-more"><p>Training usually runs many epochs, with data shuffled between passes so batches differ. Watch validation loss per epoch: while it falls the model is still learning; when it turns upward while training loss keeps dropping, that’s overfitting — time to stop early.</p></div></div>
+      <div class="g-item" data-card="c-binary" tabindex="0" aria-expanded="false"><dt>F1 score</dt><dd>— harmonic mean of precision and recall.</dd><div class="g-more"><p>The harmonic mean punishes imbalance — a model with 0.9 precision but 0.1 recall scores 0.18, not the 0.5 an average would give. Use it when both error types matter and classes are skewed; if one error is costlier, report precision and recall separately instead.</p></div></div>
+      <div class="g-item" data-card="c-ml-model" tabindex="0" aria-expanded="false"><dt>Feature (x)</dt><dd>— an observed attribute used as model input.</dd><div class="g-more"><p>In classical ML, choosing and transforming features (“feature engineering”) is where most of the craft lives — the model can only see what the features expose. Deep learning shifts that burden: raw pixels or tokens go in, and the layers learn useful representations themselves.</p></div></div>
+      <div class="g-item" data-card="c-finetune" tabindex="0" aria-expanded="false"><dt>Fine-tuning</dt><dd>— continuing a model's training on your own examples to change its behavior.</dd><div class="g-more"><p>It changes weights, which changes behavior — tone, format, domain vocabulary — but it’s poor at injecting fresh facts (models garble knowledge seen only a few times). Rule of thumb: prompt first, add RAG for knowledge, and fine-tune only when style or format needs to be baked in.</p></div></div>
+      <div class="g-item" data-card="c-tooluse" tabindex="0" aria-expanded="false"><dt>Function calling</dt><dd>— the model outputs structured JSON naming a tool to invoke with arguments.</dd><div class="g-more"><p>The model doesn’t execute anything — it emits structured JSON naming a tool and its arguments; your code runs the tool and feeds the result back into the context, and the model continues with real data in view. This handshake, standardized by protocols like MCP, is the foundation of agents.</p></div></div>
+      <div class="g-item" data-card="c-llm-umbrella" tabindex="0" aria-expanded="false"><dt>Generative AI</dt><dd>— models that create content (text, images, audio, code); LLMs are its text branch. A subset of deep learning, which is a subset of ML, which is a subset of AI.</dd><div class="g-more"><p>The umbrella spans text (LLMs), images (diffusion), audio, video, and code. What unifies them: they model the probability distribution of their training data and sample new instances from it — creating rather than classifying. Each layer of the hierarchy inherits the machinery of the one above it.</p></div></div>
+      <div class="g-item" data-card="c-nn-learn" tabindex="0" aria-expanded="false"><dt>Gradient descent</dt><dd>— optimization that nudges each weight downhill against the loss.</dd><div class="g-more"><p>The gradient points uphill in loss; step the other way, scaled by the learning rate — too large overshoots, too small crawls. Modern optimizers like Adam adapt step sizes per weight. “Stochastic” means estimating the gradient from a small batch instead of the whole dataset: noisier, but far cheaper per step.</p></div></div>
+      <div class="g-item" data-card="c-halluc" tabindex="0" aria-expanded="false"><dt>Grounding</dt><dd>— supplying source material (via RAG) so answers cite real data instead of guessing.</dd><div class="g-more"><p>Instead of asking the model to recall facts from training (where it can confabulate), you hand it source text at inference time and instruct it to answer from that. Retrieval, citations, and “say so if it’s not in the context” instructions are the practical toolkit — RAG is grounding at scale.</p></div></div>
+      <div class="g-item" data-card="c-halluc" tabindex="0" aria-expanded="false"><dt>Hallucination</dt><dd>— a fluent but false model output; mitigated by grounding (RAG).</dd><div class="g-more"><p>It’s structural, not a bug: pretraining rewards plausible continuations, and confidently-wrong often sounds more plausible than “I don’t know.” Risk rises off-distribution — niche facts, recent events, precise numbers. Mitigate with grounding, citations you can check, and low temperature for factual tasks.</p></div></div>
+      <div class="g-item" data-card="c-inference" tabindex="0" aria-expanded="false"><dt>Inference</dt><dd>— using a trained model to make predictions; weights are frozen, so the model doesn't learn from your inputs. For LLMs: one forward pass per generated token.</dd><div class="g-more"><p>For LLMs it splits into prefill (the prompt processed in parallel — fast) and decode (one forward pass per generated token — the visible stream). Serving cost scales with inference, not training: a model trains once but answers billions of times, which is why quantization and KV caches matter so much.</p></div></div>
+      <div class="g-item" data-card="c-infoext" tabindex="0" aria-expanded="false"><dt>Information extraction</dt><dd>— turning documents into structured data: OCR finds the text, field extraction maps it to labeled fields.</dd><div class="g-more"><p>The pipeline stacks: OCR finds the words, layout analysis finds the structure, and field extraction assigns meaning — via fixed templates, trained models, or an LLM given the text plus a schema. It’s how invoices, receipts, and forms become database rows without manual keying.</p></div></div>
+      <div class="g-item" data-card="c-llm-inference" tabindex="0" aria-expanded="false"><dt>KV cache</dt><dd>— inference optimization that stores attention results for tokens already processed, so each new token doesn't recompute the whole conversation.</dd><div class="g-more"><p>Without it, generating token N would recompute attention keys and values for all N−1 previous tokens — quadratic waste. With it, each step computes only the new token and reads the rest from memory. The cost is GPU memory that grows with context length — the real constraint behind window limits.</p></div></div>
+      <div class="g-item" data-card="c-ml-model" tabindex="0" aria-expanded="false"><dt>Label (y)</dt><dd>— the known value a supervised model learns to predict.</dd><div class="g-more"><p>Labels are the expensive part of supervised learning — human annotation is slow and inconsistent, which is why labeled datasets are prized. LLM pretraining sidesteps the problem: the next word is its own label (self-supervision), turning the whole internet into free training data.</p></div></div>
+      <div class="g-item" data-card="c-llm-umbrella" tabindex="0" aria-expanded="false"><dt>LLM</dt><dd>— large language model; a transformer trained to predict the next token at internet scale.</dd><div class="g-more"><p>“Large” covers both parameters (billions to trillions) and training data (trillions of tokens). The surprise of the era: next-token prediction at sufficient scale yields grammar, world knowledge, translation, and reasoning-like behavior that nobody explicitly programmed — emergent capability from a simple objective.</p></div></div>
+      <div class="g-item" data-card="c-finetune" tabindex="0" aria-expanded="false"><dt>LoRA / QLoRA</dt><dd>— low-rank adapters; cheap fine-tuning that trains a thin layer instead of all weights.</dd><div class="g-more"><p>Freeze the original weights and train two small low-rank matrices per layer whose product approximates the needed change — typically under 1% of parameters. QLoRA adds 4-bit quantization of the frozen base, letting a single consumer GPU fine-tune a model that otherwise wouldn’t fit.</p></div></div>
+      <div class="g-item" data-card="c-nn-learn" tabindex="0" aria-expanded="false"><dt>Loss function</dt><dd>— quantifies how far predictions (ŷ) are from truth (y) during training.</dd><div class="g-more"><p>It’s the definition of “good” that training optimizes — squared error for regression, cross-entropy for classification (which punishes confident wrong answers hardest). Gradients and weight updates exist only to push this one number down; choose it wrong and the model diligently optimizes the wrong thing.</p></div></div>
+      <div class="g-item" data-card="c-tooluse" tabindex="0" aria-expanded="false"><dt>MCP</dt><dd>— Model Context Protocol; a standard for connecting models to tools and data.</dd><div class="g-more"><p>An open standard that gives models a uniform way to discover and call tools, read resources, and receive prompts — USB-C for AI integrations. Instead of custom glue per app, any MCP client can use any MCP server: file systems, databases, browsers, APIs.</p></div></div>
+      <div class="g-item" data-card="c-vit" tabindex="0" aria-expanded="false"><dt>Multimodal</dt><dd>— models that handle multiple input types — text, images, audio — in one shared space.</dd><div class="g-more"><p>One model, several senses: text and images (increasingly audio and video too) are encoded into the same vector space, so “a photo of a dog” and the photo itself land close together. That shared space is what enables captioning, visual Q&amp;A, and search-by-description.</p></div></div>
+      <div class="g-item" data-card="c-nn-anatomy" tabindex="0" aria-expanded="false"><dt>Neural network</dt><dd>— layers of weighted functions (neurons) forming one deeply nested trainable function.</dd><div class="g-more"><p>Each neuron is trivial — weighted sum, nonlinearity — but composition is powerful: enough neurons in enough layers can approximate any function (the universal approximation theorem). Architecture design (CNN, transformer) is really about wiring neurons to match the structure of the data.</p></div></div>
+      <div class="g-item" data-card="c-ocr" tabindex="0" aria-expanded="false"><dt>OCR</dt><dd>— optical character recognition; converts text in images into editable, searchable text with positions and confidence scores.</dd><div class="g-more"><p>Modern OCR is a vision model that detects text regions, then recognizes the character sequence within each — handling fonts, handwriting, skew, and photos of crumpled receipts. Output includes positions and confidence scores, which downstream field extraction uses to map text to meaning.</p></div></div>
+      <div class="g-item" data-card="c-overfit" tabindex="0" aria-expanded="false"><dt>Overfitting</dt><dd>— memorizing training data instead of generalizing; caught via the validation set.</dd><div class="g-more"><p>The telltale signature: training error keeps falling while validation error rises — the model is memorizing noise instead of learning signal. Cures: more data, simpler models, regularization, dropout, early stopping. The validation set exists precisely to catch this.</p></div></div>
+      <div class="g-item" data-card="c-stt" tabindex="0" aria-expanded="false"><dt>Phoneme</dt><dd>— the smallest unit of sound that distinguishes words; English has ~44 ("cat" = /k/+/æ/+/t/).</dd><div class="g-more"><p>Speech recognizers work at this granularity because spelling is unreliable evidence of sound (“though” vs “tough”). Acoustic models map audio frames to phoneme probabilities; the language model then decides which word sequence those sounds most plausibly spell.</p></div></div>
+      <div class="g-item" data-card="c-rl-core" tabindex="0" aria-expanded="false"><dt>Policy</dt><dd>— in RL, the agent's mapping from states to actions.</dd><div class="g-more"><p>Everything the agent has learned lives in the policy — “in this state, do this.” It can be a lookup table for small worlds or a deep network reading a screen. Training nudges it so actions that led to reward become more probable next time (policy-gradient methods like PPO).</p></div></div>
+      <div class="g-item" data-card="c-cnn" tabindex="0" aria-expanded="false"><dt>Pooling</dt><dd>— CNN layer that downsamples feature maps, keeping the strongest signals and reducing computation.</dd><div class="g-more"><p>Typically max-pooling: keep the strongest activation in each small patch and discard the rest. The feature map shrinks (less compute), and detection becomes tolerant of small shifts — an edge found a few pixels off still fires the same pooled output.</p></div></div>
+      <div class="g-item" data-card="c-binary" tabindex="0" aria-expanded="false"><dt>Precision</dt><dd>— of predicted positives, the share that really were positive: TP/(TP+FP).</dd><div class="g-more"><p>Optimize for it when false alarms are costly — spam filtering, fraud flags that trigger manual review. Raising the decision threshold lifts precision but usually lowers recall: you flag less, and what you flag is more reliably real. The full tradeoff is the precision–recall curve.</p></div></div>
+      <div class="g-item" data-card="c-prompt" tabindex="0" aria-expanded="false"><dt>Prompt engineering</dt><dd>— deliberately shaping model input (system message, examples, parameters) to improve output.</dd><div class="g-more"><p>The levers, roughly in order of power: a clear task with constraints, examples of the desired output (few-shot), an explicit role or audience, structured-output requests, and room to reason step by step. It’s cheaper and faster than any training — always the first thing to try.</p></div></div>
+      <div class="g-item" data-card="c-tts" tabindex="0" aria-expanded="false"><dt>Prosody</dt><dd>— rhythm, stress, and intonation of speech; the difference between natural and robotic synthesis.</dd><div class="g-more"><p>Humans use pitch, timing, and stress to mark questions, sarcasm, and emphasis — identical words with different prosody mean different things. Modern TTS predicts prosody with a transformer before the vocoder renders audio; getting it right is most of the distance from the robotic voices of the 2000s.</p></div></div>
+      <div class="g-item" data-card="c-runlocal" tabindex="0" aria-expanded="false"><dt>Quantization</dt><dd>— compressing weights to fewer bits so big models fit consumer hardware.</dd><div class="g-more"><p>Weights get stored at lower precision — 4–8 bits instead of 16. At 4-bit, memory drops roughly 4× for a few percent quality loss. It’s the enabling trick for local AI: a 7B model needs ~4–5 GB instead of ~14, which is why Ollama models run on ordinary laptops.</p></div></div>
+      <div class="g-item" data-card="c-rag" tabindex="0" aria-expanded="false"><dt>RAG</dt><dd>— retrieval-augmented generation; retrieving your documents into the prompt to ground answers.</dd><div class="g-more"><p>The pipeline: chunk documents → embed → store in a vector DB → at question time, embed the query, retrieve the nearest chunks, and paste them into the prompt. The model answers from supplied text instead of parametric memory — fresher, citable, and updatable without retraining. Quality lives or dies on retrieval.</p></div></div>
+      <div class="g-item" data-card="c-binary" tabindex="0" aria-expanded="false"><dt>Recall</dt><dd>— of actual positives, the share the model caught: TP/(TP+FN).</dd><div class="g-more"><p>Optimize for it when misses are costly — medical screening, safety violations, legal discovery. Lowering the decision threshold lifts recall but usually costs precision: you catch nearly everything, at the price of more false alarms for humans to sift.</p></div></div>
+      <div class="g-item" data-card="c-regression" tabindex="0" aria-expanded="false"><dt>Regression</dt><dd>— supervised learning that predicts a numeric value.</dd><div class="g-more"><p>The founding supervised task: fit a function from features to a number, evaluate by error size (MAE, RMSE) and variance explained (R²). Linear regression is still the baseline to beat — and its mental model (fit a line, measure residuals) generalizes to everything fancier.</p></div></div>
+      <div class="g-item" data-card="c-rl-core" tabindex="0" aria-expanded="false"><dt>Reinforcement learning</dt><dd>— learning a policy from rewards through trial and error.</dd><div class="g-more"><p>No labels and no examples of correct behavior — only a reward signal after acting. The core tension is exploration vs exploitation: try new actions to learn, or repeat what already pays. Slow and data-hungry, but it’s how systems learn behaviors nobody can demonstrate (AlphaGo’s move 37).</p></div></div>
+      <div class="g-item" data-card="c-rl-core" tabindex="0" aria-expanded="false"><dt>Reward hacking</dt><dd>— an RL agent maximizing the literal reward in unintended ways; you get what you measure, not what you meant.</dd><div class="g-more"><p>Classic cases: a boat-racing agent circling to collect power-ups instead of finishing; a robot hand hovering between camera and object so it merely looks like it’s grasping. In LLM land it appears as sycophancy — telling raters what they want to hear scores well with the reward model.</p></div></div>
+      <div class="g-item" data-card="c-rlhf" tabindex="0" aria-expanded="false"><dt>Reward model</dt><dd>— in RLHF, a model trained on human preference rankings to score outputs.</dd><div class="g-more"><p>Humans rank pairs of outputs; a model learns to predict those preferences, then stands in for humans at scale, scoring millions of candidate responses during RL. It’s the linchpin of RLHF — and its blind spots are exactly where reward hacking creeps in.</p></div></div>
+      <div class="g-item" data-card="c-rlhf" tabindex="0" aria-expanded="false"><dt>RLHF</dt><dd>— reinforcement learning from human feedback; the step that turns raw LLMs into helpful assistants.</dd><div class="g-more"><p>Three steps: supervised fine-tuning on demonstration answers, training a reward model from human preference rankings, then RL against that reward model. It’s what turned raw next-token predictors into assistants that follow instructions and converse naturally — it turned GPT-3 into ChatGPT.</p></div></div>
+      <div class="g-item" data-card="c-openweights" tabindex="0" aria-expanded="false"><dt>SLM</dt><dd>— small language model (~1–14B parameters) that can run on a laptop.</dd><div class="g-more"><p>Small enough for a laptop or phone, but trained with big-model techniques — careful data curation and distillation from larger teachers. Phi, Gemma, and small Llama variants punch far above their size on focused tasks (summarization, classification, coding help) at zero API cost and full privacy.</p></div></div>
+      <div class="g-item" data-card="c-multiclass" tabindex="0" aria-expanded="false"><dt>Softmax</dt><dd>— turns raw scores into a probability distribution that sums to 1.</dd><div class="g-more"><p>Exponentiate each raw score and divide by the sum: bigger inputs get disproportionately more probability mass, and everything sums to 1. It’s the final layer of every classifier and the distribution an LLM samples its next token from — temperature works by rescaling scores just before softmax.</p></div></div>
+      <div class="g-item" data-card="c-stt" tabindex="0" aria-expanded="false"><dt>Speech recognition (STT)</dt><dd>— converting audio to text: features → phonemes → language model → decoded sentence.</dd><div class="g-more"><p>Six stages: sample audio (~16 kHz) → extract features (MFCC) → acoustic model predicts phonemes → language model weighs word plausibility → beam-search decoding picks the sentence → post-processing adds caps and punctuation. Modern end-to-end models like Whisper fuse the middle stages into one transformer.</p></div></div>
+      <div class="g-item" data-card="c-tts" tabindex="0" aria-expanded="false"><dt>Speech synthesis (TTS)</dt><dd>— converting text to audio: normalize → phonemes → prosody → neural vocoder.</dd><div class="g-more"><p>Normalize the text (“Dr.” → “doctor”), convert to phonemes, predict prosody — pitch, pauses, emphasis — then a neural vocoder generates the waveform. The vocoder step is where “robotic” died: neural vocoders produce natural timbre that’s hard to distinguish from recordings in short clips.</p></div></div>
+      <div class="g-item" data-card="c-ml-types" tabindex="0" aria-expanded="false"><dt>Supervised learning</dt><dd>— training on data with known labels.</dd><div class="g-more"><p>The dominant paradigm whenever labels are available: examples in, known answers out, minimize the gap. Its two families — regression (numbers) and classification (categories) — cover most business ML. The catch is labeling cost, which keeps pushing the field toward self-supervision.</p></div></div>
+      <div class="g-item" data-card="c-temp" tabindex="0" aria-expanded="false"><dt>Temperature</dt><dd>— sampling parameter controlling output randomness.</dd><div class="g-more"><p>It rescales token scores before softmax: low temperature sharpens the distribution toward the top choice (repeatable, factual), high flattens it (varied, creative), and 0 is effectively deterministic. It shapes randomness — it does not make the model know more or less.</p></div></div>
+      <div class="g-item" data-card="c-llm-inference" tabindex="0" aria-expanded="false"><dt>Test-time compute</dt><dd>— letting a model spend more inference tokens "thinking" before answering; how reasoning models trade latency for accuracy.</dd><div class="g-more"><p>The scaling axis of the reasoning-model era: instead of only training bigger models, let the model think longer — generate extended internal reasoning, explore branches, self-check — before answering. Accuracy on math and code rises with thinking tokens, at the cost of latency and price.</p></div></div>
+      <div class="g-item" data-card="c-tokens" tabindex="0" aria-expanded="false"><dt>Token</dt><dd>— the unit models read: a word or sub-word chunk.</dd><div class="g-more"><p>The atom of LLM economics and limits: context windows, API pricing, and generation speed are all measured in tokens. English averages about four characters per token; code and non-English text tokenize less efficiently. Models see token IDs, not letters — the root of the strawberry-r counting failure.</p></div></div>
+      <div class="g-item" data-card="c-attention" tabindex="0" aria-expanded="false"><dt>Transformer</dt><dd>— the 2017 attention-based architecture behind modern LLMs.</dd><div class="g-more"><p>The 2017 “Attention Is All You Need” architecture: self-attention plus feed-forward layers, no recurrence. Processing all positions in parallel made training massively scalable, and the same blueprint now spans text (GPT), vision (ViT), and audio (Whisper) — one architecture ate the field.</p></div></div>
+      <div class="g-item" data-card="c-ml-types" tabindex="0" aria-expanded="false"><dt>Unsupervised learning</dt><dd>— finding structure in unlabeled data.</dd><div class="g-more"><p>Structure-finding without answers: clustering (groups), dimensionality reduction (compression for visualization), anomaly detection (what doesn’t fit). Often the exploratory first pass on new data — and, as self-supervised next-token prediction, the engine behind LLM pretraining.</p></div></div>
+      <div class="g-item" data-card="c-embeddings" tabindex="0" aria-expanded="false"><dt>Vector database</dt><dd>— stores embeddings for fast nearest-neighbor semantic search.</dd><div class="g-more"><p>Purpose-built for “find the K nearest vectors among millions” — approximate nearest-neighbor indexes (like HNSW) make that fast at the cost of exactness. The retrieval backbone of RAG and semantic search; each vector is stored with its original text chunk and metadata for filtering.</p></div></div>
+    </dl>
+  </section>
+
+  <!-- ============ FLASHCARDS ============ -->
+  <section class="tab" id="tab-cards">
+    <h2>Flashcards</h2>
+    <p class="section-intro">Quiz yourself with spaced repetition — flip a card, then rate how well you knew it. Cards you struggle with return sooner; cards you know return at expanding intervals.</p>
+    <div class="flash-wrap">
+      <div class="flashcard" id="flashcard">
+        <div class="flash-inner">
+          <div class="flash-face flash-front" id="flashFront"></div>
+          <div class="flash-face flash-back" id="flashBack"></div>
+        </div>
+      </div>
+      <div class="flash-count" id="flashCount"></div>
+      <div class="flash-due" id="flashDue"></div>
+      <div class="rate-controls" id="rateControls">
+        <button class="r-again" id="rateAgain" title="Repeat soon in this round">✗ Again</button>
+        <button class="r-good" id="rateGood" title="Next review interval doubles">✓ Good</button>
+        <button class="r-easy" id="rateEasy" title="Next review interval ×4">✓✓ Easy</button>
+      </div>
+      <div class="flash-controls">
+        <button id="flashPrev">← Prev</button>
+        <button id="flashShuffle">🔀 Shuffle</button>
+        <button id="flashNext">Next →</button>
+      </div>
+      <p class="hint">Say the answer out loud before flipping — retrieval practice beats re-reading. Ratings are saved in this browser.</p>
+    </div>
+  </section>
+
+  <footer>Curated by Reid Laird · built with Claude · a living library that grows as I learn · note maturity: 🌱 seedling · 🌿 growing · 🌳 evergreen · animations honor reduced-motion settings · last updated July 5, 2026</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Theme toggle ---------- */
+  var themeBtn = document.getElementById("themeToggle");
+  function applyTheme(t){
+    if (t === "dark") { document.documentElement.setAttribute("data-theme", "dark"); }
+    else { document.documentElement.removeAttribute("data-theme"); }
+    themeBtn.textContent = (t === "dark") ? "☀️" : "🌙";
+    try { localStorage.setItem("aiDash.theme", t); } catch(e){}
+  }
+  var savedTheme = "dark";
+  try { savedTheme = localStorage.getItem("aiDash.theme") || "dark"; } catch(e){}
+  applyTheme(savedTheme);
+  themeBtn.addEventListener("click", function(){
+    applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+  });
+
+  /* ---------- Tabs (with #deep-links) ---------- */
+  var tabButtons = document.querySelectorAll("#tabs button");
+  function activateTab(name, updateHash){
+    var btn = document.querySelector('#tabs button[data-tab="' + name + '"]');
+    if (!btn || !document.getElementById("tab-" + name)) return false;
+    tabButtons.forEach(function(b){ b.classList.remove("active"); });
+    document.querySelectorAll("section.tab").forEach(function(s){ s.classList.remove("active"); });
+    btn.classList.add("active");
+    document.getElementById("tab-" + name).classList.add("active");
+    try { localStorage.setItem("aiDash.tab", name); } catch(e){}
+    if (updateHash) { try { history.replaceState(null, "", "#" + name); } catch(e){} }
+    return true;
+  }
+  tabButtons.forEach(function(btn){
+    btn.addEventListener("click", function(){ activateTab(btn.dataset.tab, true); });
+  });
+  window.addEventListener("hashchange", function(){
+    activateTab(location.hash.replace("#", ""), false);
+  });
+  /* priority: URL hash (shared links) > last-visited tab */
+  if (!activateTab(location.hash.replace("#", ""), false)) {
+    try {
+      var savedTab = localStorage.getItem("aiDash.tab");
+      if (savedTab) activateTab(savedTab, false);
+    } catch(e){}
+  }
+
+  /* ---------- Library search ---------- */
+  var searchBox = document.getElementById("searchBox");
+  var searchResults = document.getElementById("searchResults");
+  var shelfNames = {};
+  tabButtons.forEach(function(b){ shelfNames[b.dataset.tab] = b.textContent; });
+  var cardIndex = [];
+  document.querySelectorAll("section.tab details.card").forEach(function(c){
+    cardIndex.push({
+      el: c,
+      tab: c.closest("section.tab").id.replace("tab-", ""),
+      title: c.querySelector("summary").textContent.trim(),
+      text: c.textContent.toLowerCase()
+    });
+  });
+  function jumpToCard(el, tab){
+    document.querySelector('#tabs button[data-tab="' + tab + '"]').click();
+    el.open = true;
+    el.scrollIntoView({behavior:"smooth", block:"center"});
+    el.classList.remove("flash-hit");
+    void el.offsetWidth;
+    el.classList.add("flash-hit");
+  }
+  searchBox.addEventListener("input", function(){
+    var q = searchBox.value.trim().toLowerCase();
+    searchResults.innerHTML = "";
+    if (q.length < 2) { searchResults.style.display = "none"; return; }
+    var hits = cardIndex.filter(function(c){ return c.text.indexOf(q) !== -1; }).slice(0, 12);
+    if (!hits.length) {
+      searchResults.innerHTML = '<div class="sr-none">No notes match — try the Glossary tab.</div>';
+    } else {
+      hits.forEach(function(h){
+        var d = document.createElement("div");
+        d.className = "sr-item";
+        var t = document.createElement("div"); t.className = "sr-title"; t.textContent = h.title;
+        var s = document.createElement("div"); s.className = "sr-shelf"; s.textContent = shelfNames[h.tab] || h.tab;
+        d.appendChild(t); d.appendChild(s);
+        d.addEventListener("click", function(){
+          searchResults.style.display = "none";
+          searchBox.value = "";
+          jumpToCard(h.el, h.tab);
+        });
+        searchResults.appendChild(d);
+      });
+    }
+    searchResults.style.display = "block";
+  });
+  document.addEventListener("click", function(ev){
+    if (!ev.target.closest(".search-wrap")) searchResults.style.display = "none";
+  });
+
+  /* ---------- Related-note jump links ---------- */
+  document.querySelectorAll("[data-jump]").forEach(function(a){
+    a.addEventListener("click", function(ev){
+      ev.preventDefault();
+      var target = document.getElementById(a.getAttribute("data-jump"));
+      if (!target) return;
+      jumpToCard(target, target.closest("section.tab").id.replace("tab-", ""));
+    });
+  });
+
+  /* ---------- Glossary filter ---------- */
+  var gFilter = document.getElementById("gFilter");
+  gFilter.addEventListener("input", function(){
+    var q = gFilter.value.trim().toLowerCase();
+    document.querySelectorAll("#glossaryList .g-item").forEach(function(item){
+      item.style.display = (item.textContent.toLowerCase().indexOf(q) !== -1) ? "" : "none";
+    });
+  });
+
+  /* ---------- Expandable glossary (click a term to learn more) ---------- */
+  document.querySelectorAll("#glossaryList .g-item[data-card]").forEach(function(item){
+    var target = document.getElementById(item.getAttribute("data-card"));
+    var more = item.querySelector(".g-more");
+    if (target && more) {
+      var tab = target.closest("section.tab").id.replace("tab-", "");
+      var s = target.querySelector("summary").cloneNode(true);
+      s.querySelectorAll(".tag, .stage").forEach(function(n){ n.remove(); });
+      var a = document.createElement("a");
+      a.className = "g-link";
+      a.textContent = "Read more in the library \u2192 " + s.textContent.replace(/\s+/g, " ").trim() + " \u00b7 " + (shelfNames[tab] || tab);
+      a.addEventListener("click", function(ev){
+        ev.stopPropagation();
+        jumpToCard(target, tab);
+      });
+      more.appendChild(a);
+    }
+    function toggle(){
+      var open = item.classList.toggle("open");
+      item.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    item.addEventListener("click", function(ev){
+      if (ev.target.closest("a")) return;
+      toggle();
+    });
+    item.addEventListener("keydown", function(ev){
+      if ((ev.key === "Enter" || ev.key === " ") && ev.target === item) {
+        ev.preventDefault();
+        toggle();
+      }
+    });
+  });
+
+  /* ---------- Flashcards with spaced repetition ---------- */
+  var deck = [
+    ["What's the difference between training and inferencing?", "Training defines the function y = f(x) from past observations; inferencing uses the trained model to predict labels for new data."],
+    ["What are features and labels?", "Features (x) are the observed attributes of a thing; the label (y) is the value you want to predict. Predictions are written ŷ (\"y-hat\")."],
+    ["Supervised vs unsupervised learning?", "Supervised trains on data that includes known label values (regression, classification). Unsupervised finds structure in unlabeled data (clustering)."],
+    ["Regression vs classification?", "Regression predicts a numeric value (ice cream sales); classification predicts a class — binary (yes/no) or multiclass (penguin species)."],
+    ["Name the four main regression metrics.", "MAE (mean absolute error), MSE (squares amplify big errors), RMSE (back in label units), R² (variance explained, closer to 1 is better)."],
+    ["Precision vs recall?", "Precision: of everything predicted positive, how much really was — TP/(TP+FP). Recall: of all actual positives, how many were caught — TP/(TP+FN). F1 balances both."],
+    ["Why can accuracy be misleading?", "With imbalanced classes, always predicting the majority class scores high accuracy while catching zero positives. Check recall, precision, and AUC too."],
+    ["How does k-means clustering work?", "Pick k centroids → assign each point to nearest centroid → move each centroid to its cluster's mean → repeat until stable. Evaluate with silhouette (−1 to 1)."],
+    ["What makes deep learning \"deep\"?", "Multiple layers of neurons form a deeply nested function. Each neuron applies weights to inputs inside an activation function that decides whether the signal passes on."],
+    ["Describe how a neural network learns.", "Random weights → forward pass gives ŷ → loss function measures error vs y → gradient descent computes weight adjustments → backpropagation applies them → repeat over epochs."],
+    ["Classical ML vs deep learning — biggest practical difference?", "Classical ML needs hand-engineered features and suits tabular data; deep learning learns features itself and excels on unstructured data (images, text, audio) but needs more data and compute."],
+    ["What is softmax for?", "It turns the output layer's raw scores into a probability distribution across classes — e.g. [0.2, 0.7, 0.1] — that sums to 1; highest probability wins."],
+    ["What does a CNN's convolution layer do?", "Slides learned filters across an image to detect patterns — edges and textures in early layers, shapes and whole objects deeper in."],
+    ["What is attention in a transformer?", "Each token weighs its relevance to every other token in parallel, letting the model resolve context (like what \"it\" refers to) and enabling large-scale training."],
+    ["What is quantization?", "Compressing model weights to fewer bits (16-bit → 4–8 bit) so large models fit in consumer RAM/VRAM with only modest quality loss — key to running LLMs locally."],
+    ["What is model drift?", "Real-world data shifts away from the training distribution over time, degrading performance — why MLOps includes monitoring and scheduled retraining."],
+    ["What turns an LLM into an agent?", "A loop with tools, memory, and a goal: the model plans, calls tools (search, code, APIs), observes results, and iterates — action, not just answers."],
+    ["How does RAG work?", "Chunk documents → embed as vectors → store in a vector DB → at query time retrieve the nearest chunks and paste them into the prompt, grounding the answer in citable sources."],
+    ["What is an embedding?", "A vector representation of text/images where semantic similarity = geometric closeness — 'password reset' lands near 'credential recovery' with zero shared words."],
+    ["What is RLHF?", "Reinforcement learning from human feedback: humans rank outputs → a reward model learns the preferences → RL tunes the LLM to maximize that reward. It turned GPT-3 into ChatGPT."],
+    ["What does temperature control?", "Output randomness when sampling tokens: low = consistent and focused, high = varied and creative."],
+    ["What is LoRA?", "Low-rank adaptation: fine-tuning that trains a thin adapter layer instead of all weights — cheap enough for consumer GPUs, the 2026 default."],
+    ["What's the RL loop?", "Agent observes state → takes action → receives reward → updates its policy to maximize cumulative reward. No labels, just consequences — and the exploration/exploitation tradeoff."],
+    ["Overfitting vs underfitting?", "Overfitting: the model memorizes training noise — great training scores, poor predictions on new data (validation error rises while training error falls). Underfitting: too simple to capture the pattern at all. Fix with more data, regularization, or early stopping."],
+    ["Why hold out a validation set?", "It's the model's first encounter with data it never trained on — the only honest test of generalization, and the early-warning system for overfitting."],
+    ["What is a context window?", "The maximum tokens a model can attend to at once — its working memory. Anything outside it is invisible, which is why long documents get chunked and retrieved via RAG."],
+    ["Why do LLMs hallucinate?", "They're trained to predict plausible next tokens, not verified ones — fluency without a fact-checker. Grounding (RAG), citations, and lower temperature reduce it but never eliminate it."],
+    ["What does pooling do in a CNN?", "Downsamples feature maps (max-pooling keeps the strongest signal per patch), shrinking computation and making detection less sensitive to exact pixel position."],
+    ["Low vs high temperature?", "Temperature reshapes next-token probabilities before sampling: low sharpens toward the favorite (consistent, factual), high flattens the distribution (varied, creative). Near 0 ≈ deterministic."],
+    ["What are the stages of speech recognition?", "Capture audio (~16 kHz) → extract features (MFCC) → acoustic model predicts phonemes → language model applies word knowledge → beam-search decoding picks the best sentence → post-processing adds caps, punctuation, formatting."],
+    ["What is a phoneme?", "The smallest unit of sound that distinguishes words — English has ~44; \"cat\" is /k/+/æ/+/t/. Acoustic models predict phonemes; language models turn them into words."],
+    ["Why does synthesized speech sound robotic?", "Usually flat prosody — rhythm, stress, intonation — not bad phonemes. Modern TTS uses a transformer to predict pitch, pauses, and emphasis, then a neural vocoder generates the waveform."],
+    ["OCR vs field extraction?", "OCR tells you WHAT text exists in an image (with positions and confidence); field extraction tells you what it MEANS — mapping \"Fourth Coffee\" to Vendor and \"6.97\" to Total."],
+    ["Three approaches to field extraction?", "Templates (rules + fixed layouts: fast, brittle), trained ML models (learn label–value relationships across varied layouts), and LLM schema-based extraction (give the model the document text plus a field schema)."],
+    ["Where do LLMs sit in the AI hierarchy?", "AI ⊃ machine learning ⊃ deep learning ⊃ transformers ⊃ LLMs. One architecture, one objective (next-token prediction), mostly one data type (text) — the most visible slice of AI, and one of the smallest."],
+    ["When should you NOT use an LLM?", "Tabular prediction (churn, pricing, fraud) — gradient boosting usually wins; tight latency/cost budgets (an LLM call ≈ 1000× a tree model); decisions that must be explainable. LLMs are for language tasks."],
+    ["Why can't LLMs count the r's in strawberry?", "They see tokens, not letters — 'strawberry' arrives as chunks like str+aw+berry, and individual characters aren't represented. Same reason arithmetic on long digit strings is shaky."],
+    ["Why do coding agents grep instead of reading the whole repo?", "The repo is ~100× bigger than the context window, and every file read spends tokens from the same budget needed for reasoning and output. Search first, read selectively, edit with diffs, compact long sessions."],
+    ["Does an LLM learn from your conversation?", "No — inference runs with frozen weights. Apparent memory is the conversation sitting in the context window (or saved externally and fed back in). Weights only change during training or fine-tuning."],
+    ["Why do LLM responses stream word by word?", "Generation is autoregressive: one full forward pass per token, each conditioned on everything before it. Prefill reads the prompt in parallel (fast); decode emits tokens one at a time — that's the stream."]
+  ];
+  var SR_KEY = "aiDash.sr";
+  var DAY = 86400000;
+  function loadSR(){ try { return JSON.parse(localStorage.getItem(SR_KEY)) || {}; } catch(e){ return {}; } }
+  function saveSR(s){ try { localStorage.setItem(SR_KEY, JSON.stringify(s)); } catch(e){} }
+  var sr = loadSR();
+  var queue = [];
+  var idx = 0;
+  var card = document.getElementById("flashcard");
+  var rateControls = document.getElementById("rateControls");
+  function dueCount(){
+    var now = Date.now(), n = 0;
+    deck.forEach(function(c, i){ var r = sr[i]; if (!r || r.due <= now) n++; });
+    return n;
+  }
+  function buildQueue(){
+    var now = Date.now();
+    queue = [];
+    deck.forEach(function(c, i){ var r = sr[i]; if (!r || r.due <= now) queue.push(i); });
+    if (!queue.length) { deck.forEach(function(c, i){ queue.push(i); }); }
+    idx = 0;
+  }
+  function showCard(){
+    if (idx >= queue.length) buildQueue();
+    var i = queue[idx];
+    card.classList.remove("flipped");
+    rateControls.style.display = "none";
+    document.getElementById("flashFront").textContent = deck[i][0];
+    document.getElementById("flashBack").textContent = deck[i][1];
+    document.getElementById("flashCount").textContent = "Card " + (idx + 1) + " of " + queue.length + " this round";
+    var due = dueCount();
+    document.getElementById("flashDue").textContent = due
+      ? due + " card" + (due === 1 ? "" : "s") + " due for review"
+      : "All caught up 🎉 — reviewing ahead of schedule";
+  }
+  card.addEventListener("click", function(){
+    card.classList.toggle("flipped");
+    rateControls.style.display = card.classList.contains("flipped") ? "flex" : "none";
+  });
+  function rate(mult, firstIv){
+    var i = queue[idx];
+    var r = sr[i] || { iv: 0, due: 0 };
+    if (mult === 0) {
+      r.iv = 0;
+      r.due = Date.now() + 600000; /* 10 min */
+      queue.push(i); /* comes back this round */
+    } else {
+      r.iv = r.iv ? Math.round(r.iv * mult) : firstIv;
+      r.due = Date.now() + r.iv * DAY;
+    }
+    sr[i] = r;
+    saveSR(sr);
+    idx++;
+    showCard();
+  }
+  document.getElementById("rateAgain").addEventListener("click", function(){ rate(0); });
+  document.getElementById("rateGood").addEventListener("click", function(){ rate(2, 1); });
+  document.getElementById("rateEasy").addEventListener("click", function(){ rate(4, 3); });
+  document.getElementById("flashNext").addEventListener("click", function(){ idx = (idx + 1) % queue.length; showCard(); });
+  document.getElementById("flashPrev").addEventListener("click", function(){ idx = (idx - 1 + queue.length) % queue.length; showCard(); });
+  document.getElementById("flashShuffle").addEventListener("click", function(){
+    for (var i = queue.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = queue[i]; queue[i] = queue[j]; queue[j] = t;
+    }
+    idx = 0; showCard();
+  });
+  buildQueue();
+  showCard();
+})();
+</script>
+</body>
 </html>
