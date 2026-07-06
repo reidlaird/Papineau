@@ -41,6 +41,9 @@ function ElectionBlock({ e }) {
       <div className="ge-meta">
         {rest.length > 0 ? `+ ${rest.length} more · ${restShare.toFixed(1)}% combined · ` : ''}
         {e.totalVotes.toLocaleString('en-CA')} valid votes
+        {e.turnout != null
+          ? ` · ${e.turnout.toFixed(1)}% turnout${e.electors ? ` of ${e.electors.toLocaleString('en-CA')} electors` : ''}`
+          : ''}
         {e.margin != null ? ` · won by ${e.margin.toFixed(1)} points` : ''}
       </div>
     </div>
