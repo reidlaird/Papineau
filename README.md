@@ -2,12 +2,14 @@
 
 **Spilling the tea on Canadian politics — from public records only.**
 
-A local dashboard for Canadian Members of Parliament: who they are, how they vote,
+🔗 **Live at [papineau.vercel.app](https://papineau.vercel.app)**
+
+A dashboard for Canadian Members of Parliament: who they are, how they vote,
 what they sponsor, and (eventually) how their campaigns are financed and what they
 disclose. Inspired by *Article One*, a US congressional-records app; HonesTea is the
 Canadian steep.
 
-## Quick start
+## Quick start (local)
 
 ```
 npm install
@@ -54,6 +56,12 @@ repeat page loads instant. Upstream 429/5xx responses are retried with backoff, 
 per-ballot vote lookups run sequentially for the same reason. Optionally set
 `HONESTEA_CONTACT=you@example.com` so the User-Agent identifies you to the API.
 
+**Production** runs the same two pieces split across hosts: the client is served by
+[Vercel](https://papineau.vercel.app) and the Express API runs on Render
+(`papineau.onrender.com`), with `vercel.json` rewriting `/api/*` to Render and
+everything else to the SPA. The Render free tier sleeps when idle, so the first
+request after a quiet spell can take ~a minute to wake up.
+
 ## Data source map (US reference app → Canadian equivalent)
 
 | Section | Canadian source | Status |
@@ -81,5 +89,5 @@ per-ballot vote lookups run sequentially for the same reason. Optionally set
    already in the data).
 
 Parliamentary data © House of Commons, made usable by
-[openparliament.ca](https://openparliament.ca). This is a personal, local,
+[openparliament.ca](https://openparliament.ca). This is a personal,
 read-only tool.
