@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "description": "HonesTea — public-records dashboard for Canadian MPs",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "concurrently -k -n api,web \"node server/index.js\" \"vite\"",
     "build": "vite build",

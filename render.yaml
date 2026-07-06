@@ -1,0 +1,22 @@
+# Render Blueprint — deploys the whole app (Express API + built client) as one
+# free web service. On render.com: New + → Blueprint → select this repo → Apply.
+#
+# The free instance spins down after ~15 min without traffic; an external
+# 5-minute uptime ping to /api/health (e.g. UptimeRobot) keeps it warm.
+services:
+  - type: web
+    name: papineau
+    runtime: node
+    plan: free
+    # --include=dev because Render sets NODE_ENV=production, which would
+    # otherwise make npm skip vite (a devDependency) during the build.
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      # Contact info for the User-Agent sent to openparliament.ca and
+      # represent.opennorth.ca (politeness for volunteer-run APIs).
+      # sync: false → Render prompts for the value when applying the blueprint;
+      # an email address is the expected format.
+      - key: HONESTEA_CONTACT
+        sync: false
