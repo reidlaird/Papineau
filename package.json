@@ -1,0 +1,23 @@
+{
+  "name": "hones-tea",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "HonesTea — public-records dashboard for Canadian MPs",
+  "scripts": {
+    "dev": "concurrently -k -n api,web \"node server/index.js\" \"vite\"",
+    "build": "vite build",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "vite": "^5.4.19"
+  }
+}
