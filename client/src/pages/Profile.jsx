@@ -620,6 +620,124 @@ function LobbyingCard({ mpName, lobby }) {
   );
 }
 
+// The registry front end takes a plain searchTerm param — a per-member deep
+// link works even while our own snapshot of the registry is pending.
+const registrySearchUrl = (name) =>
+  `https://ciec-ccie.parl.gc.ca/en/public-registry?searchTerm=${encodeURIComponent(name)}`;
+
+function EthicsCard({ mpName, ethics }) {
+  const e = ethics?.ethics;
+  const types = e ? Object.entries(e.byType).sort((a, b) => b[1] - a[1]) : [];
+  const maxType = Math.max(...types.map(([, n]) => n), 1);
+  const years = e ? Object.keys(e.byYear).sort() : [];
+  return (
+    <div className="card" id="ethics">
+      <div className="card-title">Ethics & personal finances</div>
+      {ethics === null && (
+        <div className="loading loading-inline">
+          <span className="spinner" />
+          Reading the disclosure file…
+        </div>
+      )}
+      {ethics?.pending && (
+        <p className="muted">
+          Members’ disclosure summaries, sponsored travel, gifts and material changes are
+          published in the Ethics Commissioner’s public registry, which offers no bulk
+          download — this app’s snapshot of it is still pending. Meanwhile,{' '}
+          <a href={registrySearchUrl(mpName)} target="_blank" rel="noreferrer">
+            search the registry for {mpName} ↗
+          </a>
+          .
+        </p>
+      )}
+      {ethics && !ethics.pending && !e && (
+        <p className="muted">
+          No declarations under {mpName}’s name in the registry snapshot — the registry lists
+          current members only, and very recent filings may postdate the snapshot.{' '}
+          <a href={registrySearchUrl(mpName)} target="_blank" rel="noreferrer">
+            Check the registry directly ↗
+          </a>
+          .
+        </p>
+      )}
+      {e && (
+        <>
+          <div className="fin-headline">
+            <span className="fin-total">{e.total.toLocaleString('en-CA')}</span>
+            <span className="fin-headline-meta">
+              public declaration{e.total === 1 ? '' : 's'}
+              {years.length ? ` since ${years[0]}` : ''}
+            </span>
+          </div>
+          {types.length > 0 && (
+            <>
+              <div className="microlabel">By declaration type</div>
+              {types.map(([type, n]) => (
+                <div className="result-row" key={type}>
+                  <div className="result-name" title={type}>
+                    {type}
+                  </div>
+                  <div className="result-track">
+                    <span
+                      className="result-fill"
+                      style={{
+                        width: `${(n / maxType) * 100}%`,
+                        background: 'var(--brand-soft)',
+                        display: 'block',
+                      }}
+                    />
+                  </div>
+                  <div className="result-nums">
+                    <b>{n}</b>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+          {e.recent.length > 0 && (
+            <>
+              <div className="microlabel">Latest declarations</div>
+              {e.recent.map((d, i) => {
+                const body = (
+                  <div className="list-row-body">
+                    <div className="list-row-title">
+                      {d.title && d.title !== d.type ? d.title : d.type}
+                      {d.url ? ' ↗' : ''}
+                    </div>
+                    <div className="list-row-meta">
+                      {d.type}
+                      {d.date ? ` · ${fmtDate(d.date)}` : ''}
+                    </div>
+                  </div>
+                );
+                return d.url ? (
+                  <a className="list-row extlink" key={i} href={d.url} target="_blank" rel="noreferrer">
+                    {body}
+                  </a>
+                ) : (
+                  <div className="list-row" key={i}>
+                    {body}
+                  </div>
+                );
+              })}
+            </>
+          )}
+          <p className="muted attribution">
+            Public declarations under the Conflict of Interest Code for Members (and the
+            Conflict of Interest Act, for ministers and parliamentary secretaries), from the{' '}
+            <a href={registrySearchUrl(mpName)} target="_blank" rel="noreferrer">
+              Ethics Commissioner’s public registry
+            </a>
+            {ethics.built ? ` (snapshot ${ethics.built})` : ''}. The registry lists current
+            office holders only; detailed statements of assets and liabilities stay
+            confidential with the Commissioner.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
+
 const DEMO_ROWS = [
   ['population', 'Population, 2021', (v) => v.toLocaleString('en-CA')],
   ['avgAge', 'Average age', (v) => `${v.toFixed(1)} yrs`],
@@ -691,6 +809,7 @@ export default function Profile() {
   const [demo, setDemo] = useState(null);
   const [eda, setEda] = useState(null);
   const [lobby, setLobby] = useState(null);
+  const [ethics, setEthics] = useState(null);
 
   useEffect(() => {
     setData(null);
@@ -764,6 +883,19 @@ export default function Profile() {
     };
   }, [data]);
 
+  useEffect(() => {
+    setEthics(null);
+    const name = data?.profile?.name;
+    if (!name) return;
+    let stale = false;
+    getJSON(`/api/ethics?mp=${encodeURIComponent(name)}`)
+      .then((d) => !stale && setEthics(d))
+      .catch(() => !stale && setEthics({ pending: true, ethics: null }));
+    return () => {
+      stale = true;
+    };
+  }, [data]);
+
   // Expenditure quarters are fetched one at a time, newest first (each is its
   // own upstream CSV; sequential keeps the proxy polite and the card fills
   // progressively). Stop early once quarters stop matching the member — older
@@ -832,14 +964,12 @@ export default function Profile() {
     {
       name: 'Ethics disclosures',
       desc: 'Conflict of Interest and Ethics Commissioner public registry',
-      href: 'https://ciec-ccie.parl.gc.ca/',
-      tag: 'integration planned',
+      href: registrySearchUrl(p.name),
     },
     {
       name: 'Lobbying registry',
       desc: 'Registered lobbying of this office, with communication reports',
       href: 'https://lobbycanada.gc.ca/',
-      tag: 'integration planned',
     },
     ...(p.wikipediaId
       ? [
@@ -968,6 +1098,8 @@ export default function Profile() {
       {p.riding && <DistrictCard riding={p.riding} province={p.province} demo={demo} />}
 
       <LobbyingCard mpName={p.name} lobby={lobby} />
+
+      <EthicsCard mpName={p.name} ethics={ethics} />
 
       <div className="card" id="career">
         <div className="card-title">Career in the House</div>

@@ -6,7 +6,7 @@ export default function About() {
     ['My rep — riding lookup & vote comparison', 'Represent API (Open North) + OpenParliament', 'live'],
     ['Campaign finance', 'Elections Canada political financing database', 'live'],
     ['Riding-association fundraising', 'Elections Canada political financing database', 'live'],
-    ['Ethics & disclosures', 'Conflict of Interest and Ethics Commissioner registry', 'planned'],
+    ['Ethics & disclosures', 'Conflict of Interest and Ethics Commissioner registry', 'pending data'],
     ['Lobbying activity', 'Registry of Lobbyists (open data)', 'live'],
     ['Members’ expenditures', 'House of Commons proactive disclosure', 'live'],
     ['Riding demographics', 'Statistics Canada census profiles', 'live'],

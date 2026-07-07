@@ -54,6 +54,12 @@ npm run dev
   data: yearly trend, most frequent clients, latest reports. Amended reports
   deduplicated; artifact rebuilt from the monthly export by
   `scripts/build-lobbying.mjs`.
+- **Ethics & personal finances** — each member's public declarations (disclosure
+  summaries, sponsored travel, gifts, material changes) from the Ethics
+  Commissioner's public registry. The registry has no bulk export, so
+  `scripts/build-ethics.mjs` scrapes the public search pages into a committed
+  snapshot; until its first run the card deep-links to a registry search for
+  the member instead.
 - **Office & travel spending** — the member's quarterly expenditures (salaries,
   travel, hospitality, contracts) from the House of Commons proactive-disclosure
   CSVs, with a spending trend, category bars per quarter, and the House median
@@ -98,7 +104,7 @@ request after a quiet spell can take ~a minute to wake up.
 | Election results & margin trend | Elections Canada official results (table 12 CSVs) | ✅ live |
 | Campaign finance | [Elections Canada political financing open data](https://www.elections.ca/content.aspx?section=fin&dir=oda&document=index&lang=e) (audited contributions) | ✅ live |
 | Riding-association fundraising | Same contributions dump, EDA slice (annual returns) | ✅ live |
-| Personal finances / ethics | [Conflict of Interest & Ethics Commissioner registry](https://ciec-ccie.parl.gc.ca/) | 🔜 planned |
+| Personal finances / ethics | [Conflict of Interest & Ethics Commissioner registry](https://ciec-ccie.parl.gc.ca/en/public-registry) | 🚧 card live, snapshot pending |
 | Lobbying ("who's calling") | [Registry of Lobbyists](https://lobbycanada.gc.ca/) open data | ✅ live |
 | MRA spending → Members' expenditures | [House proactive disclosure](https://www.ourcommons.ca/proactivedisclosure/en/members) (quarterly CSV) | ✅ live |
 | District demographics | StatCan census profiles by federal electoral district | ✅ live |
