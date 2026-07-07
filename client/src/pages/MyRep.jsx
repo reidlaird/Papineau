@@ -21,8 +21,8 @@ const SUGGESTIONS = [
 ];
 
 const BALLOT = {
-  Yes: { label: '✓ Yea', cls: 'b-yes' },
-  No: { label: '✗ Nay', cls: 'b-no' },
+  Yes: { label: 'Yea', cls: 'b-yes' },
+  No: { label: 'Nay', cls: 'b-no' },
   Paired: { label: 'Paired', cls: 'b-other' },
   "Didn't vote": { label: '—', cls: 'b-other', title: 'Didn’t vote' },
 };

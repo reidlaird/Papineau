@@ -24,7 +24,8 @@ function ElectionBlock({ e }) {
             className="result-name"
             title={c.incumbent ? `${c.name} — sitting member at dissolution` : c.name}
           >
-            {c.elected ? <b>✓ {c.name}</b> : c.name}
+            {c.elected ? <b>{c.name}</b> : c.name}
+            {c.elected && <span className="elected-mark" aria-label="elected" />}
             <span className="result-party"> · {c.party}</span>
           </div>
           <div className="result-track">
@@ -331,7 +332,7 @@ function WarChestCard({ riding, eda }) {
                           className="margin-fill"
                           style={{
                             height: `${Math.max((y.total / maxTotal) * 100, 5)}%`,
-                            background: 'var(--indigo-500)',
+                            background: 'var(--brand-soft)',
                             display: 'block',
                           }}
                         />
@@ -445,7 +446,7 @@ function ExpendituresCard({ mpName, exp }) {
                           className="margin-fill"
                           style={{
                             height: `${Math.max((r.mine.total / maxTotal) * 100, 5)}%`,
-                            background: 'var(--indigo-500)',
+                            background: 'var(--brand-soft)',
                             display: 'block',
                           }}
                         />
@@ -475,7 +476,7 @@ function ExpendituresCard({ mpName, exp }) {
                         width: `${
                           r.mine.total > 0 ? (Math.max(r.mine[k], 0) / r.mine.total) * 100 : 0
                         }%`,
-                        background: 'var(--indigo-500)',
+                        background: 'var(--brand-soft)',
                         display: 'block',
                       }}
                     />
@@ -554,7 +555,7 @@ function LobbyingCard({ mpName, lobby }) {
                       className="margin-fill"
                       style={{
                         height: `${Math.max((l.byYear[y] / maxYear) * 100, 5)}%`,
-                        background: 'var(--indigo-500)',
+                        background: 'var(--brand-soft)',
                         display: 'block',
                       }}
                     />
@@ -577,7 +578,7 @@ function LobbyingCard({ mpName, lobby }) {
                       className="result-fill"
                       style={{
                         width: `${(c.n / maxClient) * 100}%`,
-                        background: 'var(--indigo-500)',
+                        background: 'var(--brand-soft)',
                         display: 'block',
                       }}
                     />

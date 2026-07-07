@@ -33,6 +33,27 @@ const Icon = ({ children }) => (
   </svg>
 );
 
+// Brand mark — a steaming teacup drawn in the same stroke language as the nav
+// icons, so it renders identically everywhere (no emoji font roulette).
+const BrandMark = () => (
+  <svg
+    viewBox="0 0 22 22"
+    width="19"
+    height="19"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M3.5 9.5h11v3.4a4.4 4.4 0 0 1-4.4 4.4H7.9a4.4 4.4 0 0 1-4.4-4.4z" />
+    <path d="M14.5 10.6h1.6a2.3 2.3 0 0 1 0 4.6h-1.9" />
+    <path d="M4.6 20h11.8" />
+    <path d="M7.1 2.6c-.7.9.7 1.7 0 2.6M11 2.6c-.7.9.7 1.7 0 2.6" />
+  </svg>
+);
+
 const icons = {
   members: (
     <Icon>
@@ -105,7 +126,9 @@ export default function Sidebar() {
     <aside className={'sidebar' + (open ? ' sidebar-open' : '')}>
       <div className="sidebar-top">
         <div className="brand">
-          <span className="brand-icon">🍵</span>
+          <span className="brand-icon">
+            <BrandMark />
+          </span>
           <span className="brand-name">HonesTea</span>
         </div>
         <button
