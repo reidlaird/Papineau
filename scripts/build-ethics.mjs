@@ -103,7 +103,8 @@ const decodeEntities = (s) =>
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;|&apos;|&rsquo;/g, '’')
     .replace(/&nbsp;/g, ' ')
-    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n));
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)));
 
 const stripTags = (s) => decodeEntities(String(s).replace(/<[^>]*>/g, ' ')).replace(/\s+/g, ' ').trim();
 
@@ -233,7 +234,9 @@ function rowsFromDetailLinks(html) {
   const linkRe =
     /<a[^>]+href="([^"]*(?:DeclarationID=[0-9a-f-]{36}|\/public-registry\/[^"]+|\/declaration[^"]*))"[^>]*>([\s\S]*?)<\/a>/gi;
   const hits = [...html.matchAll(linkRe)].filter(
-    (m) => !/page=|sortBy=|searchTerm=/.test(m[1]) // pagination/sort links reuse the path
+    (m) =>
+      !/page=|sortBy=|searchTerm=/.test(m[1]) && // pagination/sort links reuse the path
+      !/\.pdf(?:[?#]|$)/i.test(m[1]) // "View attachment" PDF links live under /Declarations/…
   );
   if (hits.length < 5) return null;
   // A row's fields render either after its link or before it, depending on
@@ -256,12 +259,20 @@ function rowsFromDetailLinks(html) {
   const rows = [];
   for (let i = 0; i < hits.length; i++) {
     const m = hits[i];
-    const chunk = stripTags(seg(i));
-    const dateM = DATE_RE.exec(chunk);
+    const rawSeg = seg(i);
+    const chunk = stripTags(rawSeg);
+    // Prefer the card footer's disclosure date — free-text fields (a gift's
+    // "Nature") can contain earlier dates that DATE_RE would match first.
+    const disclosedM = /Disclosed on\s+(20\d{2}-\d{2}-\d{2})/i.exec(chunk);
+    const dateM = disclosedM || DATE_RE.exec(chunk);
     const type = TYPE_LABELS.find((t) => chunk.toLowerCase().includes(t.toLowerCase())) || '';
     const linkText = stripTags(m[2]);
-    // The declarant name is the link text itself when it reads like a
-    // person; otherwise the first name-like phrase in the row's segment.
+    // The declarant has a dedicated profile anchor in each card
+    // (/en/client?clientId=<guid>) — by far the most reliable name source.
+    const clientM = /<a[^>]+href="[^"]*client\?clientId=[^"]*"[^>]*>([\s\S]*?)<\/a>/i.exec(rawSeg);
+    const clientName = clientM ? cleanName(stripTags(clientM[1])) : '';
+    // Fallbacks: the link text itself when it reads like a person; otherwise
+    // the first name-like phrase in the row's segment.
     const asName = cleanName(linkText);
     const looksLikeName =
       /^[A-ZÀ-Þ][^\d]{2,60}$/.test(asName) &&
@@ -269,7 +280,7 @@ function rowsFromDetailLinks(html) {
       asName.split(' ').length <= 6 &&
       !NOT_NAME.test(asName);
     rows.push({
-      name: looksLikeName ? asName : nameFromText(chunk),
+      name: clientName || (looksLikeName ? asName : nameFromText(chunk)),
       role: /member of the house of commons/i.test(chunk) ? 'Member of the House of Commons' : '',
       type,
       title: linkText,
