@@ -1,5 +1,37 @@
 # HANDOFF
 
+## ▶ RESUME HERE (2026-07-07) — "ethics artifact first run" (needs Reid's machine)
+
+PR #7 (ethics feature) is **merged**, but the data artifact was deliberately
+not built — the cloud session's network policy blocked all of parl.gc.ca.
+Everything below runs fine locally (plain Node, no deps). To hand this to a
+Claude session, say: **"resume the 'ethics artifact first run' item at the
+top of HANDOFF.md"** — a local session has the network access this needs; a
+cloud session only works if its environment allows parl.gc.ca.
+
+1. `git pull` on `main`.
+2. `node scripts/build-ethics.mjs --probe` → writes
+   `data/ethics/probe-page1.html` and prints: advertised result count, which
+   of the three extraction strategies fired, 5 sample rows, and any `/api/…`
+   paths found in the page source (if one looks like a JSON API, prefer
+   rewriting the fetch loop against it over markup scraping).
+3. `node scripts/build-ethics.mjs` — full build, ~280 pages at 400 ms
+   politeness (~3 min). Sanity gates refuse to write if names/dates/coverage
+   look wrong; if they trip, adjust `extractRows()` using the probe dump
+   (all research + gotchas are in the script header).
+4. Face-validity: pick 2 members, compare the card's counts against a manual
+   `ciec-ccie.parl.gc.ca/en/public-registry?searchTerm=<name>` search
+   (a minister with many Act declarations + a backbencher with few).
+5. Commit `data/ethics/mp-declarations.json.gz`, flip statuses to live:
+   About.jsx row `'pending data'` → `'live'`, README map row
+   `🚧 card live, snapshot pending` → `✅ live`.
+6. Push, then **Render Manual Deploy** (the merge added `/api/ethics` — a
+   server change; Vercel picks the client up on its own), then prod-verify
+   the `#ethics` card on any MP profile.
+
+Re-run occasionally (registry updates continuously; snapshot-only — see the
+feature entry below for why departed members vanish from it).
+
 ## 2026-07-07 — Ethics / personal finances (last data-source-map feature)
 
 **What happened:** The final 🔜 row of the data source map shipped as code:
