@@ -104,7 +104,7 @@ request after a quiet spell can take ~a minute to wake up.
 | Election results & margin trend | Elections Canada official results (table 12 CSVs) | ✅ live |
 | Campaign finance | [Elections Canada political financing open data](https://www.elections.ca/content.aspx?section=fin&dir=oda&document=index&lang=e) (audited contributions) | ✅ live |
 | Riding-association fundraising | Same contributions dump, EDA slice (annual returns) | ✅ live |
-| Personal finances / ethics | [Conflict of Interest & Ethics Commissioner registry](https://ciec-ccie.parl.gc.ca/en/public-registry) | 🚧 card live, snapshot pending |
+| Personal finances / ethics | [Conflict of Interest & Ethics Commissioner registry](https://ciec-ccie.parl.gc.ca/en/public-registry) | ✅ live |
 | Lobbying ("who's calling") | [Registry of Lobbyists](https://lobbycanada.gc.ca/) open data | ✅ live |
 | MRA spending → Members' expenditures | [House proactive disclosure](https://www.ourcommons.ca/proactivedisclosure/en/members) (quarterly CSV) | ✅ live |
 | District demographics | StatCan census profiles by federal electoral district | ✅ live |
