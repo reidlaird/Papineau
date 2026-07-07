@@ -453,6 +453,17 @@ const getLobbyData = memoAsync(async () =>
   JSON.parse(zlib.gunzipSync(await fs.promises.readFile(LOBBY_PATH)).toString('utf8'))
 );
 
+// Ethics declarations from the Conflict of Interest and Ethics Commissioner's
+// public registry, keyed by normalized declarant name. The registry has no
+// bulk export, so scripts/build-ethics.mjs scrapes the public search pages;
+// until its first successful run the artifact simply doesn't exist and the
+// route answers pending: true (the card shows a registry deep link instead).
+const ETHICS_PATH = path.join(ROOT, 'data', 'ethics', 'mp-declarations.json.gz');
+
+const getEthicsData = memoAsync(async () =>
+  JSON.parse(zlib.gunzipSync(await fs.promises.readFile(ETHICS_PATH)).toString('utf8'))
+);
+
 // Find the profile MP among a riding's campaigns. Exact normalized match
 // first; middle names/initials differ between EC and openparliament, so fall
 // back to same last name + compatible first token.
@@ -804,6 +815,30 @@ app.get('/api/lobbying', async (req, res) => {
     const lobbying =
       data.dpoh[norm(mp)] || matchCampaign(Object.values(data.dpoh), mp) || null;
     res.json({ mp, built: data.built, lobbying });
+  } catch (e) {
+    res.status(502).json({ error: String(e.message || e) });
+  }
+});
+
+// Ethics declarations naming this member as the declarant — disclosure
+// summaries, sponsored travel, gifts and material changes from the public
+// registry snapshot. Same name matching as lobbying; a missing artifact is a
+// pending integration, not an error (the registry has no bulk export and the
+// scrape may not have landed yet).
+app.get('/api/ethics', async (req, res) => {
+  try {
+    const mp = String(req.query.mp || '').slice(0, 200).trim();
+    if (!mp) return res.status(400).json({ error: 'mp required' });
+    let data;
+    try {
+      data = await getEthicsData();
+    } catch (e) {
+      if (e.code === 'ENOENT') return res.json({ mp, pending: true, ethics: null });
+      throw e;
+    }
+    const ethics =
+      data.members[norm(mp)] || matchCampaign(Object.values(data.members), mp) || null;
+    res.json({ mp, built: data.built, ethics });
   } catch (e) {
     res.status(502).json({ error: String(e.message || e) });
   }

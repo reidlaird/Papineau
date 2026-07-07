@@ -1,5 +1,61 @@
 # HANDOFF
 
+## 2026-07-07 — Ethics / personal finances (last data-source-map feature)
+
+**What happened:** The final 🔜 row of the data source map shipped as code:
+**"Ethics & personal finances" card (#ethics)** on MP profiles, fed by the
+Ethics Commissioner's public registry via the offline-artifact pattern
+(`scripts/build-ethics.mjs` → `data/ethics/mp-declarations.json.gz` →
+`/api/ethics?mp=` → EthicsCard). Branch
+`claude/personal-finances-ethics-pfxo03`, PR opened.
+
+**⚠ The artifact is NOT committed yet — this session couldn't reach the
+registry at all.** The sandbox's egress policy 403'd every parl.gc.ca /
+elections.ca / openparliament host (only GitHub + package registries were
+allowed; even WebFetch was blocked). So, deliberately:
+- `/api/ethics` answers `{ pending: true }` while the artifact file is absent,
+  and the card renders a useful pending state: a deep link to
+  `ciec-ccie.parl.gc.ca/en/public-registry?searchTerm=<member name>` (that
+  query param is real — see below). Prod can ship this safely today.
+- **Next session with network (or Reid locally):** run
+  `node scripts/build-ethics.mjs --probe`, eyeball
+  `data/ethics/probe-page1.html`, adjust `extractRows()` if needed, then the
+  full build + commit the artifact. The script refuses to write garbage
+  (sanity gates on name/date coverage and row count vs the advertised total).
+
+**Scraping research (via search-engine snippets only — encode-worthy):**
+- The registry has NO bulk export. The current front end is
+  `https://ciec-ccie.parl.gc.ca/en/public-registry` with plain query params:
+  `page`, `searchTerm`, `declarationType=<guid>`, `declarationReportType`,
+  `affiliationRole`, `declarationStatus`, `disclosureFrom/To`,
+  `sortBy=declarationDisclosureDate`, `sortDir`. ~8,398 declarations / 280
+  pages (30/page) as of 2026-07. Type-filter GUIDs are Dataverse-style and
+  unknown — the script fetches unfiltered and reads type labels off the rows.
+- The legacy SharePoint host still serves declaration details:
+  `prciec-rpccie.parl.gc.ca/EN/PublicRegistries/Pages/Declaration.aspx?DeclarationID=<guid>`
+  (+ PDF attachments under `/Lists/Declarations/`). Row links may point there.
+- Registry lists CURRENT members/office holders only — departed people are
+  removed, so the artifact is a snapshot, and card copy says so.
+- The parser has three strategies (embedded JSON state → detail-link
+  segmentation → table rows); all were unit-tested against synthetic HTML in
+  both fields-before-link and fields-after-link directions (a fixed-width
+  context window bled neighbouring rows' names/dates — segmentation is
+  strictly link-to-link now). `--probe` also dumps any `/api/...` paths seen
+  in the page source in case the front end has a JSON API worth using instead.
+
+**Verified this session (fixture artifact + seeded openparliament cache +
+Playwright on the bundled Chromium):** pending state, populated card (headline
+count, by-type bars, latest-declarations links), exact + first/last fallback
+name match (`Elizabeth May` ↔ artifact `Elizabeth E. May`), no-match copy,
+`mp required` 400, and ENOENT→pending→artifact-appears recovery without a
+restart. `npm run build` clean. Stale "integration planned" tags removed from
+the profile's Public-records links (lobbying was long live); ethics About row
+now "pending data".
+
+**After artifact lands:** flip About row + README to live, Render Manual
+Deploy (server change!), prod verify. Remaining roadmap after that: French
+toggle (needs Reid's product calls), in-app vote/bill pages.
+
 ## 2026-07-06 (overnight loop, ~02:00) — Turnout on election blocks
 
 Small one: each election block's meta line now shows **turnout % and electors**

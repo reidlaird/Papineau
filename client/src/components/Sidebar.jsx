@@ -11,6 +11,7 @@ const memberAnchors = [
   { hash: '#expenditures', label: 'Spending' },
   { hash: '#district', label: 'District' },
   { hash: '#lobbying', label: 'Lobbying' },
+  { hash: '#ethics', label: 'Ethics' },
   { hash: '#career', label: 'Career' },
   { hash: '#sources', label: 'Public records' },
 ];
